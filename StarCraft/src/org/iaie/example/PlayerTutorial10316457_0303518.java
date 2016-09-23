@@ -48,40 +48,28 @@ import org.iaie.Agent;
 import org.iaie.tools.Options;
 
 /**
- * Ejemplo de cliente IA que utiliza JNI-BWAPI.
+ * Cliente de IA que utiliza JNI-BWAPI.
  * 
- * Este agente utiliza información perfecta.
- * Este es un agente experimental para el aprendizaje del funcionamiento básico
- * de JNI-BWAPI en la asignatura Inteligencia Artificial en la Industria del 
- * Entretenimiento.
+ * Creado por:
+ * - Adrian Rodriguez Grillo: 100316457
+ * - Paula Ruiz-Olivares de la Calle: 100303518
  * 
- * Nota: Este agente a menudo se queda bloqueado y no realiza todas las acciones 
- * que han sido programadas. Se recomiendo utilizar escenarios en los cuales exista 
- * el mayor espacio libre alrededor de los overlords.
+ * Clase Terran
  */
-public class ExampleAIClient extends Agent implements BWAPIEventListener {
+public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventListener {
 	
     /** Esta variable se usa para almacenar aquellos depositos de minerales 
      *  que han sido seleccionados para ser explotados por las unidades 
      *  recolectoras. */
     private final HashSet<Unit> claimedMinerals = new HashSet<>();
 
-    /** Esta variable se utiliza la generación de drones */
-    private boolean morphedDrone;
-
-    /** Esta variable se utiliza como contenedor temporal para selecionar
-     *  una unidad que va ser transformada en una piscina de drones.*/
-    private Unit poolDrone;
-
     /** Esta variable se utiliza para comprobar cuando debe ser generada un 
      *  nuevo overlord con el fin de poder entrenar otras unidades.*/
     private int supplyCap;
-    
-    public int contador = 0;
 
-    public ExampleAIClient() {            
+    public PlayerTutorial10316457_0303518() {            
 
-        // Generación del objeto de tipo agente
+        // Generacion del objeto de tipo agente
 
         // Creación de la superclase Agent de la que extiende el agente, en este método se cargan            
         // ciertas variables de de control referentes a los parámetros que han sido introducidos 
@@ -134,9 +122,6 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
         // Se establece el contador de objetos a cero y se eliminan todas las
         // referencias previas a los objetos anteriormente añadidos.
         claimedMinerals.clear();
-        // Se establecen los valores por defecto de las variables de control.
-        morphedDrone = false;
-        poolDrone = null;
         supplyCap = 0;
     }
 
@@ -180,8 +165,46 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
 
         // Mediante este método se 
         this.bwapi.getMap().drawTerrainData(bwapi);
-
-        // Proceso para engendrar un drone
+        
+        // Proceso de generación de overlords
+        // Se comprueba si el número de unidades generadas (getSupplyUsed) es mayor que el
+        // número de unidades disponibles (getSupplyTotal) y si el número de unidades 
+        // disponibles es mayor que el valor de la variable supplyCap. 
+        if (bwapi.getSelf().getSupplyUsed() + 2 >= bwapi.getSelf().getSupplyTotal()
+                        && bwapi.getSelf().getSupplyTotal() > supplyCap) {
+            // Se comprueba si el número de minerales disponibles es 
+            // mayor o igual a 100.
+            if (bwapi.getSelf().getMinerals() >= 100) {
+                for (Unit larva : bwapi.getMyUnits()) {
+                    // Se comprueba si la unidades es de tipo larba.
+                    if (larva.getType() == UnitTypes.Zerg_Larva) {
+                        // Se transforma la unidades de tipo larva en un overlord.
+                        larva.morph(UnitTypes.Zerg_Overlord);
+                        // Se asigna un nuevo valor a la variable supplyCap
+                        supplyCap = bwapi.getSelf().getSupplyTotal();
+                    }
+                }
+            }
+        }
+        // Proceso de generación de zerglings
+        // Se comprueba si el número de minerales disponibles es 
+        // mayor o igual a 50.
+        else if (bwapi.getSelf().getMinerals() >= 50) {
+            for (Unit unit : bwapi.getMyUnits()) {
+                // Se compruba si existe alguna piscina de drones y si está ha sido completada
+                if (unit.getType() == UnitTypes.Zerg_Spawning_Pool && unit.isCompleted()) {
+                    for (Unit larva : bwapi.getMyUnits()) {
+                        // Se comprueba si la unidad es de tipo larva
+                        if (larva.getType() == UnitTypes.Zerg_Larva) {
+                            // Se Transforma la larva en un zergling.
+                            larva.morph(UnitTypes.Zerg_Zergling);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /* Proceso para engendrar un drone
         for (Unit unit : this.bwapi.getMyUnits()) {
             // Se comprueba para cada unidad del jugador que está siendo 
             // controlado si este de tipo lava. 
@@ -194,9 +217,9 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
                     this.morphedDrone = true;
                 }
             }
-        }
+        }*/
 
-        // Proceso para la recolección de minerales
+        /* Proceso para la recolección de minerales
         for (Unit unit : this.bwapi.getMyUnits()) {
             // Se comprueba para cada unidad del jugador que está siendo 
             // controlado si este de tipo drone
@@ -304,20 +327,13 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
                     break;
                 }
             }
-        }
+        }*/
     }
 
     @Override
     public void keyPressed(int keyCode) {}
     @Override
-    public void matchEnd(boolean winner) {
-    	if (winner == true){
-    		System.out.println("Has ganado");
-    	}
-    	else{
-    		System.out.println("has perdio");
-    	}
-    }
+    public void matchEnd(boolean winner) {}
     @Override
     public void sendText(String text) {}
     @Override
@@ -329,19 +345,7 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
     @Override
     public void playerLeft(int playerID) {}
     @Override
-    public void unitCreate(int unitID) {
-    	Unit a = bwapi.getUnit(unitID);
-    	for (Unit b : bwapi.getMyUnits()){
-    		if (a == b){
-    			contador++;
-    			System.out.println("Se crea una unidad de las mias. Ya van: " + contador);
-    		}
-    		else{
-    			System.out.println("No es de la mias");
-    		}
-    	}
-    	
-    }
+    public void unitCreate(int unitID) {}
     @Override
     public void unitDestroy(int unitID) {}
     @Override
@@ -359,17 +363,7 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
     @Override
     public void saveGame(String gameName) {}
     @Override
-    public void unitComplete(int unitID) {
-    	Unit a = bwapi.getUnit(unitID);
-    	for (Unit b : bwapi.getMyUnits()){
-    		if (a == b){
-    			System.out.println("Se completa una unidad de las mias" + a.getType());
-    		}
-    		else{
-    			System.out.println("No se completa nada mio");
-    		}
-    	}
-    }
+    public void unitComplete(int unitID) {}
     @Override
     public void playerDropped(int playerID) {}
 }

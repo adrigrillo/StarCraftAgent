@@ -31,3 +31,11 @@ Para build existen tres elementos claves, necesarios para que el agente no se qu
 Esto hace saber si la unidad seleccionada es nuestra
 Unit u = this.bwapi.getUnit(ID)
 if(u.getPlayer().getID() == this.bwapi.getSelf().getID())
+
+#### MatchEnd()
+
+Este método se ejecuta con el final de la partida y recibe como argumento el resultado de la misma, que es 'true' si la partida ha resultado en victoria y 'false' si no ha sido así.
+
+Se puede utilizar para escribir por consola estadísticas de la partida que no pueden comprobarse en el resumen general de la partida que ofrece el juego.
+
+#### 
