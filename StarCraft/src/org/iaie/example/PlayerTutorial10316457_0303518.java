@@ -166,7 +166,28 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         // Mediante este método se 
         this.bwapi.getMap().drawTerrainData(bwapi);
         
-        // Proceso de generación de overlords
+        /* Metodo para localizar los scv disponibles
+        for (Unit myUnit : this.bwapi.getMyUnits()){
+        	//print TilePosition and Position of my SCVs
+        	if (myUnit.getType() == UnitTypes.Terran_SCV) {
+        		this.bwapi.drawText(new Position(0, 20), "TilePos: " + myUnit.getTilePosition().toString()+" Pos: " + myUnit.getPosition().toString(), true);
+        	}                   
+        }*/        
+        System.out.println(UnitTypes.Terran_SCV.getSupplyRequired());
+        // Metodo para crear constructores 'Terran_CSV'
+        if (bwapi.getSelf().getMinerals() >= 50) {
+            for (Unit unit : bwapi.getMyUnits()) {
+                // Se compruba si existe alguna centro de control y si esta construido
+                if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
+                	System.out.println("Centro de control disponible en" + unit.getBuildType() + " " + unit.getTilePosition());
+                    if (bwapi.getSelf().getSupplyTotal() >= (bwapi.getSelf().getSupplyUsed() + UnitTypes.Terran_SCV.getSupplyRequired())){
+                    	unit.train(UnitTypes.Terran_SCV);
+                    }
+                }
+            }
+        }
+        
+        /*// Proceso de generación de overlords
         // Se comprueba si el número de unidades generadas (getSupplyUsed) es mayor que el
         // número de unidades disponibles (getSupplyTotal) y si el número de unidades 
         // disponibles es mayor que el valor de la variable supplyCap. 
