@@ -333,14 +333,9 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
     	Unit a = bwapi.getUnit(unitID);
     	for (Unit b : bwapi.getMyUnits()){
     		if (a == b){
-    			contador++;
-    			System.out.println("Se crea una unidad de las mias. Ya van: " + contador);
-    		}
-    		else{
-    			System.out.println("No es de la mias");
+    			System.out.println("Se crea una unidad de las mias. --> " + bwapi.getUnit(unitID).getType());
     		}
     	}
-    	
     }
     @Override
     public void unitDestroy(int unitID) {}
@@ -363,10 +358,7 @@ public class ExampleAIClient extends Agent implements BWAPIEventListener {
     	Unit a = bwapi.getUnit(unitID);
     	for (Unit b : bwapi.getMyUnits()){
     		if (a == b){
-    			System.out.println("Se completa una unidad de las mias" + a.getType());
-    		}
-    		else{
-    			System.out.println("No se completa nada mio");
+    			System.out.println("Se completa una unidad de las mias. --> " + bwapi.getUnit(unitID).getType());
     		}
     	}
     }

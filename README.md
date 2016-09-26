@@ -55,3 +55,8 @@ Para saber los soldados creados: real = res/2
 Para saber el costo de la creacion de una unidad
 
     UnitTypes.UnidadDeseada.getSupplyRequired()
+
+Cuando una unidad está recogiendo vespeno de la refineria sus actividades son dos:
+*   HarvestGas
+*   MoveToGas
+*   ReturnGas

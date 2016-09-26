@@ -37,6 +37,7 @@ import java.util.HashSet;
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
+import jnibwapi.Position.PosType;
 import jnibwapi.Unit;
 import jnibwapi.types.TechType;
 import jnibwapi.types.TechType.TechTypes;
@@ -46,6 +47,8 @@ import jnibwapi.types.UpgradeType;
 import jnibwapi.types.UpgradeType.UpgradeTypes;
 import org.iaie.Agent;
 import org.iaie.tools.Options;
+
+import jdk.nashorn.internal.objects.annotations.Function;
 
 /**
  * Cliente de IA que utiliza JNI-BWAPI.
@@ -66,6 +69,10 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
     /** Esta variable se utiliza para comprobar cuando debe ser generada un 
      *  nuevo overlord con el fin de poder entrenar otras unidades.*/
     private int supplyCap;
+    
+    /** Variable para que no haya m�s de dos personas en la refineria
+     */
+    int uRef = 0;
 
     public PlayerTutorial10316457_0303518() {            
 
@@ -133,8 +140,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
 
         String msg = "=";
 
-        // Mediante este bucle se comprueba si el jugador está investigando
-        // algún tipo de tecnología y lo muestra por pantalla
+        /* Comprobaci�n de las investigaciones */
         for (TechType t : TechTypes.getAllTechTypes()) {
             if (this.bwapi.getSelf().isResearching(t)) {
                 msg += "Investigando " + t.getName() + "=";
@@ -149,8 +155,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
             }
         }
 
-        // Mediante este bucle se comprueba si se está realizando una actualización
-        // sobre algún tipo de unidad. 
+        /* Comprobacion de actualizaciones sobre las unidades */
         for (UpgradeType t : UpgradeTypes.getAllUpgradeTypes()) {
             if (this.bwapi.getSelf().isUpgrading(t)) {
                 msg += "Actualizando " + t.getName() + "=";
@@ -162,8 +167,6 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         }
 
         this.bwapi.drawText(new Position(0, 20), msg, true);
-
-        // Mediante este método se 
         this.bwapi.getMap().drawTerrainData(bwapi);
         
         /* Metodo para localizar los scv disponibles
@@ -172,185 +175,122 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         	if (myUnit.getType() == UnitTypes.Terran_SCV) {
         		this.bwapi.drawText(new Position(0, 20), "TilePos: " + myUnit.getTilePosition().toString()+" Pos: " + myUnit.getPosition().toString(), true);
         	}                   
-        }*/        
-        System.out.println(UnitTypes.Terran_SCV.getSupplyRequired());
-        // Metodo para crear constructores 'Terran_CSV'
-        if (bwapi.getSelf().getMinerals() >= 50) {
+        }*/
+        
+        /* Proceso para recoger minerales */
+        for (Unit unit : this.bwapi.getMyUnits()) {
+            if (unit.getType() == UnitTypes.Terran_SCV && unit.isIdle()) {
+                // Se comprueban para todas las unidades de tipo neutral, aquella
+                // que no pertenencen a ningun jugador. 
+                for (Unit minerals : this.bwapi.getNeutralUnits()) {
+                    // Se comprueba si la unidad es un deposito de minerales y si es
+                    // no ha sido seleccionada previamente.                                 
+                    if (minerals.getType().isMineralField()) {                                    
+                        // Se calcula la distancia entre la unidad y el deposito de minerales
+                        double distance = unit.getDistance(minerals);
+                        // Se comprueba si la distancia entre la unidad 
+                        // y el deposito de minerales es menor a 300.
+                        if (distance < 300) {
+                            // Se ejecuta el comando para enviar a la unidad a recolertar
+                            // minerales del deposito seleccionado.
+                            unit.rightClick(minerals, false);
+                            // Se añade el deposito a la lista de depositos en uso.
+                            this.claimedMinerals.add(minerals);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        /* Metodo para crear dos constructores 'Terran_CSV' */
+        if (bwapi.getSelf().getMinerals() >= 50 && bwapi.getSelf().getSupplyUsed() <= 12) {
             for (Unit unit : bwapi.getMyUnits()) {
                 // Se compruba si existe alguna centro de control y si esta construido
                 if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
-                	System.out.println("Centro de control disponible en" + unit.getBuildType() + " " + unit.getTilePosition());
                     if (bwapi.getSelf().getSupplyTotal() >= (bwapi.getSelf().getSupplyUsed() + UnitTypes.Terran_SCV.getSupplyRequired())){
-                    	unit.train(UnitTypes.Terran_SCV);
+                    	crearUnidad(unit.getID(), UnitTypes.Terran_SCV);
                     }
                 }
             }
         }
         
-        /*// Proceso de generación de overlords
-        // Se comprueba si el número de unidades generadas (getSupplyUsed) es mayor que el
-        // número de unidades disponibles (getSupplyTotal) y si el número de unidades 
-        // disponibles es mayor que el valor de la variable supplyCap. 
-        if (bwapi.getSelf().getSupplyUsed() + 2 >= bwapi.getSelf().getSupplyTotal()
-                        && bwapi.getSelf().getSupplyTotal() > supplyCap) {
-            // Se comprueba si el número de minerales disponibles es 
-            // mayor o igual a 100.
-            if (bwapi.getSelf().getMinerals() >= 100) {
-                for (Unit larva : bwapi.getMyUnits()) {
-                    // Se comprueba si la unidades es de tipo larba.
-                    if (larva.getType() == UnitTypes.Zerg_Larva) {
-                        // Se transforma la unidades de tipo larva en un overlord.
-                        larva.morph(UnitTypes.Zerg_Overlord);
-                        // Se asigna un nuevo valor a la variable supplyCap
-                        supplyCap = bwapi.getSelf().getSupplyTotal();
-                    }
-                }
-            }
-        }
-        // Proceso de generación de zerglings
-        // Se comprueba si el número de minerales disponibles es 
-        // mayor o igual a 50.
-        else if (bwapi.getSelf().getMinerals() >= 50) {
-            for (Unit unit : bwapi.getMyUnits()) {
-                // Se compruba si existe alguna piscina de drones y si está ha sido completada
-                if (unit.getType() == UnitTypes.Zerg_Spawning_Pool && unit.isCompleted()) {
-                    for (Unit larva : bwapi.getMyUnits()) {
-                        // Se comprueba si la unidad es de tipo larva
-                        if (larva.getType() == UnitTypes.Zerg_Larva) {
-                            // Se Transforma la larva en un zergling.
-                            larva.morph(UnitTypes.Zerg_Zergling);
-                        }
-                    }
-                }
-            }
-        }
         
-        /* Proceso para engendrar un drone
-        for (Unit unit : this.bwapi.getMyUnits()) {
-            // Se comprueba para cada unidad del jugador que está siendo 
-            // controlado si este de tipo lava. 
-            if (unit.getType() == UnitTypes.Zerg_Larva) {
-                // Se comprueba si el número de minerales es superios a 50 unidades
-                // y si no se ha engendrado ningún dron.
-                if (this.bwapi.getSelf().getMinerals() >= 50 && !this.morphedDrone) {                            
-                    // Mediante este método se metamorfosea una unidad de tipo larva a drone
-                    unit.morph(UnitTypes.Zerg_Drone);
-                    this.morphedDrone = true;
+        /* Proceso para la creaci�n de la refineria */
+        if(bwapi.getSelf().getMinerals() >= 100){
+        	Unit constructor = null;
+        	for (Unit unit : this.bwapi.getMyUnits()) {
+        		constructor = unit;
+        	}
+            if (constructor != null && constructor.getType() == UnitTypes.Terran_SCV) {
+                // Comprobamos que es una unidad neutral
+                for (Unit vespeno : this.bwapi.getNeutralUnits()){
+                	// Comprobamos que es un geyser de vespeno
+                	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
+                		// Cogemos la posicion del vespeno para construir el edificio encima
+                		Position pos = vespeno.getTilePosition();
+                		crearEdificio(constructor.getID(), UnitTypes.Terran_Refinery, pos);
+                		break;
+                	}
                 }
             }
-        }*/
-
-        /* Proceso para la recolección de minerales
-        for (Unit unit : this.bwapi.getMyUnits()) {
-            // Se comprueba para cada unidad del jugador que está siendo 
-            // controlado si este de tipo drone
-            if (unit.getType() == UnitTypes.Zerg_Drone) {
-                // Se comprueba si la unidad no está realizando ninguna tarea (isIdle)
-                // y si es de tipo poolDrone
-                if (unit.isIdle() && unit != this.poolDrone) {
-                    // Se comprueban para todas las unidades de tipo neutral, aquella
-                    // que no pertenencen a ningun jugador. 
-                    for (Unit minerals : this.bwapi.getNeutralUnits()) {
-                        // Se comprueba si la unidad es un deposito de minerales y si es
-                        // no ha sido seleccionada previamente.                                 
-                        if (minerals.getType().isMineralField() && !this.claimedMinerals.contains(minerals)) {                                    
-                            // Se calcula la distancia entre la unidad y el deposito de minerales
-                            double distance = unit.getDistance(minerals);                                    
-                            // Se comprueba si la distancia entre la unidad 
-                            // y el deposito de minerales es menor a 300.
-                            if (distance < 300) {
-                                // Se ejecuta el comando para enviar a la unidad a recolertar
-                                // minerales del deposito seleccionado.
-                                unit.rightClick(minerals, false);
-                                // Se añade el deposito a la lista de depositos en uso.
-                                this.claimedMinerals.add(minerals);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        }  
+        
+        if (uRef < 2){
+	        for (Unit refineria : this.bwapi.getMyUnits()) {
+	            if (refineria.getType() == UnitTypes.Terran_Refinery) {
+	            	if (refineria.isCompleted()){
+	            		Unit recolector = null;
+	                	for (Unit unit : this.bwapi.getMyUnits()) {
+	                		if (!unit.getOrder().getName().equals("ReturnGas") && !unit.getOrder().getName().equals("HarvestGas") && !unit.getOrder().getName().equals("MoveToGas")){
+	                			recolector = unit;
+	                			uRef = 2;
+	                			break;
+	                		}
+	                	}
+	                    if (recolector != null && recolector.getType() == UnitTypes.Terran_SCV) {
+	                    	recolector.rightClick(refineria, false);
+	                    	break;
+	                    }
+	            	}
+	          	}
+	        }
         }
-
-        // Proceso de contrucción de una pisicina de generación
-        // Se comprueba si el número de minerales disponibles es superior a 200
-        // y si no se ha generado ninguna piscina de drones.
-        if (this.bwapi.getSelf().getMinerals() >= 200 && this.poolDrone == null) {
-            for (Unit unit : this.bwapi.getMyUnits()) {
-                // Se comprueba si la unidad es de tipo drone.
-                if (unit.getType() == UnitTypes.Zerg_Drone) {
-                    // Se asigna la unidad como unidad para generar una piscina
-                    // de drones.
-                    this.poolDrone = unit;
-                    break;
-                }
-            }
-
-            // Construcción de la piscina de drones en la posición de un 
-            // overlord. Los overlords son unidades voladoras, esto permite
-            // utilizarlas como faros para la construcción de edificios. 
-            for (Unit unit : this.bwapi.getMyUnits()) {
-                // Se comprueba si la unidad es de tipo Overlord.
-                if (unit.getType() == UnitTypes.Zerg_Overlord) {
-                    // Se construye una piscina de drones en la posición del overlord 
-                    // seleccionado utilizando como base el drone seleccionado previamente.
-                    this.poolDrone.build(unit.getPosition(), UnitTypes.Zerg_Spawning_Pool);
-                }
-            }
-        }
-
-        // Proceso de generación de overlords
-        // Se comprueba si el número de unidades generadas (getSupplyUsed) es mayor que el
-        // número de unidades disponibles (getSupplyTotal) y si el número de unidades 
-        // disponibles es mayor que el valor de la variable supplyCap. 
-        if (bwapi.getSelf().getSupplyUsed() + 2 >= bwapi.getSelf().getSupplyTotal()
-                        && bwapi.getSelf().getSupplyTotal() > supplyCap) {
-            // Se comprueba si el número de minerales disponibles es 
-            // mayor o igual a 100.
-            if (bwapi.getSelf().getMinerals() >= 100) {
-                for (Unit larva : bwapi.getMyUnits()) {
-                    // Se comprueba si la unidades es de tipo larba.
-                    if (larva.getType() == UnitTypes.Zerg_Larva) {
-                        // Se transforma la unidades de tipo larva en un overlord.
-                        larva.morph(UnitTypes.Zerg_Overlord);
-                        // Se asigna un nuevo valor a la variable supplyCap
-                        supplyCap = bwapi.getSelf().getSupplyTotal();
-                    }
-                }
-            }
-        }
-        // Proceso de generación de zerglings
-        // Se comprueba si el número de minerales disponibles es 
-        // mayor o igual a 50.
-        else if (bwapi.getSelf().getMinerals() >= 50) {
-            for (Unit unit : bwapi.getMyUnits()) {
-                // Se compruba si existe alguna piscina de drones y si está ha sido completada
-                if (unit.getType() == UnitTypes.Zerg_Spawning_Pool && unit.isCompleted()) {
-                    for (Unit larva : bwapi.getMyUnits()) {
-                        // Se comprueba si la unidad es de tipo larva
-                        if (larva.getType() == UnitTypes.Zerg_Larva) {
-                            // Se Transforma la larva en un zergling.
-                            larva.morph(UnitTypes.Zerg_Zergling);
-                        }
-                    }
-                }
-            }
-        }        
-        // Proceso de movimiento y ataque
-        for (Unit unit : bwapi.getMyUnits()) {
-            // Se comprubea si la unidad es de zergling y si la unidad no tiene ninguna 
-            // tarea asignaga (isIdle).
-            if (unit.getType() == UnitTypes.Zerg_Zergling && unit.isIdle()) {
-                for (Unit enemy : bwapi.getEnemyUnits()) {
-                    // Se selecciona la posición de una unidad enemiga y 
-                    // se envia a la unidad seleccionada previamente a atacar. 
-                    unit.attack(enemy.getPosition(), false);
-                    break;
-                }
-            }
-        }*/
     }
-
+    
+    
+    /**
+     * M�todo para entrenar una unidad en un edificio. 
+     * 
+     * Se introducen como par�metros: 
+     * @param edifid	ID del edificio donde se construir� la unidad
+     * @param unidad	Tipo de unidad que se desea construir
+     * @return 			True si se ha creado correctamente
+     */
+    public boolean crearUnidad(int edifid, UnitType unidad){
+    	Unit edificio = bwapi.getUnit(edifid);
+    	return edificio.train(unidad);
+    }
+    
+    /**
+     * M�todo para la creaci�n de edificios por una unidad
+     * 
+     * Se introducen como par�metros
+     * @param trabaid		ID del trabajador
+     * @param edificio		ID del tipo de edificio a construir
+     * @param pos			Posicion para la construccion
+     * @return 				True si el edificio se ha creado correctamente
+     */
+    public boolean crearEdificio(int trabaid, UnitType edificio, Position pos){
+    	Unit trabajador = bwapi.getUnit(trabaid);
+    	if (bwapi.canBuildHere(pos, edificio, false)){
+    		return trabajador.build(pos, edificio);
+    	}
+    	else{
+    		return false;
+    	}
+    }
+    
     @Override
     public void keyPressed(int keyCode) {}
     @Override
