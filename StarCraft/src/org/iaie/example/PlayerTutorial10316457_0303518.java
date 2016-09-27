@@ -70,9 +70,11 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
      *  nuevo overlord con el fin de poder entrenar otras unidades.*/
     private int supplyCap;
     
-    /** Variable para que no haya más de dos personas en la refineria
-     */
+    /** Variable para que no haya más de dos personas en la refineria */
     int uRef = 0;
+    
+    /** Posicion del centro de mando */
+    Position centroMando = null;
 
     public PlayerTutorial10316457_0303518() {            
 
@@ -130,6 +132,17 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         // referencias previas a los objetos anteriormente aÃ±adidos.
         claimedMinerals.clear();
         supplyCap = 0;
+        
+        /** Calculamos la posicion del centro de comando */
+        for (Unit unit : bwapi.getMyUnits()) {
+            // Se compruba si existe alguna centro de control y si esta construido
+            if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
+            	centroMando = unit.getPosition();
+            }
+        }
+        
+        System.out.println(centroMando);
+        
     }
 
     /**
@@ -216,23 +229,17 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         }
         
         
-        /* Proceso para la creación de la refineria */
-        if(bwapi.getSelf().getMinerals() >= 100){
+        /* Proceso para la creación de la refineria
+         * Esta se creará cuando haya recursos suficientes y no exista una anterior */
+        if(bwapi.getSelf().getMinerals() >= 100 && bwapi.getSelf().getGas() <= 0){
         	Unit constructor = null;
         	for (Unit unit : this.bwapi.getMyUnits()) {
-        		constructor = unit;
+        		if (unit.getType() == UnitTypes.Terran_SCV){
+        			constructor = unit;
+        		}
         	}
-            if (constructor != null && constructor.getType() == UnitTypes.Terran_SCV) {
-                // Comprobamos que es una unidad neutral
-                for (Unit vespeno : this.bwapi.getNeutralUnits()){
-                	// Comprobamos que es un geyser de vespeno
-                	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
-                		// Cogemos la posicion del vespeno para construir el edificio encima
-                		Position pos = vespeno.getTilePosition();
-                		crearEdificio(constructor.getID(), UnitTypes.Terran_Refinery, pos);
-                		break;
-                	}
-                }
+            if (constructor != null) {
+            	crearEdificio(constructor.getID(), UnitTypes.Terran_Refinery, buscarUbicacion(UnitTypes.Terran_Refinery));
             }
         }  
         
@@ -256,6 +263,22 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
 	          	}
 	        }
         }
+        
+        if(bwapi.getSelf().getMinerals() >= 100 && bwapi.getSelf().getGas() > 0){
+        	Unit constructor = null;
+        	Position pos = buscarUbicacion(UnitTypes.Terran_Supply_Depot);
+        	for (Unit unit : this.bwapi.getMyUnits()) {
+        		if (unit.getType() == UnitTypes.Terran_SCV){
+        			constructor = unit;
+        			break;
+        		}
+        	}
+        	if (constructor != null && pos != null){
+        		crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos);
+        	}
+        	
+        }
+        
     }
     
     
@@ -277,18 +300,60 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
      * 
      * Se introducen como parámetros
      * @param trabaid		ID del trabajador
-     * @param edificio		ID del tipo de edificio a construir
+     * @param edificio		Tipo de edificio a construir
      * @param pos			Posicion para la construccion
-     * @return 				True si el edificio se ha creado correctamente
+     * @return 				True si el edificio se ha creado correctamente, False si no es posible su creación
      */
     public boolean crearEdificio(int trabaid, UnitType edificio, Position pos){
-    	Unit trabajador = bwapi.getUnit(trabaid);
-    	if (bwapi.canBuildHere(pos, edificio, false)){
-    		return trabajador.build(pos, edificio);
-    	}
-    	else{
+    	if (pos == null || edificio == null){
     		return false;
+    	} else {
+	    	Unit trabajador = bwapi.getUnit(trabaid);
+	    	if (bwapi.canBuildHere(pos, edificio, false)){
+	    		return trabajador.build(pos, edificio);
+	    	}
+	    	return false;
     	}
+    }
+    
+    /**
+     * Método para obtener localización para la construcción de edificios
+     * 
+     * @param edificio		Tipo de edificio que se desea construir
+     * @param centroMando		Al principio de la partida se calcula la posición del centro de mando que se usara para calcular distancias
+	 *
+     * @return Position		La posicion del edificio donde se puede construir
+     */
+    public Position buscarUbicacion(UnitType edificio){
+    	Position pos = null;
+    	int distancia = 0;
+    	int maxBusqueda = 50;
+    	// Si el edificio es una refineria, buscamos vespeno
+    	if (edificio.getID() == UnitTypes.Terran_Refinery.getID()){
+    		// Comprobamos que es una unidad neutral
+            for (Unit vespeno : this.bwapi.getNeutralUnits()){
+            	// Comprobamos que es un geyser de vespeno
+            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
+            		// Cogemos la posicion del vespeno para construir el edificio encima
+            		pos = vespeno.getTilePosition();
+            		return pos;
+            	}
+            }
+    	} else {
+    		while (distancia < maxBusqueda && pos == null){
+    			for(int i = centroMando.getBX() - distancia; i < centroMando.getBX() + maxBusqueda; i++){
+    				for (int j = centroMando.getBY() - distancia; j < centroMando.getBY() + maxBusqueda; j++){
+    					if (bwapi.canBuildHere(new Position(i, j, PosType.BUILD), edificio, false)){
+    						return new Position(i, j, PosType.BUILD);
+    					}
+    				}
+    			}
+    		}
+    		if (pos == null){
+    			return pos;
+    		}
+    	}
+		return null;
     }
     
     @Override
