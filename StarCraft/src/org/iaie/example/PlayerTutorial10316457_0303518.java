@@ -349,8 +349,8 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
     	if (pos == null || edificio == null){
     		return false;
     	} else {
-	    	Unit trabajador = bwapi.getUnit(trabaid);
 	    	if (bwapi.canBuildHere(pos, edificio, false)){
+	    		Unit trabajador = bwapi.getUnit(trabaid);
 	    		return trabajador.build(pos, edificio);
 	    	}
 	    	return false;
@@ -382,13 +382,15 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
             }
     	} else {
     		while (distancia < maxBusqueda && pos == null){
-    			for(int i = centroMando.getBX() - distancia; i < centroMando.getBX() + maxBusqueda; i++){
-    				for (int j = centroMando.getBY() - distancia; j < centroMando.getBY() + maxBusqueda; j++){
+    			for(int i = centroMando.getBX(); i < centroMando.getBX() + maxBusqueda; i++){
+    				for (int j = centroMando.getBY(); j < centroMando.getBY() + maxBusqueda; j++){
+    					System.out.println("i " + i + " j " + j);
     					if (bwapi.canBuildHere(new Position(i, j, PosType.BUILD), edificio, false)){
     						return new Position(i, j, PosType.BUILD);
     					}
     				}
     			}
+    			distancia++;
     		}
     		if (pos == null){
     			return pos;
