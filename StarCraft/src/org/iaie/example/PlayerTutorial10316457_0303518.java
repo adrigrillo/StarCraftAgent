@@ -295,6 +295,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         /* Método para crear la barraca */
         if(bwapi.getSelf().getMinerals() >= 100 && supply == 1 && barraca == 0){
         	Unit constructor = null;
+        	// Obtenemos una posicion valida
         	Position pos = buscarUbicacion(UnitTypes.Terran_Barracks);
         	// Buscamos un constructor
         	for (Unit unit : this.bwapi.getMyUnits()) {
@@ -312,8 +313,9 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         /* Método para construir un marine */
         if (bwapi.getSelf().getMinerals() >= 50 && barraca == 1){
         	for (Unit unit : bwapi.getMyUnits()) {
-                // Se compruba si existe alguna centro de control y si esta construido
+                // Se compruba si existe alguna barraca y si esta construido
                 if (unit.getType() == UnitTypes.Terran_Barracks && unit.isCompleted()) {
+                	// Control para que solo haga una unidad
                 	if (16 >= (bwapi.getSelf().getSupplyUsed() + UnitTypes.Terran_Marine.getSupplyRequired())){
                     	crearUnidad(unit.getID(), UnitTypes.Terran_Marine);
                 	}
@@ -381,6 +383,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
             	}
             }
     	} else {
+    		// Control para que la distancia no exceda la maxima distancia de busqueda
     		while (distancia < maxBusqueda && pos == null){
     			for(int i = centroMando.getBX(); i < centroMando.getBX() + maxBusqueda; i++){
     				for (int j = centroMando.getBY(); j < centroMando.getBY() + maxBusqueda; j++){
