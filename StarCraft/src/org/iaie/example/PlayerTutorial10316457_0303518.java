@@ -48,7 +48,6 @@ import jnibwapi.types.UpgradeType.UpgradeTypes;
 import org.iaie.Agent;
 import org.iaie.tools.Options;
 
-import jdk.nashorn.internal.objects.annotations.Function;
 
 /**
  * Cliente de IA que utiliza JNI-BWAPI.
@@ -75,6 +74,11 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
     
     /** Posicion del centro de mando */
     Position centroMando = null;
+    
+    /** Tarea a realizar */
+    int refineria = 0;
+    int supply = 0;
+    int barraca = 0;
 
     public PlayerTutorial10316457_0303518() {            
 
@@ -140,9 +144,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
             	centroMando = unit.getPosition();
             }
         }
-        
-        System.out.println(centroMando);
-        
+                
     }
 
     /**
@@ -182,13 +184,23 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         this.bwapi.drawText(new Position(0, 20), msg, true);
         this.bwapi.getMap().drawTerrainData(bwapi);
         
-        /* Metodo para localizar los scv disponibles
-        for (Unit myUnit : this.bwapi.getMyUnits()){
-        	//print TilePosition and Position of my SCVs
-        	if (myUnit.getType() == UnitTypes.Terran_SCV) {
-        		this.bwapi.drawText(new Position(0, 20), "TilePos: " + myUnit.getTilePosition().toString()+" Pos: " + myUnit.getPosition().toString(), true);
-        	}                   
-        }*/
+        /* Comprobador de la creacion del supply depot y la barraca
+         * Así solo creamos un edificio de cada uno
+         */
+        for (Unit unit : this.bwapi.getMyUnits()) {
+        	if (unit.getType() == UnitTypes.Terran_Refinery && refineria == 0){
+    			refineria++;
+    			continue;
+    		}
+    		if (unit.getType() == UnitTypes.Terran_Supply_Depot && supply == 0){
+    			supply++;
+    			continue;
+    		}
+    		else if (unit.getType() == UnitTypes.Terran_Barracks && barraca == 0){
+    			barraca++;
+    			continue;
+    		}
+        }
         
         /* Proceso para recoger minerales */
         for (Unit unit : this.bwapi.getMyUnits()) {
@@ -231,7 +243,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         
         /* Proceso para la creación de la refineria
          * Esta se creará cuando haya recursos suficientes y no exista una anterior */
-        if(bwapi.getSelf().getMinerals() >= 100 && bwapi.getSelf().getGas() <= 0){
+        if(bwapi.getSelf().getMinerals() >= 100 && refineria == 0){
         	Unit constructor = null;
         	for (Unit unit : this.bwapi.getMyUnits()) {
         		if (unit.getType() == UnitTypes.Terran_SCV){
@@ -243,6 +255,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
             }
         }  
         
+        /* Método para tener dos scv extrayendo gas de la refineria 
         if (uRef < 2){
 	        for (Unit refineria : this.bwapi.getMyUnits()) {
 	            if (refineria.getType() == UnitTypes.Terran_Refinery) {
@@ -252,7 +265,6 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
 	                		if (!unit.getOrder().getName().equals("ReturnGas") && !unit.getOrder().getName().equals("HarvestGas") && !unit.getOrder().getName().equals("MoveToGas")){
 	                			recolector = unit;
 	                			uRef = 2;
-	                			break;
 	                		}
 	                	}
 	                    if (recolector != null && recolector.getType() == UnitTypes.Terran_SCV) {
@@ -263,8 +275,10 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
 	          	}
 	        }
         }
+        */
         
-        if(bwapi.getSelf().getMinerals() >= 100 && bwapi.getSelf().getGas() > 0){
+        /* Metodo para construir el supply depot */
+        if(bwapi.getSelf().getMinerals() >= 100 && refineria == 1 && supply == 0){
         	Unit constructor = null;
         	Position pos = buscarUbicacion(UnitTypes.Terran_Supply_Depot);
         	for (Unit unit : this.bwapi.getMyUnits()) {
@@ -276,9 +290,36 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
         	if (constructor != null && pos != null){
         		crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos);
         	}
-        	
         }
         
+        /* Método para crear la barraca */
+        if(bwapi.getSelf().getMinerals() >= 100 && supply == 1 && barraca == 0){
+        	Unit constructor = null;
+        	Position pos = buscarUbicacion(UnitTypes.Terran_Barracks);
+        	// Buscamos un constructor
+        	for (Unit unit : this.bwapi.getMyUnits()) {
+        		if (unit.getType() == UnitTypes.Terran_SCV){
+        			constructor = unit;
+        			break;
+        		}
+        	}
+        	// Construimos si hay un constructor y una posicion
+        	if (constructor != null && pos != null){
+        		crearEdificio(constructor.getID(), UnitTypes.Terran_Barracks, pos);
+        	}
+        }
+        
+        /* Método para construir un marine */
+        if (bwapi.getSelf().getMinerals() >= 50 && barraca == 1){
+        	for (Unit unit : bwapi.getMyUnits()) {
+                // Se compruba si existe alguna centro de control y si esta construido
+                if (unit.getType() == UnitTypes.Terran_Barracks && unit.isCompleted()) {
+                	if (16 >= (bwapi.getSelf().getSupplyUsed() + UnitTypes.Terran_Marine.getSupplyRequired())){
+                    	crearUnidad(unit.getID(), UnitTypes.Terran_Marine);
+                	}
+                }
+        	}
+        }
     }
     
     
