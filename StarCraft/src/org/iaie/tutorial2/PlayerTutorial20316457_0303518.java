@@ -31,7 +31,7 @@
  * 
  ************************************************************************/
 
-package org.iaie.example;
+package org.iaie.tutorial2;
 
 import java.util.HashSet;
 import jnibwapi.BWAPIEventListener;
@@ -58,7 +58,7 @@ import org.iaie.tools.Options;
  * 
  * Clase Terran
  */
-public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventListener {
+public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventListener {
 	
     /** Esta variable se usa para almacenar aquellos depositos de minerales 
      *  que han sido seleccionados para ser explotados por las unidades 
@@ -80,7 +80,7 @@ public class PlayerTutorial10316457_0303518 extends Agent implements BWAPIEventL
     int supply = 0;
     int barraca = 0;
 
-    public PlayerTutorial10316457_0303518() {            
+    public PlayerTutorial20316457_0303518() {            
 
         // Generacion del objeto de tipo agente
 
