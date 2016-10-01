@@ -170,36 +170,35 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
 			for (int x = 0; x < ancho; x++){
 				// Comprobamos si la posiciones son contruibles o no
 				Position posActual = new Position(x, y, PosType.BUILD);
-				if (!this.bwapi.isBuildable(posActual, true)){
-					matriz[x][y] = '0';
+				if (this.bwapi.isBuildable(posActual, true)){
+					/* Si es construible, minimo cabe un edificio en esa posicion */
+					matriz[x][y] = '1';
+					/* Aqui pasamos a comprobar si se puede construir un edificio de 4x4. El centro de mando tiene un tamano
+					 * de 4 ancho x 3 de alto por lo que habria que probar si se puede construir en la y original y una y por
+					 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 4x4
+					 */
+					if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Command_Center, false)) && 
+						(bwapi.canBuildHere(new Position(x, y+1, PosType.BUILD), UnitTypes.Terran_Command_Center, false))){
+						matriz[x][y] = '4';
+					}
+					/* Aqui pasamos a comprobar si se puede construir un edificio de 3x3. La armeria tiene un tamano
+					 * de 3 ancho x 2 de alto por lo que habria que probar si se puede construir en la y original y una y por
+					 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 3x3
+					 */
+					else if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Armory, false))&&
+							 (bwapi.canBuildHere(new Position(x,y+1,PosType.BUILD), UnitTypes.Terran_Armory, false))){
+						matriz[x][y] = '3';
+					}
+					/* Aqui pasamos a comprobar si se puede construir un edificio de 2x2. El silo nuclear tiene un tamaño 
+					 * de 2 de ancho x 2 de alto, por lo que la comprobación de construcción será suficiente
+					 */
+					else if(bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Nuclear_Silo, false)){
+						/*2*/
+						matriz[x][y] = '2';
+					}
 				}
 				else{
-					matriz[x][y] = '1';
-				}
-				// Pasamos a comprobar los tamaños de los edificios que podemos construir
-				/* Aqui pasamos a comprobar si se puede construir un edificio de 4x4. El centro de mando tiene un tamano
-				 * de 4 ancho x 3 de alto por lo que habria que probar si se puede construir en la y original y una y por
-				 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 4x4
-				 */
-				if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Command_Center, false)) && 
-					(bwapi.canBuildHere(new Position(x, y+1, PosType.BUILD), UnitTypes.Terran_Command_Center, false))){
-					matriz[x][y] = '4';
-				}
-				/* Aqui pasamos a comprobar si se puede construir un edificio de 3x3. La armeria tiene un tamano
-				 * de 3 ancho x 2 de alto por lo que habria que probar si se puede construir en la y original y una y por
-				 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 3x3
-				 */
-				else if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Armory, false))&&
-						 (bwapi.canBuildHere(new Position(x,y+1,PosType.BUILD), UnitTypes.Terran_Armory, false))){
-						
-					matriz[x][y] = '3';
-				}
-				/* Aqui pasamos a comprobar si se puede construir un edificio de 2x2. El silo nuclear tiene un tamaño 
-				 * de 2 de ancho x 2 de alto, por lo que la comprobación de construcción será suficiente
-				 */
-				else if(bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Nuclear_Silo, false)){
-					/*2*/
-					matriz[x][y] = '2';
+					matriz[x][y] = '0';
 				}
 			}
 		}
