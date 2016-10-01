@@ -144,7 +144,40 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             	centroMando = unit.getPosition();
             }
         }
-                
+        
+        /*Metodo para recorrer el mapa e imprimir por pantalla la matriz de ocupacion*/
+        int ancho = bwapi.getMap().getSize().getBX();
+        int alto = bwapi.getMap().getSize().getBY();
+        int[][] matriz = new int [ancho][alto];
+		for(int i = 0; i < ancho; i++){
+			for (int j = 0; j < alto; j++){
+				if ((bwapi.canBuildHere(new Position(i,j,PosType.BUILD), UnitTypes.Terran_Barracks, false)) && 
+						(bwapi.canBuildHere(new Position(i,j+1,PosType.BUILD), UnitTypes.Terran_Barracks, false))){
+					/*4*/
+					matriz[i][j] = 4;
+				}else if ((bwapi.canBuildHere(new Position(i, j, PosType.BUILD), UnitTypes.Terran_Armory, false))&&
+							(bwapi.canBuildHere(new Position(i,j+1,PosType.BUILD), UnitTypes.Terran_Armory, false))){
+						/*3*/
+						matriz[i][j] = 3;
+				}else if(bwapi.canBuildHere(new Position(i, j, PosType.BUILD), UnitTypes.Terran_Nuclear_Silo, false)){
+					/*2*/
+					matriz[i][j] = 2;
+				}else if(bwapi.canBuildHere(new Position(i, j, PosType.BUILD), UnitTypes.Terran_Marine, false)){
+					/*1*/
+					matriz[i][j] = 1;
+				}else{
+					/*Comprobar si hay minerales M, si hay vespeno V o si simplemente no se puede construir O*/
+					/*0*/
+					matriz[i][j] = 0;
+				}
+			}
+		}
+		for(int i = 0; i < matriz[i].length; i++){
+			for (int j = 0; j < matriz.length; j++){
+				System.out.print(matriz[j][i]);
+			}
+			System.out.println();
+		}
     }
 
     /**
