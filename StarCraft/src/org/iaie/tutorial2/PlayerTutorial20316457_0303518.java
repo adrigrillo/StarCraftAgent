@@ -145,36 +145,100 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             }
         }
         
-        /*Metodo para recorrer el mapa e imprimir por pantalla la matriz de ocupacion*/
+        /** 
+         * 	Esta parte de código se utiliza para comprobar el mapa y la posibilidad de construcción de 
+         *  los edificios según el espacio que ocupen.
+         *  
+         *  El eje X, que es el ancho del mapa, se guarda en la variable j de la matriz
+         *  El eje Y, que es el alto del mapa, se guarda en la variable i de la matriz
+         *  Es por tanto, que para su correcta impresion se debe hacer matriz[j][i]
+         */
         int ancho = bwapi.getMap().getSize().getBX();
         int alto = bwapi.getMap().getSize().getBY();
-        int[][] matriz = new int [ancho][alto];
-		for(int i = 0; i < ancho; i++){
-			for (int j = 0; j < alto; j++){
-				if ((bwapi.canBuildHere(new Position(i,j,PosType.BUILD), UnitTypes.Terran_Barracks, false)) && 
-						(bwapi.canBuildHere(new Position(i,j+1,PosType.BUILD), UnitTypes.Terran_Barracks, false))){
-					/*4*/
-					matriz[i][j] = 4;
-				}else if ((bwapi.canBuildHere(new Position(i, j, PosType.BUILD), UnitTypes.Terran_Armory, false))&&
-							(bwapi.canBuildHere(new Position(i,j+1,PosType.BUILD), UnitTypes.Terran_Armory, false))){
-						/*3*/
-						matriz[i][j] = 3;
-				}else if(bwapi.canBuildHere(new Position(i, j, PosType.BUILD), UnitTypes.Terran_Nuclear_Silo, false)){
+        char[][] matriz = new char [ancho][alto];
+        /* Primero pasaremos a analizar todo el mapa, estableciendo lo siguiente:
+         * 	-	Si es 0, no se puede construir en la casilla
+         * 	-	Si es 1, la casilla es construible
+         * 
+         * Posteriormente comprobaremos el tamaño del edificio que se podría
+         * construir desde esa casilla, estableciendo:
+         * 	-	4: Si existen 3 o mas casillas a la derecha y hacia abajo.
+         * 	-	3: Si existen 2 o mas casillas a la derecha y hacia abajo.
+         * 	-	2: Si existen 1 o mas casillas a la derecha y hacia abajo.   
+         */
+		for(int y = 0; y < alto; y++){
+			for (int x = 0; x < ancho; x++){
+				// Comprobamos si la posiciones son contruibles o no
+				Position posActual = new Position(x, y, PosType.BUILD);
+				if (!this.bwapi.isBuildable(posActual, true)){
+					matriz[x][y] = '0';
+				}
+				else{
+					matriz[x][y] = '1';
+				}
+				// Pasamos a comprobar los tamaños de los edificios que podemos construir
+				/* Aqui pasamos a comprobar si se puede construir un edificio de 4x4. El centro de mando tiene un tamano
+				 * de 4 ancho x 3 de alto por lo que habria que probar si se puede construir en la y original y una y por
+				 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 4x4
+				 */
+				if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Command_Center, false)) && 
+					(bwapi.canBuildHere(new Position(x, y+1, PosType.BUILD), UnitTypes.Terran_Command_Center, false))){
+					matriz[x][y] = '4';
+				}
+				/* Aqui pasamos a comprobar si se puede construir un edificio de 3x3. La armeria tiene un tamano
+				 * de 3 ancho x 2 de alto por lo que habria que probar si se puede construir en la y original y una y por
+				 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 3x3
+				 */
+				else if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Armory, false))&&
+						 (bwapi.canBuildHere(new Position(x,y+1,PosType.BUILD), UnitTypes.Terran_Armory, false))){
+						
+					matriz[x][y] = '3';
+				}
+				/* Aqui pasamos a comprobar si se puede construir un edificio de 2x2. El silo nuclear tiene un tamaño 
+				 * de 2 de ancho x 2 de alto, por lo que la comprobación de construcción será suficiente
+				 */
+				else if(bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Nuclear_Silo, false)){
 					/*2*/
-					matriz[i][j] = 2;
-				}else if(bwapi.canBuildHere(new Position(i, j, PosType.BUILD), UnitTypes.Terran_Marine, false)){
-					/*1*/
-					matriz[i][j] = 1;
-				}else{
-					/*Comprobar si hay minerales M, si hay vespeno V o si simplemente no se puede construir O*/
-					/*0*/
-					matriz[i][j] = 0;
+					matriz[x][y] = '2';
 				}
 			}
 		}
-		for(int i = 0; i < matriz[i].length; i++){
-			for (int j = 0; j < matriz.length; j++){
-				System.out.print(matriz[j][i]);
+		/* Pasamos a la comprobación en el mapa de los minerales y el vespeno
+		 * 	-	Si son minerales, se pone 'M'
+		 * 	-	Si es vespeno, se pone 'V'
+		 */
+		for (Unit u : this.bwapi.getNeutralUnits()){
+			// Reiniciamos valores por si acaso
+			int topIzqX = 0, topIzqY = 0, botDerX = 0, botDerY = 0;
+			// Minerales
+			if (u.getType() == UnitTypes.Resource_Mineral_Field || u.getType() == UnitTypes.Resource_Mineral_Field_Type_2 || u.getType() == UnitTypes.Resource_Mineral_Field_Type_3 ){
+				topIzqX = u.getTopLeft().getBX();
+				topIzqY = u.getTopLeft().getBY();
+				botDerX = u.getBottomRight().getBX();
+				botDerY = u.getBottomRight().getBY();
+				for (int x = topIzqX; x <= botDerX; x++){
+					for (int y = topIzqY; y <= botDerY; y++){
+						matriz[x][y] = 'M';
+					}
+				}
+			}
+			// Vespeno
+			else if (u.getType() == UnitTypes.Resource_Vespene_Geyser){
+				topIzqX = u.getTopLeft().getBX();
+				topIzqY = u.getTopLeft().getBY();
+				botDerX = u.getBottomRight().getBX();
+				botDerY = u.getBottomRight().getBY();
+				for (int x = topIzqX; x <= botDerX; x++){
+					for (int y = topIzqY; y <= botDerY; y++){
+						matriz[x][y] = 'V';
+					}
+				}
+			}
+		}
+		
+		for(int y = 0; y < alto; y++){
+			for (int x = 0; x < ancho; x++){
+				System.out.print(matriz[x][y]);
 			}
 			System.out.println();
 		}
