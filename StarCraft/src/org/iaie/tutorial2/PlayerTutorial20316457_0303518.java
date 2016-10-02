@@ -158,13 +158,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         char[][] matriz = new char [ancho][alto];
         /* Primero pasaremos a analizar todo el mapa, estableciendo lo siguiente:
          * 	-	Si es 0, no se puede construir en la casilla
-         * 	-	Si es 1, la casilla es construible
-         * 
-         * Posteriormente comprobaremos el tamaño del edificio que se podría
-         * construir desde esa casilla, estableciendo:
-         * 	-	4: Si existen 3 o mas casillas a la derecha y hacia abajo.
-         * 	-	3: Si existen 2 o mas casillas a la derecha y hacia abajo.
-         * 	-	2: Si existen 1 o mas casillas a la derecha y hacia abajo.   
+         * 	-	Si es 1, la casilla es construible 
          */
 		for(int y = 0; y < alto; y++){
 			for (int x = 0; x < ancho; x++){
@@ -173,29 +167,6 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
 				if (this.bwapi.isBuildable(posActual, true)){
 					/* Si es construible, minimo cabe un edificio en esa posicion */
 					matriz[x][y] = '1';
-					/* Aqui pasamos a comprobar si se puede construir un edificio de 4x4. El centro de mando tiene un tamano
-					 * de 4 ancho x 3 de alto por lo que habria que probar si se puede construir en la y original y una y por
-					 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 4x4
-					 */
-					if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Command_Center, false)) && 
-						(bwapi.canBuildHere(new Position(x, y+1, PosType.BUILD), UnitTypes.Terran_Command_Center, false))){
-						matriz[x][y] = '4';
-					}
-					/* Aqui pasamos a comprobar si se puede construir un edificio de 3x3. La armeria tiene un tamano
-					 * de 3 ancho x 2 de alto por lo que habria que probar si se puede construir en la y original y una y por
-					 * debajo para aceptar que desde la posicion de construccion se puede construir un edificio de 3x3
-					 */
-					else if ((bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Armory, false))&&
-							 (bwapi.canBuildHere(new Position(x,y+1,PosType.BUILD), UnitTypes.Terran_Armory, false))){
-						matriz[x][y] = '3';
-					}
-					/* Aqui pasamos a comprobar si se puede construir un edificio de 2x2. El silo nuclear tiene un tamaño 
-					 * de 2 de ancho x 2 de alto, por lo que la comprobación de construcción será suficiente
-					 */
-					else if(bwapi.canBuildHere(new Position(x, y, PosType.BUILD), UnitTypes.Terran_Nuclear_Silo, false)){
-						/*2*/
-						matriz[x][y] = '2';
-					}
 				}
 				else{
 					matriz[x][y] = '0';
@@ -230,6 +201,51 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
 				for (int x = topIzqX; x <= botDerX; x++){
 					for (int y = topIzqY; y <= botDerY; y++){
 						matriz[x][y] = 'V';
+					}
+				}
+			}
+		}
+		/* Pasamos a comprobar el tamaño de edificio que se puede construir.
+		 * Debido a que ya hemos comprobado las casillas que son construibles
+		 * Ahora pasamos a comprobar cuantas de esas casillas hay juntas
+         * 	-	4: Si existen 3 o mas casillas a la derecha y hacia abajo.
+         * 	-	3: Si existen 2 o mas casillas a la derecha y hacia abajo.
+         * 	-	2: Si existen 1 o mas casillas a la derecha y hacia abajo.  
+		 */
+		for(int y = 0; y < alto; y++){
+			for (int x = 0; x < ancho; x++){
+				// Sacamos la posicion sobre la que trabajamos
+				Position posActual = new Position(x, y, PosType.BUILD);
+				if (matriz[x][y] == '1'){
+					// Examinamos el terreno desde 2 a 4 espacios
+					for (int espacio = 2; espacio <= 4; espacio++){
+						// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
+						boolean valido = true;
+						// Navegamos por las casillas adyacentes 
+						for (int i = x; i < x + espacio; i++){
+							for (int j = y; j < y + espacio; j++){
+								if (i < ancho && j < alto){
+									/* Si se encuentra una mina, geiser o edificio pasa a ser invalido
+									 * dependiendo de la distacia de busqueda
+									 */
+									if (matriz[i][j] == '0' || matriz[i][j] == 'M' || matriz[i][j] == 'V' ){
+										valido = false;
+									}
+								}
+							}
+						}
+						// Si hay espacio para dos se cambia la casilla
+						if (espacio == 2 && valido == true){
+							matriz[x][y] = '2';
+						}
+						// Si hay espacio para dos se cambia la casilla
+						else if (espacio == 3 && valido == true){
+							matriz[x][y] = '3';
+						}
+						// Si hay espacio para dos se cambia la casilla
+						else if (espacio == 4 && valido == true){
+							matriz[x][y] = '4';
+						}
 					}
 				}
 			}
