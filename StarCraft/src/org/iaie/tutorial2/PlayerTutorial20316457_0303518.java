@@ -34,6 +34,8 @@
 package org.iaie.tutorial2;
 
 import java.util.HashSet;
+import java.io.*;
+import java.util.*;
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
@@ -130,6 +132,8 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         // Mediante este mÃ©todo se define la velocidad de ejecuciÃ³n del videojuego. 
         // Los valores posibles van desde 0 (velocidad estÃ¡ndar) a 10 (velocidad mÃ¡xima).
         this.bwapi.setGameSpeed(Options.getInstance().getSpeed());
+        /** Generamos el mapa */
+        generateMapSpaces();
 
         // Iniciamos las variables de control
         // Se establece el contador de objetos a cero y se eliminan todas las
@@ -143,120 +147,17 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
             	centroMando = unit.getPosition();
             }
-        }
+        }   
         
-        /** 
-         * 	Esta parte de código se utiliza para comprobar el mapa y la posibilidad de construcción de 
-         *  los edificios según el espacio que ocupen.
-         *  
-         *  El eje X, que es el ancho del mapa, se guarda en la variable j de la matriz
-         *  El eje Y, que es el alto del mapa, se guarda en la variable i de la matriz
-         *  Es por tanto, que para su correcta impresion se debe hacer matriz[j][i]
-         */
-        int ancho = bwapi.getMap().getSize().getBX();
-        int alto = bwapi.getMap().getSize().getBY();
-        char[][] matriz = new char [ancho][alto];
-        /* Primero pasaremos a analizar todo el mapa, estableciendo lo siguiente:
-         * 	-	Si es 0, no se puede construir en la casilla
-         * 	-	Si es 1, la casilla es construible 
-         */
-		for(int y = 0; y < alto; y++){
-			for (int x = 0; x < ancho; x++){
-				// Comprobamos si la posiciones son contruibles o no
-				Position posActual = new Position(x, y, PosType.BUILD);
-				if (this.bwapi.isBuildable(posActual, true)){
-					/* Si es construible, minimo cabe un edificio en esa posicion */
-					matriz[x][y] = '1';
-				}
-				else{
-					matriz[x][y] = '0';
-				}
-			}
-		}
-		/* Pasamos a la comprobación en el mapa de los minerales y el vespeno
-		 * 	-	Si son minerales, se pone 'M'
-		 * 	-	Si es vespeno, se pone 'V'
-		 */
-		for (Unit u : this.bwapi.getNeutralUnits()){
-			// Reiniciamos valores por si acaso
-			int topIzqX = 0, topIzqY = 0, botDerX = 0, botDerY = 0;
-			// Minerales
-			if (u.getType() == UnitTypes.Resource_Mineral_Field || u.getType() == UnitTypes.Resource_Mineral_Field_Type_2 || u.getType() == UnitTypes.Resource_Mineral_Field_Type_3 ){
-				topIzqX = u.getTopLeft().getBX();
-				topIzqY = u.getTopLeft().getBY();
-				botDerX = u.getBottomRight().getBX();
-				botDerY = u.getBottomRight().getBY();
-				for (int x = topIzqX; x <= botDerX; x++){
-					for (int y = topIzqY; y <= botDerY; y++){
-						matriz[x][y] = 'M';
-					}
-				}
-			}
-			// Vespeno
-			else if (u.getType() == UnitTypes.Resource_Vespene_Geyser){
-				topIzqX = u.getTopLeft().getBX();
-				topIzqY = u.getTopLeft().getBY();
-				botDerX = u.getBottomRight().getBX();
-				botDerY = u.getBottomRight().getBY();
-				for (int x = topIzqX; x <= botDerX; x++){
-					for (int y = topIzqY; y <= botDerY; y++){
-						matriz[x][y] = 'V';
-					}
-				}
-			}
-		}
-		/* Pasamos a comprobar el tamaño de edificio que se puede construir.
-		 * Debido a que ya hemos comprobado las casillas que son construibles
-		 * Ahora pasamos a comprobar cuantas de esas casillas hay juntas
-         * 	-	4: Si existen 3 o mas casillas a la derecha y hacia abajo.
-         * 	-	3: Si existen 2 o mas casillas a la derecha y hacia abajo.
-         * 	-	2: Si existen 1 o mas casillas a la derecha y hacia abajo.  
-		 */
-		for(int y = 0; y < alto; y++){
-			for (int x = 0; x < ancho; x++){
-				// Sacamos la posicion sobre la que trabajamos
-				Position posActual = new Position(x, y, PosType.BUILD);
-				if (matriz[x][y] == '1'){
-					// Examinamos el terreno desde 2 a 4 espacios
-					for (int espacio = 2; espacio <= 4; espacio++){
-						// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
-						boolean valido = true;
-						// Navegamos por las casillas adyacentes 
-						for (int i = x; i < x + espacio; i++){
-							for (int j = y; j < y + espacio; j++){
-								if (i < ancho && j < alto){
-									/* Si se encuentra una mina, geiser o edificio pasa a ser invalido
-									 * dependiendo de la distacia de busqueda
-									 */
-									if (matriz[i][j] == '0' || matriz[i][j] == 'M' || matriz[i][j] == 'V' ){
-										valido = false;
-									}
-								}
-							}
-						}
-						// Si hay espacio para dos se cambia la casilla
-						if (espacio == 2 && valido == true){
-							matriz[x][y] = '2';
-						}
-						// Si hay espacio para dos se cambia la casilla
-						else if (espacio == 3 && valido == true){
-							matriz[x][y] = '3';
-						}
-						// Si hay espacio para dos se cambia la casilla
-						else if (espacio == 4 && valido == true){
-							matriz[x][y] = '4';
-						}
-					}
-				}
-			}
-		}
-		
-		for(int y = 0; y < alto; y++){
-			for (int x = 0; x < ancho; x++){
+        char matriz[][] = readMapFile();
+        System.out.println("Alto " + matriz[0].length + " Real " + bwapi.getMap().getSize().getBY());
+        System.out.println("Ancho " + matriz.length + " real " + bwapi.getMap().getSize().getBX());
+        for(int y = 0; y < matriz[0].length; y++){
+			for (int x = 0; x < matriz.length; x++){
 				System.out.print(matriz[x][y]);
 			}
 			System.out.println();
-		}
+        }
     }
 
     /**
@@ -511,6 +412,165 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     		}
     	}
 		return null;
+    }
+    
+    /** 
+     * 	Esta método se utiliza para comprobar el mapa y la posibilidad de construcción de 
+     *  los edificios según el espacio que ocupen.
+     *  
+     *  El eje X, que es el ancho del mapa, se guarda en la variable j de la matriz
+     *  El eje Y, que es el alto del mapa, se guarda en la variable i de la matriz
+     *  Es por tanto, que para su correcta impresion se debe hacer matriz[j][i]
+     *  
+     *  @return Genera un .txt con la cuadricula del mapa y los espacios para la construcción
+     *  		de los edificios
+     */
+    public void generateMapSpaces(){
+        int ancho = bwapi.getMap().getSize().getBX();
+        int alto = bwapi.getMap().getSize().getBY();
+        char[][] matriz = new char [ancho][alto];
+        /* Primero pasaremos a analizar todo el mapa, estableciendo lo siguiente:
+         * 	-	Si es 0, no se puede construir en la casilla
+         * 	-	Si es 1, la casilla es construible 
+         */
+		for(int y = 0; y < alto; y++){
+			for (int x = 0; x < ancho; x++){
+				// Comprobamos si la posiciones son contruibles o no
+				Position posActual = new Position(x, y, PosType.BUILD);
+				if (this.bwapi.isBuildable(posActual, true)){
+					/* Si es construible, minimo cabe un edificio en esa posicion */
+					matriz[x][y] = '1';
+				}
+				else{
+					matriz[x][y] = '0';
+				}
+			}
+		}
+		/* Pasamos a la comprobación en el mapa de los minerales y el vespeno
+		 * 	-	Si son minerales, se pone 'M'
+		 * 	-	Si es vespeno, se pone 'V'
+		 */
+		for (Unit u : this.bwapi.getNeutralUnits()){
+			// Reiniciamos valores por si acaso
+			int topIzqX = 0, topIzqY = 0, botDerX = 0, botDerY = 0;
+			// Minerales
+			if (u.getType() == UnitTypes.Resource_Mineral_Field || u.getType() == UnitTypes.Resource_Mineral_Field_Type_2 || u.getType() == UnitTypes.Resource_Mineral_Field_Type_3 ){
+				topIzqX = u.getTopLeft().getBX();
+				topIzqY = u.getTopLeft().getBY();
+				botDerX = u.getBottomRight().getBX();
+				botDerY = u.getBottomRight().getBY();
+				for (int x = topIzqX; x <= botDerX; x++){
+					for (int y = topIzqY; y <= botDerY; y++){
+						matriz[x][y] = 'M';
+					}
+				}
+			}
+			// Vespeno
+			else if (u.getType() == UnitTypes.Resource_Vespene_Geyser){
+				topIzqX = u.getTopLeft().getBX();
+				topIzqY = u.getTopLeft().getBY();
+				botDerX = u.getBottomRight().getBX();
+				botDerY = u.getBottomRight().getBY();
+				for (int x = topIzqX; x <= botDerX; x++){
+					for (int y = topIzqY; y <= botDerY; y++){
+						matriz[x][y] = 'V';
+					}
+				}
+			}
+		}
+		/* Pasamos a comprobar el tamaño de edificio que se puede construir.
+		 * Debido a que ya hemos comprobado las casillas que son construibles
+		 * Ahora pasamos a comprobar cuantas de esas casillas hay juntas
+         * 	-	4: Si existen 3 o mas casillas a la derecha y hacia abajo.
+         * 	-	3: Si existen 2 o mas casillas a la derecha y hacia abajo.
+         * 	-	2: Si existen 1 o mas casillas a la derecha y hacia abajo.  
+		 */
+		for(int y = 0; y < alto; y++){
+			for (int x = 0; x < ancho; x++){
+				if (matriz[x][y] == '1'){
+					// Examinamos el terreno desde 2 a 4 espacios
+					for (int espacio = 2; espacio <= 4; espacio++){
+						// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
+						boolean valido = true;
+						// Navegamos por las casillas adyacentes 
+						for (int i = x; i < x + espacio; i++){
+							for (int j = y; j < y + espacio; j++){
+								if (i < ancho && j < alto){
+									/* Si se encuentra una mina, geiser o edificio pasa a ser invalido
+									 * dependiendo de la distacia de busqueda
+									 */
+									if (matriz[i][j] == '0' || matriz[i][j] == 'M' || matriz[i][j] == 'V' ){
+										valido = false;
+									}
+								}
+							}
+						}
+						// Si hay espacio para dos se cambia la casilla
+						if (espacio == 2 && valido == true){
+							matriz[x][y] = '2';
+						}
+						// Si hay espacio para dos se cambia la casilla
+						else if (espacio == 3 && valido == true){
+							matriz[x][y] = '3';
+						}
+						// Si hay espacio para dos se cambia la casilla
+						else if (espacio == 4 && valido == true){
+							matriz[x][y] = '4';
+						}
+					}
+				}
+			}
+		}
+		
+		writeMapFile(matriz);
+    }
+    
+    /** Metodo para guardar la matriz generada por el estudio del mapa 
+     * 	en un fichero de texto
+     *  
+     * @param matriz	Matriz con el contenido del mapa
+     */
+    public void writeMapFile(char matriz[][]){
+    	/* Pasamos a guardar la matriz del mapa en un archivo */
+		try {
+			File archivo = new File("buildingMap-0316457-0303518.txt");
+			PrintWriter writer = new PrintWriter(archivo);
+			for(int y = 0; y < matriz[0].length; y++){
+				for (int x = 0; x < matriz.length; x++){
+					writer.print(matriz[x][y]);
+				}
+				writer.println();
+			}
+			
+			writer.close();
+		}
+		catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+    }
+    
+    /** Metodo para leer los archivos con los estudios del mapa y guardarlos en una matriz
+     * 
+     * @return				Matriz del mapa para poder ser usada por los metodos de modificacion
+     */
+    public char[][] readMapFile(){
+    	try{
+    		File archivo = new File("buildingMap-0316457-0303518.txt");
+    		Scanner lector = new Scanner(archivo);
+    		int ancho = bwapi.getMap().getSize().getBX();
+            int alto = bwapi.getMap().getSize().getBY();
+            char[][] matriz = new char [ancho][alto];
+            for (int x = 0; x < ancho; x++){
+            	if (lector.hasNextLine()){
+            		matriz[x] = lector.nextLine().toCharArray();
+            	}
+            }
+            lector.close();
+            return matriz;    		
+    	}
+    	catch (Exception e) {
+    		return null;
+		}
     }
     
     @Override
