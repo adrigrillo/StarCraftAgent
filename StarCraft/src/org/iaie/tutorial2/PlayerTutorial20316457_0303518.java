@@ -555,20 +555,28 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
      */
     public char[][] readMapFile(){
     	try{
-    		File archivo = new File("buildingMap-0316457-0303518.txt");
-    		Scanner lector = new Scanner(archivo);
+    		// Abrimos el archivo
+    		FileReader archivo = new FileReader("buildingMap-0316457-0303518.txt");
+    		BufferedReader lector = new BufferedReader(archivo);
+    		//Establecemos el tamaño del array para comprobar que el fichero es del mismo mapa
     		int ancho = bwapi.getMap().getSize().getBX();
             int alto = bwapi.getMap().getSize().getBY();
             char[][] matriz = new char [ancho][alto];
-            for (int x = 0; x < ancho; x++){
-            	if (lector.hasNextLine()){
-            		matriz[x] = lector.nextLine().toCharArray();
+            // Tomamos las lineas del fichero, pasandolas a un array de chars y copiamos en la matriz
+            String linea;
+            int fila = 0;
+            while((linea = lector.readLine()) != null){
+            	char [] a = linea.toCharArray();
+            	for (int i = 0; i < a.length; i++){
+            		matriz[i][fila] = a[i];
             	}
+            	fila++;
             }
             lector.close();
             return matriz;    		
     	}
     	catch (Exception e) {
+    		System.out.println("Error: " + e.getMessage());
     		return null;
 		}
     }
