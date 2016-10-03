@@ -148,11 +148,9 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             // Se compruba si existe alguna centro de control y si esta construido
             if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
             	centroMando = unit.getPosition();
+            	System.out.println(centroMando.getBX() + " " + centroMando.getBY());
             }
         }
-        
-        Position acd = searchPointToBuild(new Position(10, 10, PosType.BUILD), UnitTypes.Terran_Barracks);
-        System.out.println(acd.getBX() + " " + acd.getBY());
     }
 
     /**
@@ -263,32 +261,11 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             }
         }  
         
-        /* Método para tener dos scv extrayendo gas de la refineria 
-        if (uRef < 2){
-	        for (Unit refineria : this.bwapi.getMyUnits()) {
-	            if (refineria.getType() == UnitTypes.Terran_Refinery) {
-	            	if (refineria.isCompleted()){
-	            		Unit recolector = null;
-	                	for (Unit unit : this.bwapi.getMyUnits()) {
-	                		if (!unit.getOrder().getName().equals("ReturnGas") && !unit.getOrder().getName().equals("HarvestGas") && !unit.getOrder().getName().equals("MoveToGas")){
-	                			recolector = unit;
-	                			uRef = 2;
-	                		}
-	                	}
-	                    if (recolector != null && recolector.getType() == UnitTypes.Terran_SCV) {
-	                    	recolector.rightClick(refineria, false);
-	                    	break;
-	                    }
-	            	}
-	          	}
-	        }
-        }
-        */
-        
         /* Metodo para construir el supply depot */
         if(bwapi.getSelf().getMinerals() >= 100 && refineria == 1 && supply == 0){
         	Unit constructor = null;
-        	Position pos = buscarUbicacion(UnitTypes.Terran_Supply_Depot);
+        	Position pos = searchPointToBuild(centroMando, UnitTypes.Terran_Supply_Depot);
+        	System.out.println(pos.getBX() + " " + pos.getBY());
         	for (Unit unit : this.bwapi.getMyUnits()) {
         		if (unit.getType() == UnitTypes.Terran_SCV){
         			constructor = unit;
@@ -296,7 +273,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         		}
         	}
         	if (constructor != null && pos != null){
-        		crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos);
+        		System.out.println("Crear barraca en: " + pos.getBX() + " " + pos.getBY() + " " + crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos));
         	}
         }
         
@@ -304,7 +281,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         if(bwapi.getSelf().getMinerals() >= 100 && supply == 1 && barraca == 0){
         	Unit constructor = null;
         	// Obtenemos una posicion valida
-        	Position pos = buscarUbicacion(UnitTypes.Terran_Barracks);
+        	Position pos = searchPointToBuild(centroMando, UnitTypes.Terran_Barracks);
         	// Buscamos un constructor
         	for (Unit unit : this.bwapi.getMyUnits()) {
         		if (unit.getType() == UnitTypes.Terran_SCV){
@@ -314,7 +291,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         	}
         	// Construimos si hay un constructor y una posicion
         	if (constructor != null && pos != null){
-        		crearEdificio(constructor.getID(), UnitTypes.Terran_Barracks, pos);
+        		System.out.println("Crear barraca en: " + pos.getBX() + " " + pos.getBY() + " " + crearEdificio(constructor.getID(), UnitTypes.Terran_Barracks, pos));
         	}
         }
         
@@ -577,23 +554,29 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     }
     
     public Position searchPointToBuild(Position posicion, UnitType edificio){
-    	Position buildPos = null;
     	// Obtenemos el mapa para examinar
     	char [][] map = readMapFile();
     	// Obtenemos el espacio necesario para construir el edificio
     	char needSpace = Character.forDigit(edificio.getTileWidth(), 10);
-    	System.out.println(needSpace);
     	// Parametros para el espacio de busqueda
-    	int searchSpace = 10;
-    	int maxTiles = 20;
+    	int searchSpace = 5;
+    	int maxTiles = 10;
     	for (int x = posicion.getBX() - searchSpace; x < posicion.getBX() + maxTiles; x++){
     		for (int y = posicion.getBY() - searchSpace; y < posicion.getBY() + maxTiles; y++){
-    			if (map[x][y] == needSpace){
-    				buildPos = new Position(x, y, PosType.BUILD);
+    			if ((x >= 0 && x < map.length) && (y >= 0 && y < map[0].length)){
+    				if (map[x][y] == 'M' || map[x][y] == 'V' || map[x][y] == '0'){
+    					System.out.println("HOLAP " + x + " " + y + " hay " + map[x][y]);
+    					continue;
+    				}
+    				System.out.println("En " + x + " " + y + " value del " + Character.valueOf(map[x][y]) + " contra " + Character.valueOf(needSpace) + " " + Character.compare(map[x][y], needSpace));
+    				if (Character.compare(map[x][y], needSpace) == 0 || Character.compare(map[x][y], needSpace) > 0){
+    					System.out.println("Tengo que entrar joder");
+        				return new Position(x, y, PosType.BUILD);
+        			}
     			}
     		}
     	}
-    	return buildPos;
+    	return null;
     }
     
     @Override
