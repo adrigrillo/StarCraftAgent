@@ -50,6 +50,8 @@ import jnibwapi.types.UpgradeType.UpgradeTypes;
 import org.iaie.Agent;
 import org.iaie.tools.Options;
 
+import com.sun.javafx.scene.paint.GradientUtils.Point;
+
 
 /**
  * Cliente de IA que utiliza JNI-BWAPI.
@@ -147,17 +149,10 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
             	centroMando = unit.getPosition();
             }
-        }   
-        
-        char matriz[][] = readMapFile();
-        System.out.println("Alto " + matriz[0].length + " Real " + bwapi.getMap().getSize().getBY());
-        System.out.println("Ancho " + matriz.length + " real " + bwapi.getMap().getSize().getBX());
-        for(int y = 0; y < matriz[0].length; y++){
-			for (int x = 0; x < matriz.length; x++){
-				System.out.print(matriz[x][y]);
-			}
-			System.out.println();
         }
+        
+        Position acd = searchPointToBuild(new Position(10, 10, PosType.BUILD), UnitTypes.Terran_Barracks);
+        System.out.println(acd.getBX() + " " + acd.getBY());
     }
 
     /**
@@ -579,6 +574,26 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     		System.out.println("Error: " + e.getMessage());
     		return null;
 		}
+    }
+    
+    public Position searchPointToBuild(Position posicion, UnitType edificio){
+    	Position buildPos = null;
+    	// Obtenemos el mapa para examinar
+    	char [][] map = readMapFile();
+    	// Obtenemos el espacio necesario para construir el edificio
+    	char needSpace = Character.forDigit(edificio.getTileWidth(), 10);
+    	System.out.println(needSpace);
+    	// Parametros para el espacio de busqueda
+    	int searchSpace = 10;
+    	int maxTiles = 20;
+    	for (int x = posicion.getBX() - searchSpace; x < posicion.getBX() + maxTiles; x++){
+    		for (int y = posicion.getBY() - searchSpace; y < posicion.getBY() + maxTiles; y++){
+    			if (map[x][y] == needSpace){
+    				buildPos = new Position(x, y, PosType.BUILD);
+    			}
+    		}
+    	}
+    	return buildPos;
     }
     
     @Override
