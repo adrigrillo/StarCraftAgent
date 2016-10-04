@@ -260,7 +260,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             }
         }  
         
-        /* Metodo para construir el supply depot 
+        /* Metodo para construir el supply depot */
         if(bwapi.getSelf().getMinerals() >= 100 && refineria == 1 && supply == 0){
         	Unit constructor = null;
         	Position pos = searchPointToBuild(centroMando, UnitTypes.Terran_Supply_Depot);
@@ -602,11 +602,11 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     	}
     	/* Ahora pasamos a comprobar los alrededores del edificio nuevo para
     	 * comprobar los nuevos espacios */
-		for(int y = topIzq.getBY() - 4; y < botDer.getBY(); y++){
-			for (int x = topIzq.getBX() - 4; x < botDer.getBX(); x++){
+		for(int y = topIzq.getBY() - 4; y <= botDer.getBY(); y++){
+			for (int x = topIzq.getBX() - 4; x <= botDer.getBX(); x++){
 				if (map[x][y] == '1' || map[x][y] == '2' || map[x][y] == '3' || map[x][y] == '4'){
 					// Examinamos el terreno desde 2 a 4 espacios
-					for (int espacio = 2; espacio <= 4; espacio++){
+					for (int espacio = 1; espacio <= 4; espacio++){
 						// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
 						boolean valido = true;
 						// Navegamos por las casillas adyacentes 
@@ -621,6 +621,10 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
 									}
 								}
 							}
+						}
+						// Si hay espacio para uno se cambia la casilla
+						if (espacio == 1 && valido == true){
+							map[x][y] = '1';
 						}
 						// Si hay espacio para dos se cambia la casilla
 						if (espacio == 2 && valido == true){
