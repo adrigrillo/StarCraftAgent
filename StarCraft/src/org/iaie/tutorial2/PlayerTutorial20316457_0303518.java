@@ -584,7 +584,9 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     
     /**
      * Metodo que actualiza la matriz del mapa tras recibir la posicion que ocupa
-     * el nuevo edificio a construir y la guarda en el archivo
+     * el nuevo edificio a construir y la guarda en el archivo.
+     * 
+     * Además también actualiza los alrededores de la nueva construccion para actualizar el mapa
      * 
      * @param topIzq Position de la esquina superior izquierda del edificio
      * @param botDer Position de la esquina inferior derecha del edificio
@@ -592,12 +594,50 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     public void updateMap(Position topIzq, Position botDer){
     	// Leemos el mapa
     	char [][] map = readMapFile();
-    	// Recorremos la matriz del edificio
+    	// Recorremos la matriz del edificio para establecer los nuevos '0'
     	for (int x = topIzq.getBX(); x <= botDer.getBX(); x++){
     		for (int y = topIzq.getBY(); y <= botDer.getBY(); y++){
     			map [x][y] = '0';
     		}
     	}
+    	/* Ahora pasamos a comprobar los alrededores del edificio nuevo para
+    	 * comprobar los nuevos espacios */
+		for(int y = topIzq.getBY() - 4; y < botDer.getBY(); y++){
+			for (int x = topIzq.getBX() - 4; x < botDer.getBX(); x++){
+				if (map[x][y] == '1' || map[x][y] == '2' || map[x][y] == '3' || map[x][y] == '4'){
+					// Examinamos el terreno desde 2 a 4 espacios
+					for (int espacio = 2; espacio <= 4; espacio++){
+						// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
+						boolean valido = true;
+						// Navegamos por las casillas adyacentes 
+						for (int i = x; i < x + espacio; i++){
+							for (int j = y; j < y + espacio; j++){
+								if (i < map.length && j < map[0].length){
+									/* Si se encuentra una mina, geiser o edificio pasa a ser invalido
+									 * dependiendo de la distacia de busqueda
+									 */
+									if (map[i][j] == '0' || map[i][j] == 'M' || map[i][j] == 'V' ){
+										valido = false;
+									}
+								}
+							}
+						}
+						// Si hay espacio para dos se cambia la casilla
+						if (espacio == 2 && valido == true){
+							map[x][y] = '2';
+						}
+						// Si hay espacio para dos se cambia la casilla
+						else if (espacio == 3 && valido == true){
+							map[x][y] = '3';
+						}
+						// Si hay espacio para dos se cambia la casilla
+						else if (espacio == 4 && valido == true){
+							map[x][y] = '4';
+						}
+					}
+				}
+			}
+		}
     	writeMapFile(map);
     }
     
