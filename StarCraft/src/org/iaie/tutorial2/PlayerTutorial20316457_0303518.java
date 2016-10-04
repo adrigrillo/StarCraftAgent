@@ -600,7 +600,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     	 * comprobar los nuevos espacios */
 		for(int y = topIzq.getBY() - 4; y <= botDer.getBY(); y++){
 			for (int x = topIzq.getBX() - 4; x <= botDer.getBX(); x++){
-				if ((x > 0 && x < map.length) && (y > 0 && y < map[0].length)){
+				if ((x >= 0 && x < map.length) && (y >= 0 && y < map[0].length)){
 					if (map[x][y] == '1' || map[x][y] == '2' || map[x][y] == '3' || map[x][y] == '4'){
 						// Examinamos el terreno desde 2 a 4 espacios
 						for (int espacio = 1; espacio <= 4; espacio++){
