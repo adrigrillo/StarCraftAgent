@@ -147,7 +147,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         for (Unit unit : bwapi.getMyUnits()) {
             // Se compruba si existe alguna centro de control y si esta construido
             if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
-            	centroMando = unit.getPosition();
+            	centroMando = unit.getTopLeft();
             }
         }
     }
@@ -272,11 +272,11 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         		}
         	}
         	if (constructor != null && pos != null){
-        		System.out.println("Crear barraca en: " + pos.getBX() + " " + pos.getBY() + " " + crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos));
+        		System.out.println("Crear suply en: " + pos.getBX() + " " + pos.getBY() + " " + crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos));
         	}
         }
         
-        /* Método para crear la barraca 
+        /* Método para crear la barraca */
         if(bwapi.getSelf().getMinerals() >= 100 && supply == 1 && barraca == 0){
         	Unit constructor = null;
         	// Obtenemos una posicion valida
@@ -604,39 +604,41 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     	 * comprobar los nuevos espacios */
 		for(int y = topIzq.getBY() - 4; y <= botDer.getBY(); y++){
 			for (int x = topIzq.getBX() - 4; x <= botDer.getBX(); x++){
-				if (map[x][y] == '1' || map[x][y] == '2' || map[x][y] == '3' || map[x][y] == '4'){
-					// Examinamos el terreno desde 2 a 4 espacios
-					for (int espacio = 1; espacio <= 4; espacio++){
-						// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
-						boolean valido = true;
-						// Navegamos por las casillas adyacentes 
-						for (int i = x; i < x + espacio; i++){
-							for (int j = y; j < y + espacio; j++){
-								if (i < map.length && j < map[0].length){
-									/* Si se encuentra una mina, geiser o edificio pasa a ser invalido
-									 * dependiendo de la distacia de busqueda
-									 */
-									if (map[i][j] == '0' || map[i][j] == 'M' || map[i][j] == 'V' ){
-										valido = false;
+				if ((x > 0 && x < map.length) && (y > 0 && y < map[0].length)){
+					if (map[x][y] == '1' || map[x][y] == '2' || map[x][y] == '3' || map[x][y] == '4'){
+						// Examinamos el terreno desde 2 a 4 espacios
+						for (int espacio = 1; espacio <= 4; espacio++){
+							// Creamos una variable para indicar si la comprobacion ha sido correcta y hay espacio
+							boolean valido = true;
+							// Navegamos por las casillas adyacentes 
+							for (int i = x; i < x + espacio; i++){
+								for (int j = y; j < y + espacio; j++){
+									if (i < map.length && j < map[0].length){
+										/* Si se encuentra una mina, geiser o edificio pasa a ser invalido
+										 * dependiendo de la distacia de busqueda
+										 */
+										if (map[i][j] == '0' || map[i][j] == 'M' || map[i][j] == 'V' ){
+											valido = false;
+										}
 									}
 								}
 							}
-						}
-						// Si hay espacio para uno se cambia la casilla
-						if (espacio == 1 && valido == true){
-							map[x][y] = '1';
-						}
-						// Si hay espacio para dos se cambia la casilla
-						if (espacio == 2 && valido == true){
-							map[x][y] = '2';
-						}
-						// Si hay espacio para dos se cambia la casilla
-						else if (espacio == 3 && valido == true){
-							map[x][y] = '3';
-						}
-						// Si hay espacio para dos se cambia la casilla
-						else if (espacio == 4 && valido == true){
-							map[x][y] = '4';
+							// Si hay espacio para uno se cambia la casilla
+							if (espacio == 1 && valido == true){
+								map[x][y] = '1';
+							}
+							// Si hay espacio para dos se cambia la casilla
+							if (espacio == 2 && valido == true){
+								map[x][y] = '2';
+							}
+							// Si hay espacio para dos se cambia la casilla
+							else if (espacio == 3 && valido == true){
+								map[x][y] = '3';
+							}
+							// Si hay espacio para dos se cambia la casilla
+							else if (espacio == 4 && valido == true){
+								map[x][y] = '4';
+							}
 						}
 					}
 				}
