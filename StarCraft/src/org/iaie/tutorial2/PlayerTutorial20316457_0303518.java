@@ -264,7 +264,6 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         if(bwapi.getSelf().getMinerals() >= 100 && refineria == 1 && supply == 0){
         	Unit constructor = null;
         	Position pos = searchPointToBuild(centroMando, UnitTypes.Terran_Supply_Depot);
-        	System.out.println(pos.getBX() + " " + pos.getBY());
         	for (Unit unit : this.bwapi.getMyUnits()) {
         		if (unit.getType() == UnitTypes.Terran_SCV){
         			constructor = unit;
@@ -272,7 +271,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         		}
         	}
         	if (constructor != null && pos != null){
-        		System.out.println("Crear suply en: " + pos.getBX() + " " + pos.getBY() + " " + crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos));
+        		crearEdificio(constructor.getID(), UnitTypes.Terran_Supply_Depot, pos);
         	}
         }
         
@@ -290,7 +289,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         	}
         	// Construimos si hay un constructor y una posicion
         	if (constructor != null && pos != null){
-        		System.out.println("Crear barraca en: " + pos.getBX() + " " + pos.getBY() + " " + crearEdificio(constructor.getID(), UnitTypes.Terran_Barracks, pos));
+        		crearEdificio(constructor.getID(), UnitTypes.Terran_Barracks, pos);
         	}
         }
         
@@ -568,12 +567,9 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     		for (int y = posicion.getBY() - searchSpace; y < posicion.getBY() + maxTiles; y++){
     			if ((x >= 0 && x < map.length) && (y >= 0 && y < map[0].length)){
     				if (map[x][y] == 'M' || map[x][y] == 'V' || map[x][y] == '0'){
-    					System.out.println("HOLAP " + x + " " + y + " hay " + map[x][y]);
     					continue;
     				}
-    				System.out.println("En " + x + " " + y + " value del " + Character.valueOf(map[x][y]) + " contra " + Character.valueOf(needSpace) + " " + Character.compare(map[x][y], needSpace));
     				if (Character.compare(map[x][y], needSpace) == 0 || Character.compare(map[x][y], needSpace) > 0){
-    					System.out.println("Tengo que entrar joder");
         				return new Position(x, y, PosType.BUILD);
         			}
     			}
