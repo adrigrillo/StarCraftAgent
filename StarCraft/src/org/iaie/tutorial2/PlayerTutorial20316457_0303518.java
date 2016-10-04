@@ -477,6 +477,10 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
 										valido = false;
 									}
 								}
+								// Si se sale del tablero falla tambien
+								else{
+									valido = false;
+								}
 							}
 						}
 						// Si hay espacio para dos se cambia la casilla
@@ -616,6 +620,9 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
 										if (map[i][j] == '0' || map[i][j] == 'M' || map[i][j] == 'V' ){
 											valido = false;
 										}
+									}
+									else{
+										valido = false;
 									}
 								}
 							}
