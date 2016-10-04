@@ -148,7 +148,6 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             // Se compruba si existe alguna centro de control y si esta construido
             if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
             	centroMando = unit.getPosition();
-            	System.out.println(centroMando.getBX() + " " + centroMando.getBY());
             }
         }
     }
@@ -261,7 +260,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
             }
         }  
         
-        /* Metodo para construir el supply depot */
+        /* Metodo para construir el supply depot 
         if(bwapi.getSelf().getMinerals() >= 100 && refineria == 1 && supply == 0){
         	Unit constructor = null;
         	Position pos = searchPointToBuild(centroMando, UnitTypes.Terran_Supply_Depot);
@@ -277,7 +276,7 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
         	}
         }
         
-        /* Método para crear la barraca */
+        /* Método para crear la barraca 
         if(bwapi.getSelf().getMinerals() >= 100 && supply == 1 && barraca == 0){
         	Unit constructor = null;
         	// Obtenemos una posicion valida
@@ -338,7 +337,11 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     	} else {
 	    	if (bwapi.canBuildHere(pos, edificio, false)){
 	    		Unit trabajador = bwapi.getUnit(trabaid);
-	    		return trabajador.build(pos, edificio);
+	    		boolean cumplido = trabajador.build(pos, edificio);
+	    		if (cumplido == true){
+	    			updateMap(pos, new Position((pos.getBX() + (edificio.getTileWidth()-1)), (pos.getBY() + (edificio.getTileHeight()-1)), PosType.BUILD));
+	    		}
+	    		return cumplido;
 	    	}
 	    	return false;
     	}
@@ -577,6 +580,25 @@ public class PlayerTutorial20316457_0303518 extends Agent implements BWAPIEventL
     		}
     	}
     	return null;
+    }
+    
+    /**
+     * Metodo que actualiza la matriz del mapa tras recibir la posicion que ocupa
+     * el nuevo edificio a construir y la guarda en el archivo
+     * 
+     * @param topIzq Position de la esquina superior izquierda del edificio
+     * @param botDer Position de la esquina inferior derecha del edificio
+     */
+    public void updateMap(Position topIzq, Position botDer){
+    	// Leemos el mapa
+    	char [][] map = readMapFile();
+    	// Recorremos la matriz del edificio
+    	for (int x = topIzq.getBX(); x <= botDer.getBX(); x++){
+    		for (int y = topIzq.getBY(); y <= botDer.getBY(); y++){
+    			map [x][y] = '0';
+    		}
+    	}
+    	writeMapFile(map);
     }
     
     @Override
