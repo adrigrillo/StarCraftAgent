@@ -35,7 +35,6 @@ package org.iaie.tutorial2;
 
 import java.util.HashSet;
 import java.io.*;
-import java.util.*;
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
@@ -49,8 +48,6 @@ import jnibwapi.types.UpgradeType;
 import jnibwapi.types.UpgradeType.UpgradeTypes;
 import org.iaie.Agent;
 import org.iaie.tools.Options;
-
-import com.sun.javafx.scene.paint.GradientUtils.Point;
 
 
 /**
