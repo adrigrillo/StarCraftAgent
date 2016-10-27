@@ -8,48 +8,40 @@ import org.iaie.search.Successor;
 import org.iaie.search.algorithm.Astar;
 
 import jnibwapi.JNIBWAPI;
+import jnibwapi.Position;
+import jnibwapi.Position.PosType;
 
 public class SearchP11 extends Astar{
+	private JNIBWAPI bwapi;
 
 	public SearchP11(JNIBWAPI map) {
 		super(map.getMap());
-		// TODO Auto-generated constructor stub
+		this.bwapi = map;
 	}
 
 	@Override
 	public List<Successor> generateSuccessors(Point actualState) {
-		System.out.println("Punto actual: "+ actualState.x + " "+ actualState.y);
+		/* Creamos en tipo posicion para usar isWalkable() */
+		List<Position> posiciones = new ArrayList<Position>();
+		posiciones.add(new Position(actualState.x, actualState.y - 1, PosType.WALK));
+		posiciones.add(new Position(actualState.x, actualState.y + 1, PosType.WALK));
+		posiciones.add(new Position(actualState.x + 1, actualState.y, PosType.WALK));
+		posiciones.add(new Position(actualState.x - 1, actualState.y, PosType.WALK));
+
+		/* Comprobamos las posiciones y las metemos en la lista */
 		List<Successor> listaSucesores = new ArrayList<Successor> ();
-		/*Punto de arriba*/
-		Point punto = new Point ();
-		punto.setLocation(actualState.x, actualState.y-1);		
-		Successor sucesor = new Successor(punto);
-		listaSucesores.add(sucesor);
-		//System.out.println("Punto arriba: "+ punto.getX() + " "+ punto.getY());
-		/*Punto de abajo*/
-		punto.setLocation(actualState.x, actualState.y+1);		
-		sucesor = new Successor(punto);
-		listaSucesores.add(sucesor);
-		//System.out.println("Punto abajo: "+ punto.getX() + " "+ punto.getY());
-		/*Punto de la izquierda*/
-		punto.setLocation(actualState.x-1, actualState.y);		
-		sucesor = new Successor(punto);
-		listaSucesores.add(sucesor);
-		//System.out.println("Punto izquiera: "+ punto.getX() + " "+ punto.getY());
-		/*Punto de la derecha*/
-		punto.setLocation(actualState.x+1, actualState.y);		
-		sucesor = new Successor(punto);
-		listaSucesores.add(sucesor);
-		//System.out.println("Punto derecha: "+ punto.getX() + " "+ punto.getY());
-		/**/
-		
+		for (int i = 0; i < posiciones.size(); i++){
+			if (bwapi.getMap().isWalkable(posiciones.get(i))){
+				listaSucesores.add(new Successor(new Point(posiciones.get(i).getWX(), posiciones.get(i).getWY())));
+			}
+		}
 		return listaSucesores;
 	}
 
 	@Override
 	public double calculateheuristic(Point state, Point goalState) {
-		// TODO Auto-generated method stub
-		return 0;
+		double distancia = Math.abs(state.x-goalState.x) + Math.abs(state.y-goalState.y);
+		return distancia;
 	}
 
 }

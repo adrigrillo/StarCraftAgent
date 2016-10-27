@@ -10,25 +10,26 @@ import org.iaie.search.algorithm.Astar;
 import jnibwapi.JNIBWAPI;
 
 public class SearchP12 extends Astar{
-
+	private JNIBWAPI map;
+	
 	public SearchP12(JNIBWAPI map) {
 		super(map.getMap());
-		// TODO Auto-generated constructor stub
+		this.map = map;
+
 	}
 
 	@Override
 	public List<Successor> generateSuccessors(Point actualState) {
 		List<Successor> listaSucesores = new ArrayList<Successor> ();
 		Point punto = new Point ();
-		System.out.println("Punto actual P12: "+ actualState.x + " "+ actualState.y);
 
 		for (int x = actualState.x-1; x<=x+1;x++){
 			for(int y = actualState.y-1;y<=y+1;y++){
-				punto.setLocation(x, y);
-				Successor sucesor = new Successor(punto);
-				listaSucesores.add(sucesor);
-				System.out.println("Punto: "+ punto.x + " "+ punto.y);
-
+				if(x>=0 && y>=0 && x<map.getMap().getSize().getBX() && y<map.getMap().getSize().getBY()){
+					punto.setLocation(x, y);
+					Successor sucesor = new Successor(punto);
+					listaSucesores.add(sucesor);
+				}
 			}
 		}
 				
@@ -37,8 +38,11 @@ public class SearchP12 extends Astar{
 
 	@Override
 	public double calculateheuristic(Point state, Point goalState) {
-		// TODO Auto-generated method stub
-		return 0;
+		double x = Math.pow((goalState.x-state.x), 2);
+		double y = Math.pow((goalState.y-state.y), 2);
+		double distancia = Math.sqrt((x+y));
+
+		return distancia;
 	}
 
 }
