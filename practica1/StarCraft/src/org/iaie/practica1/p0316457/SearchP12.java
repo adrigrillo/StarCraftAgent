@@ -42,11 +42,7 @@ public class SearchP12 extends Astar{
 
 	@Override
 	public double calculateheuristic(Point state, Point goalState) {
-		double x = Math.pow((goalState.x-state.x), 2);
-		double y = Math.pow((goalState.y-state.y), 2);
-		double distancia = Math.sqrt((x+y));
-
-		return distancia;
+		return Math.sqrt(Math.pow(goalState.x - state.x, 2) + Math.pow(goalState.y - state.y, 2));
 	}
 
 }
