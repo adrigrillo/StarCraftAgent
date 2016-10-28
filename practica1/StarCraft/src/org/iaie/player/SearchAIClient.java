@@ -44,6 +44,7 @@ import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import org.iaie.Agent;
+import org.iaie.practica1.p0316457.HierarchicalMap;
 import org.iaie.search.Result;
 import org.iaie.search.algorithm.Astar;
 import org.iaie.search.algorithm.HierarchicalSearch;
@@ -81,6 +82,9 @@ public class SearchAIClient extends Agent implements BWAPIEventListener {
         String[] coordinates;
         
         Position location = this.bwapi.getPlayer(this.bwapi.getSelf().getID()).getStartLocation();
+        
+        HierarchicalMap a = new HierarchicalMap(bwapi);
+        a.hola();
         
         this.initial = new Point(location.getWX(), location.getWY());
         this.goals = goals = new ArrayList<>();

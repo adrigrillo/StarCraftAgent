@@ -10,14 +10,16 @@ import jnibwapi.JNIBWAPI;
 
 public class SearchP13 extends Astar{
 
+	private JNIBWAPI bwapi;
+	
 	public SearchP13(JNIBWAPI map) {
 		super(map.getMap());
-		// TODO Auto-generated constructor stub
+		this.bwapi = map;
 	}
 
 	@Override
 	public List<Successor> generateSuccessors(Point actualState) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
