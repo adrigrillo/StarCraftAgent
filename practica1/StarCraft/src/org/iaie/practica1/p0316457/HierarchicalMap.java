@@ -1,11 +1,12 @@
 package org.iaie.practica1.p0316457;
 
-import java.io.File;
-import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import jnibwapi.JNIBWAPI;
 import jnibwapi.Position.PosType;
 import jnibwapi.*;
 
@@ -15,65 +16,94 @@ public class HierarchicalMap {
 	private JNIBWAPI bwapi;
 	
 	// Estructuras de datos para guardar informacion del mapa
-	private HashMap<Region, List<Region>> regMaps;
+	private HashMap<Integer, List<Integer>> adjReg;
+	private HashMap<Integer, HashMap<Integer, ChokePoint>> conectionPoints;
+	private int [][] positionRegion;
 	
 	public HierarchicalMap(JNIBWAPI map) {
 		this.bwapi = map;
 	}
 	
 	public void crearMapasRegiones(){
-		List<Region> regiones = bwapi.getMap().getRegions();
-		generateMapSpaces();
+		adjacentRegions();
+		conectionWAdjRegions();
+		linkPositionToRegion();
 	}
 	
+	
+	/**
+	 * Este metodo crea un hashmap que relaciona una region con sus colindantes
+	 */
+	private void adjacentRegions(){
+		adjReg = new HashMap<Integer, List<Integer>>();
+		List<Region> regions = bwapi.getMap().getRegions();
+		for(int i = 0; i < regions.size(); i++){
+			List<Integer> conectadas = new ArrayList<Integer>(); 
+			Iterator<Region> itr = regions.get(i).getConnectedRegions().iterator();
+			while(itr.hasNext()){
+				conectadas.add(itr.next().getID());
+			}
+			adjReg.put(regions.get(i).getID(), conectadas);
+		}
+	}
+	
+
+	private void conectionWAdjRegions(){
+		conectionPoints = new HashMap<Integer, HashMap<Integer, ChokePoint>>();
+		for(Map.Entry<Integer, List<Integer>> elem : adjReg.entrySet()){
+			List<Integer> regionesConectadas = elem.getValue();
+			for(int i = 0; i < regionesConectadas.size(); i++){
+				HashMap<Integer, ChokePoint> regionPlusChoke = new HashMap<Integer, ChokePoint>();
+				Iterator<ChokePoint> it = bwapi.getMap().getRegion(elem.getKey()).getChokePoints().iterator();
+				while(it.hasNext()){
+					ChokePoint chk = it.next();
+					if(regionesConectadas.get(i).getChokePoints().contains(chk)){
+						regionPlusChoke.put(regionesConectadas.get(i).getID(), chk);
+					}
+				}
+				conectionPoints.put(elem.getKey(), regionPlusChoke);
+			}
+		}
+	}
+	
+	
 	/** 
-     * 	Esta m�todo se utiliza para comprobar el mapa y la posibilidad de construcci�n de 
-     *  los edificios seg�n el espacio que ocupen.
+     * 	Esta metodo se utiliza para establecer un mapa con las posiciones que tiene cada
+     *  region
      *  
-     *  El eje X, que es el ancho del mapa, se guarda en la variable j de la matriz
-     *  El eje Y, que es el alto del mapa, se guarda en la variable i de la matriz
-     *  Es por tanto, que para su correcta impresion se debe hacer matriz[j][i]
-     *  
-     *  @return Genera un .txt con la cuadricula del mapa y los espacios para la construcci�n
-     *  		de los edificios
+     *  El eje X, que es el ancho del mapa, se guarda en la variable j de la positionRegion
+     *  El eje Y, que es el alto del mapa, se guarda en la variable i de la positionRegion
+     *  Es por tanto, que para su correcta impresion se debe hacer positionRegion[j][i]
      */
-    public void generateMapSpaces(){
+    private void linkPositionToRegion(){
         int ancho = bwapi.getMap().getSize().getBX();
         int alto = bwapi.getMap().getSize().getBY();
-        int[][] matriz = new int [ancho][alto];
-        /* Primero pasaremos a analizar todo el mapa, estableciendo lo siguiente:
-         * 	-	Si es 0, no se puede construir en la casilla
-         * 	-	Si es 1, la casilla es construible 
-         */
-        try {
-			for(int y = 0; y < alto; y++){
-				for (int x = 0; x < ancho; x++){
-					// Comprobamos si la posiciones son contruibles o no
-					Position posActual = new Position(x, y, PosType.BUILD);
-					if (bwapi.getMap().getRegion(posActual) != null){
-						matriz[x][y] = bwapi.getMap().getRegion(posActual).getID();
-					}
-					else{
-						matriz[x][y] = -1;
-					}
-					
+        positionRegion = new int [ancho][alto];
+        // Analizamos todo el mapa, estableciendo la region de cada posicion
+		for(int y = 0; y < alto; y++){
+			for (int x = 0; x < ancho; x++){
+				// Comprobamos si la posiciones son contruibles o no
+				Position posActual = new Position(x, y, PosType.WALK);
+				if (bwapi.getMap().getRegion(posActual) != null){
+					positionRegion[x][y] = bwapi.getMap().getRegion(posActual).getID();
+				}
+				else{
+					positionRegion[x][y] = -1;
 				}
 			}
-		/* Pasamos a guardar la matriz del mapa en un archivo */
-		
-			File archivo = new File("buildingMap-0316457-0303518.txt");
-			PrintWriter writer = new PrintWriter(archivo);
-			for(int y = 0; y < matriz[0].length; y++){
-				for (int x = 0; x < matriz.length; x++){
-					writer.print(matriz[x][y]);
-				}
-				writer.println();
-			}
-			
-			writer.close();
 		}
-		catch (Exception e) {
-			System.out.println("Error: " + e.getMessage());
-		}
-    }	
+    }
+    
+    
+    /**
+     * Metodo encargado de devolver la region de una posicion
+     * 
+     * @param x Eje x de la posicion
+     * @param y Eje Y de la posicion
+     * @return ID de la region
+     */
+    public int regionOfPosition(int x, int y){
+    	return positionRegion[x][y];
+    }
+    
 }
