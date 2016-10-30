@@ -60,10 +60,10 @@ Implementation details. Amit has a long section on how to make A\* efficient. Fo
 
 Various fancier data structures. This seems like a key section. If you represent a Starcraft map as a grid of tiles, then A\* will have to do a ton of work to step over each tile that might be in a path. Amit offers these choices that seem relevant to Starcraft.
 
-visibility graph - draw polygons around obstacles and navigate from corner to corner
-navigation mesh - break walkable areas into convex polygons and navigate from edge to edge
-hierarchical representations - where each hierarchy level may be of a different type
-skip links - add extra graph edges to take long paths in one A\* search step (cheap imitation hierarchical representation)
+- visibility graph - draw polygons around obstacles and navigate from corner to corner
+- navigation mesh - break walkable areas into convex polygons and navigate from edge to edge
+- hierarchical representations - where each hierarchy level may be of a different type
+- skip links - add extra graph edges to take long paths in one A\* search step (cheap imitation hierarchical representation)
 And there are choices about how to use each representation. It an important topic, but I don’t know enough to judge which ideas are worth going into in detail. I’ll come back to it when I’ve gotten further along.
 
 Path recalculation when the map changes on you, ditto: I’ll revisit if necessary when I know more.

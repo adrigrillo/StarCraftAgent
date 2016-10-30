@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import jnibwapi.Position.PosType;
 import jnibwapi.*;
@@ -24,7 +23,7 @@ public class HierarchicalMap {
 		this.bwapi = map;
 	}
 	
-	public void crearMapasRegiones(){
+	public void exec(){
 		adjacentRegions();
 		conectionWAdjRegions();
 		linkPositionToRegion();
@@ -32,7 +31,8 @@ public class HierarchicalMap {
 	
 	
 	/**
-	 * Este metodo crea un hashmap que relaciona una region con sus colindantes
+	 * Este metodo crea un hashmap que relaciona una region con las regiones colindantes.
+	 * Tomara como clave la id de la region que examina, y meterá en una lista las regiones colindantes
 	 */
 	private void adjacentRegions(){
 		adjReg = new HashMap<Integer, List<Integer>>();
@@ -47,22 +47,27 @@ public class HierarchicalMap {
 		}
 	}
 	
-
+	
+	/**
+	 * Este metodo crea un hashmap con el objetivo de indicar el chokepoint que conecta una region con su colindante
+	 * Toma como clave el id de la region y lo relaciona con un nuevo hashmap que indica en la clave la region
+	 * con la que conecta y como valor el chokepoint que une ambas regiones 
+	 */
 	private void conectionWAdjRegions(){
 		conectionPoints = new HashMap<Integer, HashMap<Integer, ChokePoint>>();
 		for(Map.Entry<Integer, List<Integer>> elem : adjReg.entrySet()){
-			List<Integer> regionesConectadas = elem.getValue();
-			for(int i = 0; i < regionesConectadas.size(); i++){
-				HashMap<Integer, ChokePoint> regionPlusChoke = new HashMap<Integer, ChokePoint>();
-				Iterator<ChokePoint> it = bwapi.getMap().getRegion(elem.getKey()).getChokePoints().iterator();
-				while(it.hasNext()){
-					ChokePoint chk = it.next();
-					if(regionesConectadas.get(i).getChokePoints().contains(chk)){
-						regionPlusChoke.put(regionesConectadas.get(i).getID(), chk);
-					}
+			Iterator<ChokePoint> it = bwapi.getMap().getRegion(elem.getKey()).getChokePoints().iterator();
+			HashMap<Integer, ChokePoint> regionPlusChoke = new HashMap<Integer, ChokePoint>();
+			while(it.hasNext()){
+				ChokePoint chokepoint = it.next();
+				if(chokepoint.getFirstRegion().getID() == elem.getKey()){
+					regionPlusChoke.put(chokepoint.getSecondRegion().getID(), chokepoint);
 				}
-				conectionPoints.put(elem.getKey(), regionPlusChoke);
+				else{
+					regionPlusChoke.put(chokepoint.getFirstRegion().getID(), chokepoint);
+				}
 			}
+			conectionPoints.put(elem.getKey(), regionPlusChoke);
 		}
 	}
 	
