@@ -64,6 +64,7 @@ public class HSearch extends HierarchicalSearch{
         int expandedNodesGlobal = 0;
         int generatedNodesGlobal = 0;
         List<Point> path = new ArrayList<>();
+        boolean solucion = false;
         
         // Iniciamos la lista donde pondremos lo nodos ampliados
         openList.add(new SearchNode(start, 0, regionFinder.calculateheuristic(start, end), 0));
@@ -74,13 +75,7 @@ public class HSearch extends HierarchicalSearch{
             if (obtainData.regionOfPosition(actualState.getPosition().x, actualState.getPosition().y) == obtainData.regionOfPosition(end.x, end.y)) {
             	// Calculamos el camino desde el chokepoint hasta el punto
             	resFinal = pathFinder.search(actualState.getPosition().getLocation(), end);
-            	// Sumamos los resultados y creamos la solucion final
-            	time += resFinal.getTime();
-            	cost += resFinal.getCost();
-            	expandedNodesGlobal += resFinal.getExpandedNodes();
-            	generatedNodesGlobal += resFinal.getGeneratedNodes();
-            	path.addAll(resFinal.getPath());
-            	resFinal = new Result(path, generatedNodesGlobal, expandedNodesGlobal, cost, time);
+            	solucion = true;
             	break;
             }
         	
@@ -111,13 +106,13 @@ public class HSearch extends HierarchicalSearch{
                 if (!closeList.contains(successor)) {
                 	// Calculamos el coste hasta el momento
                     double newg = actualState.getG() + successor.getCost();
-                    
                     if (!costList.containsKey(successor.getCoordinate()) || costList.get(successor.getCoordinate()) > newg) {
                     	costList.put(successor.getCoordinate(), newg);
-                    	for (Iterator<SearchNode> it = openList.iterator(); it.hasNext();) {
-                    		if (it.next().getPosition().equals(successor.getCoordinate()))
-                    			it.remove();
-	                    }
+                    	for (int i = 0; i < openList.size(); i++){
+                    		if (openList.get(i).getPosition().equals(successor.getCoordinate())){
+                    			openList.remove(i);
+                    		}
+                    	}
                     	SearchNode newNode = new SearchNode (successor.getCoordinate(), actualState, newg, regionFinder.calculateheuristic(successor.getCoordinate(), end), successor.getCost());
                     	boolean menor = false;
                     	for(int i = 0; i < openList.size(); i++){
@@ -135,6 +130,18 @@ public class HSearch extends HierarchicalSearch{
                 }
             }
         }
+        // Sumamos los resultados y creamos la solucion final
+        time += resFinal.getTime();
+    	cost += resFinal.getCost();
+    	expandedNodesGlobal += resFinal.getExpandedNodes();
+    	generatedNodesGlobal += resFinal.getGeneratedNodes();
+        if (solucion == true){
+        	path.addAll(resFinal.getPath());
+        }
+        else {
+        	path = null;
+        }
+        resFinal = new Result(path, generatedNodesGlobal, expandedNodesGlobal, cost, time);
 		return resFinal;
 	}
 
