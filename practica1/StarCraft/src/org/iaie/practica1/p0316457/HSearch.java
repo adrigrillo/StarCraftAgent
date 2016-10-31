@@ -48,7 +48,9 @@ public class HSearch extends HierarchicalSearch{
 		int expandedNodes = 0;
         int generatedNodes = 1;
         SearchNode actualState;
+        int regActualState;
         SearchNode nextState;
+        int regNextState = -1;
         List<SearchNode> openList = new ArrayList<>();
         HashSet<SearchNode> closeList = new HashSet<>(); // Close List
         HashMap<Point, Double> costList = new HashMap<>();
@@ -61,8 +63,9 @@ public class HSearch extends HierarchicalSearch{
         boolean solucion = false;
         
         // Iniciamos la lista donde pondremos lo nodos ampliados
-        openList.add(new SearchNode(start, 0, regionFinder.calculateheuristic(start, end), 0));
         actualState = new SearchNode(start, 0, regionFinder.calculateheuristic(start, end), 0);
+        regActualState = obtainData.regionOfPosition(actualState.getPosition().x, actualState.getPosition().y);
+        openList.add(actualState);
         
         while (!openList.isEmpty()) {
             // Si la region de la posicion es igual que la region de la meta se busca el camino directo
@@ -75,7 +78,23 @@ public class HSearch extends HierarchicalSearch{
         	
         	// Sacamos la primera posicion de la lista
             nextState = openList.remove(0);
-            
+            boolean encontrado = false;
+            for(int x = nextState.getPosition().x - 2; x < nextState.getPosition().x + 2; x++){
+            	for(int y = nextState.getPosition().y - 2; y < nextState.getPosition().y + 2; y++){
+            		if (x > 0 && x < bwapi.getMap().getSize().getWX() && y > 0 && y < bwapi.getMap().getSize().getWY()){
+            			if(obtainData.regionOfPosition(actualState.getPosition().x, actualState.getPosition().y) != obtainData.regionOfPosition(x, y) && obtainData.regionOfPosition(actualState.getPosition().x, actualState.getPosition().y) != -1){
+                			regNextState = obtainData.regionOfPosition(x, y);
+                			nextState = new SearchNode(new Point(x, y), nextState.getG(), nextState.getH(), nextState.getCost());
+                			encontrado = true;
+                			break;
+                		}
+            		}
+            	}
+            	if (encontrado){
+            		break;
+            	}
+            }
+                        
             // Si no es el mismo nodo en el que estamos calculamos el camino
             if(actualState.getPosition() != nextState.getPosition()){
             	resFinal = pathFinder.search(actualState.getPosition(), nextState.getPosition());
@@ -89,6 +108,7 @@ public class HSearch extends HierarchicalSearch{
             // Metemos el estado actual en la lista de recorridos y pasamos el siguiente al estado actual
             closeList.add(actualState);
             actualState = nextState;
+            regActualState = regNextState;
             expandedNodes++;
 
             // Obtenemos los sucesores
