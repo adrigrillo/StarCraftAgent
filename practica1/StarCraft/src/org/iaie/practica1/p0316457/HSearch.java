@@ -2,6 +2,7 @@ package org.iaie.practica1.p0316457;
 
 import java.awt.Point;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,36 +53,54 @@ public class HSearch extends HierarchicalSearch{
 		obtainData.exec();
 		int expandedNodes = 0;
         int generatedNodes = 1;
-        PriorityQueue<SearchNode> openList = new PriorityQueue<>(new Comparator<SearchNode>() {
-        	public int compare(SearchNode node1, SearchNode node2){
-        		return (node1.getH() + node1.getG()) < (node2.getH() + node2.getG()) ? -1 : (node1.getH() + node1.getG()) == (node2.getH() + node2.getG()) ? 0 : 1;
-        	}
-		}); // Open List
+        SearchNode actualState;
+        SearchNode nextState;
+        List<SearchNode> openList = new ArrayList<>();
         HashSet<SearchNode> closeList = new HashSet<>(); // Close List
         HashMap<Point, Double> costList = new HashMap<>();
         Result resFinal = null;
+        long time = 0;
+        int cost = 0;
+        int expandedNodesGlobal = 0;
+        int generatedNodesGlobal = 0;
+        List<Point> path = new ArrayList<>();
         
         // Iniciamos la lista donde pondremos lo nodos ampliados
         openList.add(new SearchNode(start, 0, regionFinder.calculateheuristic(start, end), 0));
+        actualState = new SearchNode(start, 0, regionFinder.calculateheuristic(start, end), 0);
         
         while (!openList.isEmpty()) {
-        	// Sacamos la primera posicion de la lista
-            SearchNode actualState = openList.poll();
-            
-            // Si no es el mismo nodo en el que estamos calculamos el camino
-            if(actualState.getPosition() != start){
-            	
-            }
-            
             // Si la region de la posicion es igual que la region de la meta se busca el camino directo
             if (obtainData.regionOfPosition(actualState.getPosition().x, actualState.getPosition().y) == obtainData.regionOfPosition(end.x, end.y)) {
-            	//LLamar a p12 para buscar camino
+            	// Calculamos el camino desde el chokepoint hasta el punto
+            	resFinal = pathFinder.search(actualState.getPosition().getLocation(), end);
+            	// Sumamos los resultados y creamos la solucion final
+            	time += resFinal.getTime();
+            	cost += resFinal.getCost();
+            	expandedNodesGlobal += resFinal.getExpandedNodes();
+            	generatedNodesGlobal += resFinal.getGeneratedNodes();
+            	path.addAll(resFinal.getPath());
+            	resFinal = new Result(path, generatedNodesGlobal, expandedNodesGlobal, cost, time);
+            	break;
+            }
+        	
+        	// Sacamos la primera posicion de la lista
+            nextState = openList.remove(0);
+            
+            // Si no es el mismo nodo en el que estamos calculamos el camino
+            if(actualState.getPosition() != nextState.getPosition()){
+            	resFinal = pathFinder.search(actualState.getPosition(), nextState.getPosition());
+            	time += resFinal.getTime();
+            	cost += resFinal.getCost();
+            	expandedNodesGlobal += resFinal.getExpandedNodes();
+            	generatedNodesGlobal += resFinal.getGeneratedNodes();
+            	path.addAll(resFinal.getPath());
             }
             
+            // Metemos el estado actual en la lista de recorridos y pasamos el siguiente al estado actual
             closeList.add(actualState);
+            actualState = nextState;
             expandedNodes++;
-
-            if (this.debugMode) System.out.println("Expanded Node(H:" + new DecimalFormat("#.##").format(actualState.getH()) + " G:" + new DecimalFormat("#.##").format(actualState.getG()) + "): Position(" + actualState.getPosition().x  + ", " + actualState.getPosition().y + ").");
 
             // Obtenemos los sucesores
             List<Successor> successors = regionFinder.generateSuccessors(actualState.getPosition());
@@ -100,13 +119,23 @@ public class HSearch extends HierarchicalSearch{
                     			it.remove();
 	                    }
                     	SearchNode newNode = new SearchNode (successor.getCoordinate(), actualState, newg, regionFinder.calculateheuristic(successor.getCoordinate(), end), successor.getCost());
-                    	openList.add(newNode);
+                    	boolean menor = false;
+                    	for(int i = 0; i < openList.size(); i++){
+                    		if ((newNode.getH() + newNode.getG()) < (openList.get(i).getH() + openList.get(i).getG())){
+                    			openList.add(i, newNode);
+                    			menor = true;
+                    			break;
+                    		}
+                    	}
+                    	if (menor == false){
+                    		openList.add(newNode);
+                    	}	
                         generatedNodes++;
                     }
                 }
             }
         }
-		return null;
+		return resFinal;
 	}
 
 
