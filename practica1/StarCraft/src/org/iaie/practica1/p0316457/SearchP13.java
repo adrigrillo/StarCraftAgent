@@ -34,7 +34,9 @@ public class SearchP13 extends Astar{
 		// Obtenemos la lista de regiones con sus adyacentes y los puntos que las unen
 		HashMap<Integer, HashMap<Integer, ChokePoint>> conectionpoints = hm.getConnectionPoints();
 		if(conectionpoints.containsKey(idRegion)){
+			// Obtenemos los chokepoint de la region actual
 			HashMap<Integer, ChokePoint> adjConections = conectionpoints.get(idRegion);
+			// Añadimos la posicion del chokepoint que esta en el lado opuesto a la region actual (nueva region)
 			for(ChokePoint conexion : adjConections.values()){
 				if (conexion.getFirstRegion().getID() == idRegion){
 					sucesores.add(new Successor(new Point(conexion.getSecondSide().getWX(), conexion.getSecondSide().getWY())));
@@ -49,7 +51,7 @@ public class SearchP13 extends Astar{
 
 	@Override
 	public double calculateheuristic(Point state, Point goalState) {
-		return Math.sqrt(Math.pow(goalState.x - state.x, 2) + Math.pow(goalState.y - state.y, 2));
+		return new Position(state.x, state.y, PosType.WALK).getApproxWDistance(new Position(goalState.x, goalState.y, PosType.WALK));
 	}
 
 }

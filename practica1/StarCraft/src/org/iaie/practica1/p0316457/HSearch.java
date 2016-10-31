@@ -34,6 +34,7 @@ public class HSearch extends HierarchicalSearch{
 	public Result search(Point start, Point end) {
 		SearchP13 regionFinder = new SearchP13(this.bwapi);
 		regionFinder.generateSuccessors(start);
+		regionFinder.calculateheuristic(start, end);
 		return null;
 	}
 
