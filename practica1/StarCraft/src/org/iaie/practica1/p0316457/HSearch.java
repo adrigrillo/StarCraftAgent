@@ -12,10 +12,15 @@ import jnibwapi.JNIBWAPI;
 public class HSearch extends HierarchicalSearch{
 
 	private JNIBWAPI bwapi;
+	private HierarchicalMap obtainData;
+	private SearchP13 regionFinder;
 	
 	public HSearch(JNIBWAPI map) {
 		super();
 		this.bwapi = map;
+        // Llamamos a la ejecucion para obtener datos del mapa
+        obtainData = new HierarchicalMap(bwapi);
+        regionFinder = new SearchP13(this.bwapi);
 	}
 	
 	@Override
@@ -32,7 +37,8 @@ public class HSearch extends HierarchicalSearch{
 
 	@Override
 	public Result search(Point start, Point end) {
-		SearchP13 regionFinder = new SearchP13(this.bwapi);
+		
+		SearchP12 pathFinder = new SearchP12(bwapi);
 		regionFinder.generateSuccessors(start);
 		regionFinder.calculateheuristic(start, end);
 		return null;

@@ -83,9 +83,6 @@ public class SearchAIClient extends Agent implements BWAPIEventListener {
         
         Position location = this.bwapi.getPlayer(this.bwapi.getSelf().getID()).getStartLocation();
         
-        HierarchicalMap a = new HierarchicalMap(bwapi);
-        a.exec();
-        
         this.initial = new Point(location.getWX(), location.getWY());
         this.goals = goals = new ArrayList<>();
         this.goal = 0;
