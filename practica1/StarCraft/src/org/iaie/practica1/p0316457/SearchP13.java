@@ -38,11 +38,12 @@ public class SearchP13 extends Astar{
 			HashMap<Integer, ChokePoint> adjConections = conectionpoints.get(idRegion);
 			// Añadimos la posicion del chokepoint que esta en el lado opuesto a la region actual (nueva region)
 			for(ChokePoint conexion : adjConections.values()){
-				if (conexion.getFirstRegion().getID() == idRegion){
+				if (hm.regionOfPosition(conexion.getFirstSide().getWX(), conexion.getFirstSide().getWY()) == idRegion){
 					sucesores.add(new Successor(new Point(conexion.getSecondSide().getWX(), conexion.getSecondSide().getWY())));
+					hm.regionOfPosition(conexion.getCenter().getWX(), conexion.getCenter().getWY());
 				}
 				else{
-					sucesores.add(new Successor(new Point(conexion.getSecondSide().getWX(), conexion.getSecondSide().getWY())));
+					sucesores.add(new Successor(new Point(conexion.getFirstSide().getWX(), conexion.getFirstSide().getWY())));
 				}
 			}
 		}
