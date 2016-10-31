@@ -15,9 +15,9 @@ public class HierarchicalMap {
 	private JNIBWAPI bwapi;
 	
 	// Estructuras de datos para guardar informacion del mapa
-	private HashMap<Integer, List<Integer>> adjReg;
-	private HashMap<Integer, HashMap<Integer, ChokePoint>> conectionPoints;
-	private int [][] positionRegion;
+	private static HashMap<Integer, List<Integer>> adjReg;
+	private static HashMap<Integer, HashMap<Integer, ChokePoint>> conectionPoints;
+	private static int [][] positionRegion;
 	
 	public HierarchicalMap(JNIBWAPI map) {
 		this.bwapi = map;
@@ -81,8 +81,8 @@ public class HierarchicalMap {
      *  Es por tanto, que para su correcta impresion se debe hacer positionRegion[j][i]
      */
     private void linkPositionToRegion(){
-        int ancho = bwapi.getMap().getSize().getBX();
-        int alto = bwapi.getMap().getSize().getBY();
+        int ancho = bwapi.getMap().getSize().getWX();
+        int alto = bwapi.getMap().getSize().getWY();
         positionRegion = new int [ancho][alto];
         // Analizamos todo el mapa, estableciendo la region de cada posicion
 		for(int y = 0; y < alto; y++){
@@ -97,6 +97,20 @@ public class HierarchicalMap {
 				}
 			}
 		}
+    }
+    
+    
+    /**
+     * Metodo que devuelve el hashmap de las regiones adyacentes
+     * @return
+     */
+    public HashMap<Integer, List<Integer>> getAdjRegions(){
+    	return adjReg;
+    }
+    
+    
+    public HashMap<Integer, HashMap<Integer, ChokePoint>> getConnectionPoints(){
+    	return conectionPoints;
     }
     
     

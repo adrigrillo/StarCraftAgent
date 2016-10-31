@@ -22,8 +22,7 @@ public class SearchP12 extends Astar{
 
 	@Override
 	public List<Successor> generateSuccessors(Point actualState) {
-		List<Successor> listaSucesores = new ArrayList<Successor> ();
-		
+		List<Successor> listaSucesores = new ArrayList<Successor> ();	
 		/* Tomamos todos los posibles sucesores de la posicion actual, comprobamos los
 		 * validos y los añadimos a la lista de sucesores */
 		for (int x = actualState.x - 1; x <= actualState.x + 1; x++){

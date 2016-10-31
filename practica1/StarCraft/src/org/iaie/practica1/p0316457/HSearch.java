@@ -11,11 +11,13 @@ import jnibwapi.JNIBWAPI;
 
 public class HSearch extends HierarchicalSearch{
 
+	private JNIBWAPI bwapi;
+	
 	public HSearch(JNIBWAPI map) {
 		super();
-		// TODO Auto-generated constructor stub
+		this.bwapi = map;
 	}
-
+	
 	@Override
 	public List<Successor> generateSuccessor(Point actualState) {
 		// TODO Auto-generated method stub
@@ -30,7 +32,8 @@ public class HSearch extends HierarchicalSearch{
 
 	@Override
 	public Result search(Point start, Point end) {
-		// TODO Auto-generated method stub
+		SearchP13 regionFinder = new SearchP13(this.bwapi);
+		regionFinder.generateSuccessors(start);
 		return null;
 	}
 
