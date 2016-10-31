@@ -21,7 +21,6 @@ public class HierarchicalMap {
 	
 	public HierarchicalMap(JNIBWAPI map) {
 		this.bwapi = map;
-		exec();
 	}
 	
 	public void exec(){
