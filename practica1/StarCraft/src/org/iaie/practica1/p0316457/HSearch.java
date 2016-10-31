@@ -1,14 +1,10 @@
 package org.iaie.practica1.p0316457;
 
 import java.awt.Point;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.PriorityQueue;
 
 import org.iaie.search.Result;
 import org.iaie.search.Successor;
@@ -16,8 +12,6 @@ import org.iaie.search.algorithm.HierarchicalSearch;
 import org.iaie.search.node.SearchNode;
 
 import jnibwapi.JNIBWAPI;
-import jnibwapi.Position;
-import jnibwapi.Position.PosType;
 
 public class HSearch extends HierarchicalSearch{
 
@@ -135,16 +129,15 @@ public class HSearch extends HierarchicalSearch{
     	cost += resFinal.getCost();
     	expandedNodesGlobal += resFinal.getExpandedNodes();
     	generatedNodesGlobal += resFinal.getGeneratedNodes();
+    	// Si se ha encontrado solucion se devuelve el camino
         if (solucion == true){
         	path.addAll(resFinal.getPath());
         }
+        // Si no se encuentra solucion se pone el camino en null para que imprima correctamente
         else {
         	path = null;
         }
         resFinal = new Result(path, generatedNodesGlobal, expandedNodesGlobal, cost, time);
 		return resFinal;
 	}
-
-
-
 }
