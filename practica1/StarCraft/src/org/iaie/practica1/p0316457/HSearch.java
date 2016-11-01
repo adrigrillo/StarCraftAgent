@@ -45,8 +45,6 @@ public class HSearch extends HierarchicalSearch{
 	public Result search(Point start, Point end) {
 		// Creamos los objetos y estructuras que serán necesarias
 		obtainData.exec();
-		int expandedNodes = 0;
-        int generatedNodes = 1;
         SearchNode actualState;
         int regActualState;
         SearchNode nextState;
@@ -79,6 +77,8 @@ public class HSearch extends HierarchicalSearch{
         	// Sacamos la primera posicion de la lista
             nextState = openList.remove(0);
             boolean encontrado = false;
+            // En este bucle buscamos la primera posicion del chokepoint que sea diferente de la region actual y que sea de la region con la que conecta
+            // BORRA ESTO: Este bucle es necesario porque la ia funciona sacando los choquepoint y las regiones colidantes mediante la region en la que se esta
             for(int x = nextState.getPosition().x - 2; x < nextState.getPosition().x + 2; x++){
             	for(int y = nextState.getPosition().y - 2; y < nextState.getPosition().y + 2; y++){
             		if (x > 0 && x < bwapi.getMap().getSize().getWX() && y > 0 && y < bwapi.getMap().getSize().getWY()){
@@ -109,7 +109,6 @@ public class HSearch extends HierarchicalSearch{
             closeList.add(actualState);
             actualState = nextState;
             regActualState = regNextState;
-            expandedNodes++;
 
             // Obtenemos los sucesores
             List<Successor> successors = regionFinder.generateSuccessors(actualState.getPosition());
@@ -139,7 +138,6 @@ public class HSearch extends HierarchicalSearch{
                     	if (menor == false){
                     		openList.add(newNode);
                     	}	
-                        generatedNodes++;
                     }
                 }
             }
