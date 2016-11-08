@@ -25,6 +25,7 @@ public class FreeWorker extends Conditional{
 			case -2:
 				return State.ERROR;
 			default:
+				((BehaviourTree)this.handler).selectWorker(res);
 				return State.SUCCESS;
 		}
 	}
