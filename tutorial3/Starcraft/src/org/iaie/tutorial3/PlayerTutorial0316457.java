@@ -10,6 +10,9 @@ import jnibwapi.BWAPIEventListener;
 import jnibwapi.Position;
 
 public class PlayerTutorial0316457 extends Agent implements BWAPIEventListener{
+	
+	// Creamos el arbol de decision
+	private BehavioralTree collectTree;
 
 	@Override
 	public void connected() {
@@ -19,29 +22,18 @@ public class PlayerTutorial0316457 extends Agent implements BWAPIEventListener{
 
 	@Override
 	public void matchStart() {
-		
-		String name = null;
-		GameHandler gh = null;
-		CollectMineral collectMineral = new CollectMineral(name, gh);
-		CollectGas collectGas = new CollectGas(name, gh);
-		
-		FreeWorker freeWorker = new FreeWorker(name, gh);
-		ChooseWorker chooseWorker = new ChooseWorker(name, gh);
-		
-		CheckResources checkResources = new CheckResources(name, gh);
-		ChooseBuilding chooseBuilding = new ChooseBuilding(name, gh);
-		TrainUnit trainUnit = new TrainUnit(name, gh);
-		
-		Selector collectResources = new Selector(collectMineral, collectGas);
-		Sequence collect = new Sequence(freeWorker, chooseWorker, collectResources);
-		Sequence train = new Sequence(checkResources, chooseBuilding, trainUnit);
-		BehavioralTree collectTree = new BehaviourTree(collect, train);
+		BehaviourTree arbol = new BehaviourTree(bwapi);
+		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", new CollectMineral("CollectMineral", arbol), new CollectGas("CollectGas", arbol));
+		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new ChooseWorker("Choose", arbol), collectResources);
+		Sequence train = new Sequence("Entrenar", new CheckResources("Comprobar", arbol), new ChooseBuilding("Elegir", arbol), new TrainUnit("Entrenar",  arbol));
+		collectTree = new BehavioralTree("ArbolDecision");
+		collectTree.addChild(collect);
+		collectTree.addChild(train);
 	}
 
 	@Override
 	public void matchFrame() {
-		// TODO Auto-generated method stub
-		
+		collectTree.run();
 	}
 
 	@Override
