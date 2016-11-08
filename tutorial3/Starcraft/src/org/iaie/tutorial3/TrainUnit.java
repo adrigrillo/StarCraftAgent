@@ -8,13 +8,24 @@ public class TrainUnit extends Action{
 
 	public TrainUnit(String name, GameHandler gh) {
 		super(name, gh);
-		// TODO Auto-generated constructor stub
 	}
 
-	@Override
+	/**
+	 * Metodo que devuelve:
+	 *  - success si se comienza a entrenar la unidad correctamente
+	 *  - failure si no se comienza a entrenar la unidad
+	 *  - error si se produce algun error
+	 */
 	public State execute() {
-		// TODO Auto-generated method stub
-		return null;
+		int res = ((BehaviourTree)this.handler).trainWorker();
+		switch (res) {
+			case -1:
+				return State.FAILURE;
+			case -2:
+				return State.ERROR;
+			default:
+				return State.SUCCESS;
+		}
 	}
 
 }

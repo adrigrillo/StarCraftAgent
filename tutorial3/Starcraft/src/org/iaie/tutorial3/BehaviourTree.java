@@ -128,9 +128,8 @@ public class BehaviourTree extends GameHandler{
 				liberar();
 				return 1;
 			}
-			else {
+			else
 				return -1;
-			}
 		}
 		catch (Exception e){
 			return -2;
@@ -143,12 +142,10 @@ public class BehaviourTree extends GameHandler{
 	 */
 	public int checkResources(){
 		try{
-			if (connector.getSelf().getMinerals() > 50){
+			if (connector.getSelf().getMinerals() > 50)
 				return 1;
-			}
-			else {
+			else
 				return -1;
-			}
 		} catch (Exception e){
 			return -2;
 		}
@@ -159,7 +156,7 @@ public class BehaviourTree extends GameHandler{
 	 * @return 1 si se ha seleccionado, -1 si no se ha seleccionado, -2 si hay algun error 
 	 */
 	public int chooseBuilding(){
-		try{
+		try {
 			for (Unit unit : connector.getMyUnits()){
 				// Buscamos que sea una refineria
 				if (unit.getType() == UnitTypes.Terran_Command_Center){
@@ -168,6 +165,23 @@ public class BehaviourTree extends GameHandler{
 				}
 			}
 			return -1;
+		} catch (Exception e){
+			return -2;
+		}
+	}
+	
+	
+	/**
+	 * Entrena un terran en un edificio
+	 * @return 1 si lo comienza a entrenar, -1 si no se comienza el entrenamiento, -2 si hay algun error 
+	 */
+	public int trainWorker(){
+		try {
+			if (crearUnidad(UnitTypes.Terran_SCV))
+				return 1;
+			else
+				return -1;
+			
 		} catch (Exception e){
 			return -2;
 		}
@@ -183,9 +197,8 @@ public class BehaviourTree extends GameHandler{
      * @param unidad	Tipo de unidad que se desea construir
      * @return 			True si se ha creado correctamente
      */
-    public boolean crearUnidad(int edifid, UnitType unidad){
-    	Unit edificio = connector.getUnit(edifid);
-    	return edificio.train(unidad);
+    public boolean crearUnidad(UnitType unidad){
+    	return conBuilding.train(unidad);
     }
     
     /**
