@@ -1,6 +1,10 @@
 package org.iaie.tutorial3;
 
 import org.iaie.Agent;
+import org.iaie.btree.BehavioralTree;
+import org.iaie.btree.task.composite.Selector;
+import org.iaie.btree.task.composite.Sequence;
+import org.iaie.btree.util.GameHandler;
 
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.Position;
@@ -15,8 +19,23 @@ public class PlayerTutorial0316457 extends Agent implements BWAPIEventListener{
 
 	@Override
 	public void matchStart() {
-		// TODO Auto-generated method stub
 		
+		String name = null;
+		GameHandler gh = null;
+		CollectMineral collectMineral = new CollectMineral(name, gh);
+		CollectGas collectGas = new CollectGas(name, gh);
+		
+		FreeWorker freeWorker = new FreeWorker(name, gh);
+		ChooseWorker chooseWorker = new ChooseWorker(name, gh);
+		
+		CheckResources checkResources = new CheckResources(name, gh);
+		ChooseBuilding chooseBuilding = new ChooseBuilding(name, gh);
+		TrainUnit trainUnit = new TrainUnit(name, gh);
+		
+		Selector collectResources = new Selector(collectMineral, collectGas);
+		Sequence collect = new Sequence(freeWorker, chooseWorker, collectResources);
+		Sequence train = new Sequence(checkResources, chooseBuilding, trainUnit);
+		BehavioralTree collectTree = new BehaviourTree(collect, train);
 	}
 
 	@Override
