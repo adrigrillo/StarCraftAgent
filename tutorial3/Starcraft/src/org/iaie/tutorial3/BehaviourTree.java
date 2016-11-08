@@ -1,12 +1,12 @@
 package org.iaie.tutorial3;
 
 import org.iaie.btree.util.GameHandler;
-
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
 import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
+
 
 public class BehaviourTree extends GameHandler{
 
@@ -95,19 +95,20 @@ public class BehaviourTree extends GameHandler{
 	 */
 	public int collectGas(){
 		try{
-			// Si la refineria no esta contruida se construye
-			if (refinery == null){
+			// Si la refineria no esta contruida y hay recursos se construye
+			if (refinery == null && connector.getSelf().getMinerals() >= 100){
 				Position pos = null;
 				// Comprobamos que es una unidad neutral
 	            for (Unit vespeno : connector.getNeutralUnits()){
 	            	// Comprobamos que es un geyser de vespeno
-	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
+	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && worker.getDistance(vespeno) < 300){
 	            		// Cogemos la posicion del vespeno para construir el edificio encima
 	            		pos = vespeno.getTilePosition();
 	            		break;
 	            	}
 	            }
-				if (crearEdificio(UnitTypes.Terran_Refinery, pos)){
+	            boolean a = crearEdificio(UnitTypes.Terran_Refinery, pos);
+				if (a){
 					// Navegamos nuestras unidades
 					for (Unit unit : connector.getMyUnits()){
 						// Buscamos que sea una refineria
@@ -119,13 +120,21 @@ public class BehaviourTree extends GameHandler{
 					}
 				}
 			}
-			// Si ya esta contruida se manda al trabajador
-			if (worker.rightClick(refinery, false)){
-				liberar();
-				return 1;
-			}
-			else
+			// Si la refineria no esta construida pero tampoco hay recursos
+			else if (refinery == null && connector.getSelf().getMinerals() >= 100){
 				return -1;
+			}
+			else if (refinery != null){
+				// Si ya esta contruida se manda al trabajador
+				if (worker.rightClick(refinery.getBottomRight(), false)){
+					liberar();
+					return 1;
+				}
+				// Si falla al mandarlo
+				else
+					return -1;
+			}
+			return -1;
 		}
 		catch (Exception e){
 			return -2;
@@ -177,7 +186,6 @@ public class BehaviourTree extends GameHandler{
 				return 1;
 			else
 				return -1;
-			
 		} catch (Exception e){
 			return -2;
 		}
