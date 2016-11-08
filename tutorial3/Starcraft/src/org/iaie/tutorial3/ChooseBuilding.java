@@ -8,13 +8,24 @@ public class ChooseBuilding extends Action{
 
 	public ChooseBuilding(String name, GameHandler gh) {
 		super(name, gh);
-		// TODO Auto-generated constructor stub
 	}
 
-	@Override
+	/**
+	 * Metodo que devuelve:
+	 *  - success si se ha seleccionado correctamente el edificio
+	 *  - failure si no se ha seleccionado
+	 *  - error si se produce algun error
+	 */
 	public State execute() {
-		// TODO Auto-generated method stub
-		return null;
+		int res = ((BehaviourTree)this.handler).chooseBuilding();
+		switch (res) {
+			case -1:
+				return State.FAILURE;
+			case -2:
+				return State.ERROR;
+			default:
+				return State.SUCCESS;
+		}
 	}
 
 }

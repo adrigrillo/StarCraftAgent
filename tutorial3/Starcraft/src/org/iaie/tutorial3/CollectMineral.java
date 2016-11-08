@@ -4,31 +4,29 @@ import org.iaie.btree.state.State;
 import org.iaie.btree.task.leaf.Action;
 import org.iaie.btree.util.GameHandler;
 
-import jnibwapi.JNIBWAPI;
-import jnibwapi.Unit;
 
 public class CollectMineral extends Action{
 	public CollectMineral(String name, GameHandler gh) {
 		super(name, gh);
 		// TODO Auto-generated constructor stub
 	}
-	ChooseWorker cw = new ChooseWorker(null, null);
 	
-	@Override
+	/**
+	 * Metodo que devuelve:
+	 *  - success si se hay suficientes recursos para entrenar una unidad
+	 *  - failure si no los hay
+	 *  - error si se produce algun error
+	 */
 	public State execute() {
-		if(Unit unit : this.bwapi.getMyUnits()){
-			if (!unit.isIdle()){
-				return state.FAILURE;
-			}else{
-				if (Unit minerals : this.bwapi.getNeutralUnits()){
-					unit.rightClick(minerals, false);
-					return state.SUCCESS;
-				}else{
-					return state.FAILURE;					
-				}
-			}
+		int res = ((BehaviourTree)this.handler).collectMineral();
+		switch (res) {
+			case -1:
+				return State.FAILURE;
+			case -2:
+				return State.ERROR;
+			default:
+				return State.SUCCESS;
 		}
-		return state.ERROR;
 	}
 
 }

@@ -8,13 +8,24 @@ public class CollectGas extends Action{
 
 	public CollectGas(String name, GameHandler gh) {
 		super(name, gh);
-		// TODO Auto-generated constructor stub
 	}
 
-	@Override
+	/**
+	 * Metodo que devuelve:
+	 *  - success si se manda al trabajador a recoger vespeno
+	 *  - failure si no se le manda
+	 *  - error si se produce algun error
+	 */
 	public State execute() {
-		// TODO Auto-generated method stub
-		return null;
+		int res = ((BehaviourTree)this.handler).collectGas();
+		switch (res) {
+			case -1:
+				return State.FAILURE;
+			case -2:
+				return State.ERROR;
+			default:
+				return State.SUCCESS;
+		}
 	}
 
 }

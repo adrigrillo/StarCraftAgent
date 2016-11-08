@@ -3,20 +3,59 @@ package org.iaie.tutorial3;
 import org.iaie.btree.util.GameHandler;
 
 import jnibwapi.JNIBWAPI;
+import jnibwapi.Position;
+import jnibwapi.Position.PosType;
 import jnibwapi.Unit;
+import jnibwapi.types.UnitType;
+import jnibwapi.types.UnitType.UnitTypes;
 
 public class BehaviourTree extends GameHandler{
 
-	private Unit worker;
+	private Position centroMando;
+	private Unit worker = null;
+	private Unit refinery = null;
+	private Unit conBuilding = null; 
 	
 	public BehaviourTree(JNIBWAPI bwapi) {
 		super(bwapi);
 		this.connector = bwapi;
+		calcularPosCentro();
 	}
 	
+	
+	/** 
+	 * Calculamos la posicion del centro de comando 
+	 */
+	private void calcularPosCentro(){
+	    for (Unit unit : connector.getMyUnits()) {
+	        // Se comprueba si existe alguna centro de control y si esta construido
+	        if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
+	        	centroMando = unit.getTopLeft();
+	        }
+	    }
+	}
+	
+	
 	/**
-	 * Método que buscara un trabajador libre si existe 
-	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algún error
+	 * Metodo para liberar al trabajador tras hacer una tarea
+	 */
+    private void liberar(){
+    	worker = null;
+    }
+    
+    
+    /**
+     * Metodo para seleccionar un trabajador
+     * @param idWorker id del trabajador
+     */
+	public void selectWorker(int idWorker){
+		worker = connector.getUnit(idWorker);
+	}
+    
+	
+	/**
+	 * Metodo que buscara un trabajador libre si existe 
+	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algÃºn error
 	 */
 	public int freeWorkerAvailable(){
 		try{
@@ -33,15 +72,10 @@ public class BehaviourTree extends GameHandler{
 		}
 	}
 	
-	public void selectWorker(int idWorker){
-		this.worker = connector.getUnit(idWorker);
-	}
-	
 	
 	/**
 	 * Pone una unidad a recoger mineral siempre que la distancia no sea mayor a 300
-	 * @param unitId: Id de la unidad encargada de recoger el mineral
-	 * @return 1 si la orden ha sido mandada correctamente, 0 si no ha podido realizarse, -1 si hay algun error 
+	 * @return 1 si la orden ha sido mandada correctamente, -1 si no ha podido realizarse, -2 si hay algun error 
 	 */
 	public int collectMineral(){
 		try{
@@ -50,23 +84,170 @@ public class BehaviourTree extends GameHandler{
                 // Se comprueba si la unidad es un deposito de minerales                                 
                 if (minerals.getType().isMineralField()) {                                    
                     // Se calcula la distancia entre la unidad y el deposito de minerales
-                    double distance = this.worker.getDistance(minerals);
+                    double distance = worker.getDistance(minerals);
                     // Se comprueba si la distancia entre la unidad y el deposito de minerales es menor a 300.
                     if (distance < 300) {
                         // Se ejecuta el comando para enviar a la unidad a recoger minerales del deposito seleccionado.
-                        this.worker.rightClick(minerals, false);
-                        // Se añade el deposito a la lista de depositos en uso.
+                        worker.rightClick(minerals, false);
+                        liberar();
+                        // Se aÃ±ade el deposito a la lista de depositos en uso.
                         //this.claimedMinerals.add(minerals);
                         return 1;
                     }
                 }
             }
 			// No se ha podido mandar al trabajador
-			return 0;
+			return -1;
 		} catch (Exception e){
 			// Error al ejecutar
-			return -1;
+			return -2;
 		}
 	}
+	
+	
+	/**
+	 * Pone una unidad a recoger vespeno tras construir una refineria si no existe
+	 * @return 1 si la orden ha sido mandada correctamente, -1 si no ha podido realizarse, -2 si hay algun error 
+	 */
+	public int collectGas(){
+		try{
+			// Si la refineria no esta contruida se construye
+			if (refinery == null){
+				if (crearEdificio(UnitTypes.Terran_Refinery, buscarUbicacion(UnitTypes.Terran_Refinery))){
+					// Navegamos nuestras unidades
+					for (Unit unit : connector.getMyUnits()){
+						// Buscamos que sea una refineria
+						if (unit.getType().isRefinery()){
+							refinery = unit;
+						}
+					}
+				}
+			}
+			// Si ya esta contruida se manda al trabajador
+			if (worker.rightClick(refinery, false)){
+				liberar();
+				return 1;
+			}
+			else {
+				return -1;
+			}
+		}
+		catch (Exception e){
+			return -2;
+		}
+	}
+	
+	/**
+	 * Comprueba que hay recursos suficientes para construir una unidad
+	 * @return 1 si los hay, -1 si no los hay, -2 si hay algun error 
+	 */
+	public int checkResources(){
+		try{
+			if (connector.getSelf().getMinerals() > 50){
+				return 1;
+			}
+			else {
+				return -1;
+			}
+		} catch (Exception e){
+			return -2;
+		}
+	}
+	
+	/**
+	 * Selecciona un edificio
+	 * @return 1 si se ha seleccionado, -1 si no se ha seleccionado, -2 si hay algun error 
+	 */
+	public int chooseBuilding(){
+		try{
+			for (Unit unit : connector.getMyUnits()){
+				// Buscamos que sea una refineria
+				if (unit.getType() == UnitTypes.Terran_Command_Center){
+					conBuilding = unit;
+					return 1;
+				}
+			}
+			return -1;
+		} catch (Exception e){
+			return -2;
+		}
+	}
+	
+	
+	/*** METODOS AUXILIARES **/
+	/**
+     * Metodo para entrenar una unidad en un edificio. 
+     * 
+     * Se introducen como parametros: 
+     * @param edifid	ID del edificio donde se construirï¿½ la unidad
+     * @param unidad	Tipo de unidad que se desea construir
+     * @return 			True si se ha creado correctamente
+     */
+    public boolean crearUnidad(int edifid, UnitType unidad){
+    	Unit edificio = connector.getUnit(edifid);
+    	return edificio.train(unidad);
+    }
+    
+    /**
+     * Metodo para la creacion de edificios por una unidad
+     * 
+     * Se introducen como parametros
+     * @param edificio		Tipo de edificio a construir
+     * @param pos			Posicion para la construccion
+     * @return 				True si el edificio se ha creado correctamente, False si no es posible su creacion
+     */
+    public boolean crearEdificio(UnitType edificio, Position pos){
+    	if (pos == null || edificio == null){
+    		return false;
+    	} else {
+	    	if (connector.canBuildHere(pos, edificio, false)){
+	    		return worker.build(pos, edificio);
+	    	}
+	    	return false;
+    	}
+    }
+    
+    
+    /**
+     * Metodo para obtener localizacion para la construccion de edificios
+     * 
+     * @param edificio		Tipo de edificio que se desea construir
+     * @param centroMando	Al principio de la partida se calcula la posicion del centro de mando que se usara para calcular distancias
+	 *
+     * @return Position		La posicion del edificio donde se puede construir
+     */
+    public Position buscarUbicacion(UnitType edificio){
+    	Position pos = null;
+    	int distancia = 5;
+    	int maxBusqueda = 10;
+    	// Si el edificio es una refineria, buscamos vespeno
+    	if (edificio.isRefinery()){
+    		// Comprobamos que es una unidad neutral
+            for (Unit vespeno : connector.getNeutralUnits()){
+            	// Comprobamos que es un geyser de vespeno
+            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
+            		// Cogemos la posicion del vespeno para construir el edificio encima
+            		pos = vespeno.getTilePosition();
+            		return pos;
+            	}
+            }
+    	} else {
+    		// Control para que la distancia no exceda la maxima distancia de busqueda
+    		while (distancia < maxBusqueda && pos == null){
+    			for(int i = centroMando.getBX() - distancia; i < centroMando.getBX() + maxBusqueda; i++){
+    				for (int j = centroMando.getBY() - distancia; j < centroMando.getBY() + maxBusqueda; j++){
+    					if (connector.canBuildHere(new Position(i, j, PosType.BUILD), edificio, false)){
+    						return new Position(i, j, PosType.BUILD);
+    					}
+    				}
+    			}
+    			distancia++;
+    		}
+    		if (pos == null){
+    			return pos;
+    		}
+    	}
+		return null;
+    }
 
 }

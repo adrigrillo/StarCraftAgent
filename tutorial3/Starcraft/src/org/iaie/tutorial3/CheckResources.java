@@ -11,10 +11,22 @@ public class CheckResources extends Conditional{
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
+	/**
+	 * Metodo que devuelve:
+	 *  - success si hay suficientes recursos para construir una unidad
+	 *  - failure si no los hay
+	 *  - error si se produce algun error
+	 */
 	public State execute() {
-		// TODO Auto-generated method stub
-		return null;
+		int res = ((BehaviourTree)this.handler).checkResources();
+		switch (res) {
+			case -1:
+				return State.FAILURE;
+			case -2:
+				return State.ERROR;
+			default:
+				return State.SUCCESS;
+		}
 	}
 
 }
