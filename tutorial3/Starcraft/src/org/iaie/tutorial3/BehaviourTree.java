@@ -113,6 +113,8 @@ public class BehaviourTree extends GameHandler{
 						// Buscamos que sea una refineria
 						if (unit.getType().isRefinery()){
 							refinery = unit;
+							liberar();
+							return 1;
 						}
 					}
 				}

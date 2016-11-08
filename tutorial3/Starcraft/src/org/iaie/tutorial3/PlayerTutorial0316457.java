@@ -39,15 +39,14 @@ public class PlayerTutorial0316457 extends Agent implements BWAPIEventListener{
 	
 	public void matchStart() {
 		BehaviourTree arbol = new BehaviourTree(bwapi);
-		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", new CollectMineral("CollectMineral", arbol), new CollectGas("CollectGas", arbol));
+		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", new CollectGas("CollectGas", arbol), new CollectMineral("CollectMineral", arbol));
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), collectResources);
 		Sequence train = new Sequence("Entrenar", new CheckResources("Comprobar", arbol), new ChooseBuilding("Elegir", arbol), new TrainUnit("Entrenar",  arbol));
+		Selector<GameHandler> recolOrTrain = new Selector<GameHandler>("RecolectarOEntrenar", collect, train);
 		collectTree = new BehavioralTree("ArbolDecision");
-		collectTree.addChild(collect);
-		collectTree.addChild(train);
+		collectTree.addChild(recolOrTrain);
 	}
 
-	
 	public void matchFrame() {
 		collectTree.run();
 	}
