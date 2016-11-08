@@ -4,14 +4,12 @@ import org.iaie.btree.util.GameHandler;
 
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
-import jnibwapi.Position.PosType;
 import jnibwapi.Unit;
 import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class BehaviourTree extends GameHandler{
 
-	private Position centroMando;
 	private Unit worker = null;
 	private Unit refinery = null;
 	private Unit conBuilding = null; 
@@ -19,20 +17,6 @@ public class BehaviourTree extends GameHandler{
 	public BehaviourTree(JNIBWAPI bwapi) {
 		super(bwapi);
 		this.connector = bwapi;
-		calcularPosCentro();
-	}
-	
-	
-	/** 
-	 * Calculamos la posicion del centro de comando 
-	 */
-	private void calcularPosCentro(){
-	    for (Unit unit : connector.getMyUnits()) {
-	        // Se comprueba si existe alguna centro de control y si esta construido
-	        if (unit.getType() == UnitTypes.Terran_Command_Center && unit.isCompleted()) {
-	        	centroMando = unit.getTopLeft();
-	        }
-	    }
 	}
 	
 	
@@ -113,7 +97,17 @@ public class BehaviourTree extends GameHandler{
 		try{
 			// Si la refineria no esta contruida se construye
 			if (refinery == null){
-				if (crearEdificio(UnitTypes.Terran_Refinery, buscarUbicacion(UnitTypes.Terran_Refinery))){
+				Position pos = null;
+				// Comprobamos que es una unidad neutral
+	            for (Unit vespeno : connector.getNeutralUnits()){
+	            	// Comprobamos que es un geyser de vespeno
+	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
+	            		// Cogemos la posicion del vespeno para construir el edificio encima
+	            		pos = vespeno.getTilePosition();
+	            		break;
+	            	}
+	            }
+				if (crearEdificio(UnitTypes.Terran_Refinery, pos)){
 					// Navegamos nuestras unidades
 					for (Unit unit : connector.getMyUnits()){
 						// Buscamos que sea una refineria
@@ -201,6 +195,7 @@ public class BehaviourTree extends GameHandler{
     	return conBuilding.train(unidad);
     }
     
+    
     /**
      * Metodo para la creacion de edificios por una unidad
      * 
@@ -219,48 +214,4 @@ public class BehaviourTree extends GameHandler{
 	    	return false;
     	}
     }
-    
-    
-    /**
-     * Metodo para obtener localizacion para la construccion de edificios
-     * 
-     * @param edificio		Tipo de edificio que se desea construir
-     * @param centroMando	Al principio de la partida se calcula la posicion del centro de mando que se usara para calcular distancias
-	 *
-     * @return Position		La posicion del edificio donde se puede construir
-     */
-    public Position buscarUbicacion(UnitType edificio){
-    	Position pos = null;
-    	int distancia = 5;
-    	int maxBusqueda = 10;
-    	// Si el edificio es una refineria, buscamos vespeno
-    	if (edificio.isRefinery()){
-    		// Comprobamos que es una unidad neutral
-            for (Unit vespeno : connector.getNeutralUnits()){
-            	// Comprobamos que es un geyser de vespeno
-            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser){
-            		// Cogemos la posicion del vespeno para construir el edificio encima
-            		pos = vespeno.getTilePosition();
-            		return pos;
-            	}
-            }
-    	} else {
-    		// Control para que la distancia no exceda la maxima distancia de busqueda
-    		while (distancia < maxBusqueda && pos == null){
-    			for(int i = centroMando.getBX() - distancia; i < centroMando.getBX() + maxBusqueda; i++){
-    				for (int j = centroMando.getBY() - distancia; j < centroMando.getBY() + maxBusqueda; j++){
-    					if (connector.canBuildHere(new Position(i, j, PosType.BUILD), edificio, false)){
-    						return new Position(i, j, PosType.BUILD);
-    					}
-    				}
-    			}
-    			distancia++;
-    		}
-    		if (pos == null){
-    			return pos;
-    		}
-    	}
-		return null;
-    }
-
 }
