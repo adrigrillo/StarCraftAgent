@@ -196,8 +196,7 @@ public class BehaviourTree extends GameHandler{
 	/**
      * Metodo para entrenar una unidad en un edificio. 
      * 
-     * Se introducen como parametros: 
-     * @param edifid	ID del edificio donde se construir� la unidad
+     * Se introducen como parametros:
      * @param unidad	Tipo de unidad que se desea construir
      * @return 			True si se ha creado correctamente
      */
