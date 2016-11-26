@@ -19,8 +19,6 @@ import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
-import jnibwapi.Position.PosType;
-import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
@@ -28,10 +26,13 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	// Creamos el arbol de decision
 	private BehavioralTree collectTree;
 	
-	/** Esta variable se usa para almacenar aquellos depositos de minerales 
+	/* Esta variable se usa para almacenar aquellos depositos de minerales 
      *  que han sido seleccionados para ser explotados por las unidades 
      *  recolectoras. */
     public HashSet<Unit> claimedMinerals = new HashSet<>();
+    public HashSet<Unit> worker = new HashSet<>();
+    public HashSet<Unit> militaryUnits = new HashSet<>();
+    public HashSet<Unit> buildings = new HashSet<>();
 	
 	public PlayerPractica20316457() {            
 
@@ -58,7 +59,22 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	public void matchStart() {
 		// Iniciamos las variables de control y el mapa
 		MapHandler.generateMapSpaces(bwapi);
+		claimedMinerals.clear();
+		militaryUnits.clear();
+		worker.clear();
+		buildings.clear();
 		
+		// Anadimos las unidades los scv iniciales en el hashset y los edificios
+		for (Unit unit : bwapi.getMyUnits()){
+			if (unit.getType().isWorker()){
+				worker.add(unit);
+			}
+			else if (unit.getType().isBuilding() && unit.isCompleted()){
+				buildings.add(unit);
+			}
+		}
+		
+		// Establecemos el arbol de recoleccion
 		RecolectTree arbol = new RecolectTree(bwapi);
 		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", new CollectMineral("CollectMineral", arbol), new CollectGas("CollectGas", arbol));
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), collectResources);
