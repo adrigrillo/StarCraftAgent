@@ -21,9 +21,9 @@ public class CollectMineral extends Action{
 		int res = ((RecolectTree)this.handler).collectMineral();
 		switch (res) {
 			case -1:
-				return State.FAILURE;
-			case -2:
 				return State.ERROR;
+			case 0:
+				return State.FAILURE;
 			default:
 				return State.SUCCESS;
 		}

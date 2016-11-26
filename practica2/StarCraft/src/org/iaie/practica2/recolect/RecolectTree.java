@@ -2,7 +2,6 @@ package org.iaie.practica2.recolect;
 
 import org.iaie.btree.util.GameHandler;
 import org.iaie.practica2.CtrlVar;
-import org.iaie.practica2.PlayerPractica20316457;
 
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
@@ -70,7 +69,7 @@ public class RecolectTree extends GameHandler{
 	public int freeWorkerAvailable(){
 		try{
 			// Navegamos nuestras unidades
-			for (Unit unit : connector.getMyUnits()){
+			for (Unit unit : CtrlVar.workers){
 				// Buscamos que sea un trabajador y esten libres
 				if (unit.getType().isWorker() && unit.isIdle()){
 					return unit.getID();
@@ -101,16 +100,16 @@ public class RecolectTree extends GameHandler{
                         worker.rightClick(minerals, false);
                         liberar();
                         // Se añade el deposito a la lista de depositos en uso.
-                        //this.claimedMinerals.add(minerals);
+                        CtrlVar.claimedMinerals.add(minerals);
                         return 1;
                     }
                 }
             }
 			// No se ha podido mandar al trabajador
-			return -1;
+			return 0;
 		} catch (Exception e){
 			// Error al ejecutar
-			return -2;
+			return -1;
 		}
 	}
 	
@@ -121,36 +120,21 @@ public class RecolectTree extends GameHandler{
 	 */
 	public int collectGas(){
 		try{
-			// Si la refineria no esta contruida y hay recursos se construye
-			if (refinery == null && connector.getSelf().getMinerals() >= 100){
-				Position pos = null;
-				// Comprobamos que es una unidad neutral
-	            for (Unit vespeno : connector.getNeutralUnits()){
-	            	// Comprobamos que es un geyser de vespeno
-	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && worker.getDistance(vespeno) < 300){
-	            		// Cogemos la posicion del vespeno para construir el edificio encima
-	            		pos = vespeno.getTilePosition();
-	            		break;
-	            	}
-	            }
-	            boolean a = crearEdificio(UnitTypes.Terran_Refinery, pos);
-				if (a){
-					// Navegamos nuestras unidades
-					for (Unit unit : connector.getMyUnits()){
-						// Buscamos que sea una refineria
-						if (unit.getType().isRefinery()){
-							refinery = unit;
-							liberar();
-							return 1;
-						}
+			if (refinery == null){
+				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
+				for (Unit unit : CtrlVar.buildings){
+					if (unit.getType() == UnitTypes.Terran_Refinery){
+						refinery = unit;
+						break;
 					}
 				}
+				// Si la refineria no esta construida se encola
+				if (refinery == null){
+					CtrlVar.buildqueue.add(UnitTypes.Terran_Refinery);
+					return 0;
+				}
 			}
-			// Si la refineria no esta construida pero tampoco hay recursos
-			else if (refinery == null && connector.getSelf().getMinerals() >= 100){
-				return -1;
-			}
-			else if (refinery != null){
+			else {
 				// Si ya esta contruida se manda al trabajador
 				if (worker.rightClick(refinery.getBottomRight(), false)){
 					liberar();
@@ -158,27 +142,12 @@ public class RecolectTree extends GameHandler{
 				}
 				// Si falla al mandarlo
 				else
-					return -1;
+					return 0;
 			}
-			return -1;
+			return 0;
 		}
 		catch (Exception e){
-			return -2;
-		}
-	}
-	
-	/**
-	 * Comprueba que hay recursos suficientes para construir una unidad
-	 * @return 1 si los hay, -1 si no los hay, -2 si hay algun error 
-	 */
-	public int checkResources(){
-		try{
-			if (connector.getSelf().getMinerals() > 50)
-				return 1;
-			else
-				return -1;
-		} catch (Exception e){
-			return -2;
+			return -1;
 		}
 	}
 	
