@@ -1,4 +1,4 @@
-package org.iaie.practica2.recolect;
+package org.iaie.practica2.units;
 
 import org.iaie.btree.state.State;
 import org.iaie.btree.task.leaf.Conditional;
@@ -18,7 +18,7 @@ public class CheckResources extends Conditional{
 	 *  - error si se produce algun error
 	 */
 	public State execute() {
-		int res = ((RecolectTree)this.handler).checkResources();
+		int res = ((TrainingTree)this.handler).checkUnitResources();
 		switch (res) {
 			case -1:
 				return State.FAILURE;

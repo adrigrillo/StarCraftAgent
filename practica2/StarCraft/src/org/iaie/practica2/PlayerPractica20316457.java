@@ -9,13 +9,13 @@ import org.iaie.btree.task.composite.Selector;
 import org.iaie.btree.task.composite.Sequence;
 import org.iaie.btree.util.GameHandler;
 import org.iaie.practica2.recolect.CheckBalance;
-import org.iaie.practica2.recolect.CheckResources;
 import org.iaie.practica2.recolect.ChooseBuilding;
 import org.iaie.practica2.recolect.CollectGas;
 import org.iaie.practica2.recolect.CollectMineral;
 import org.iaie.practica2.recolect.FreeWorker;
 import org.iaie.practica2.recolect.RecolectTree;
 import org.iaie.practica2.recolect.TrainUnit;
+import org.iaie.practica2.units.CheckResources;
 
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
