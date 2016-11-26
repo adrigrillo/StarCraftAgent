@@ -19,10 +19,10 @@ public class CollectGas extends Action{
 	public State execute() {
 		int res = ((RecolectTree)this.handler).collectGas();
 		switch (res) {
-			case -1:
-				return State.FAILURE;
 			case -2:
 				return State.ERROR;
+			case 0:
+				return State.FAILURE;
 			default:
 				return State.SUCCESS;
 		}

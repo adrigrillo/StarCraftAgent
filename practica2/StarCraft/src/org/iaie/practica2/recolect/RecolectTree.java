@@ -1,6 +1,9 @@
 package org.iaie.practica2.recolect;
 
 import org.iaie.btree.util.GameHandler;
+import org.iaie.practica2.CtrlVar;
+import org.iaie.practica2.PlayerPractica20316457;
+
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
@@ -19,6 +22,29 @@ public class RecolectTree extends GameHandler{
 		this.connector = bwapi;
 	}
 	
+	/**
+	 * Metodo para comprobar la distribucion de los trabajadores a la hora de recolectar
+	 * Se busca un 70% en minerales y un 30% en vespeno
+	 * @return
+	 */
+	public int checkDistribution(){
+		try{
+			int minerals = 0;
+			// Comprobamos cuantos estan recogiendo minerales y cuantos estan recogiendo gas
+			for (Unit unit: CtrlVar.workers){
+				if (unit.isGatheringMinerals() == true)
+					minerals += 1;
+			}
+			// Establecemos un 70% para recoger materiales y un 30% para vespeno
+			if (((double) minerals/CtrlVar.workers.size()) < 70)
+				return 1;
+			else
+				return 0;
+		}
+		catch (Exception e){
+			return -1;
+		}
+	}
 	
 	/**
 	 * Metodo para liberar al trabajador tras hacer una tarea
