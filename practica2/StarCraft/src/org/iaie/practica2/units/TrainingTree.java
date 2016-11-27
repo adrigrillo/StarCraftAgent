@@ -87,7 +87,6 @@ public class TrainingTree extends GameHandler {
 			if (connector.getSelf().getSupplyUsed() + toTrain.getSupplyRequired() <= connector.getSelf().getSupplyTotal())
 				population = true;
 			if (mineral && gas && population){
-				crearUnidad();
 				return 1;
 			}
 			else
@@ -101,26 +100,34 @@ public class TrainingTree extends GameHandler {
 	/**
 	 * Metodo que se encarga de poner a entrenar a la unidad tras pasar los controles
 	 * Elige el edificio con menos cola para crear la unidad
+	 * @return 1 si se manda construir correctamente, 0 si falla y -1
 	 */
-	private void crearUnidad(){
-		ArrayList<Unit> posEdificios = new ArrayList<>();
-		// Buscamos el edificio que construira la unidad
-		for (Unit unit : CtrlVar.buildings){
-			// Si el tipo de edificio es del mismo tipo que construye la unidad se suma a lista
-			if (unit.getType().equals(UnitType.UnitTypes.getUnitType(toTrain.getWhatBuildID())))
-				posEdificios.add(unit);
-		}
-		// Cogemos el que menos cola si es que hay varios
-		int cola = 5;
-		edificio = null;
-		for (Unit unit : posEdificios){
-			if (unit.getTrainingQueueSize() < cola){
-				cola = unit.getTrainingQueueSize();
-				edificio = unit;
+	public int trainUnit(){
+		try {
+			ArrayList<Unit> posEdificios = new ArrayList<>();
+			// Buscamos el edificio que construira la unidad
+			for (Unit unit : CtrlVar.buildings){
+				// Si el tipo de edificio es del mismo tipo que construye la unidad se suma a lista
+				if (unit.getType().equals(UnitType.UnitTypes.getUnitType(toTrain.getWhatBuildID())))
+					posEdificios.add(unit);
 			}
+			// Cogemos el que menos cola si es que hay varios
+			int cola = 5;
+			edificio = null;
+			for (Unit unit : posEdificios){
+				if (unit.getTrainingQueueSize() < cola){
+					cola = unit.getTrainingQueueSize();
+					edificio = unit;
+				}
+			}
+			// Tras elegir el mejor edificio se contruye la unidad
+			if (edificio.train(toTrain))
+				return 1;
+			else
+				return 0;
+		} catch (Exception e) {
+			return -1;
 		}
-		// Tras elegir el mejor edificio se contruye la unidad
-		edificio.train(toTrain);
     }
 	
 	/**
@@ -148,8 +155,9 @@ public class TrainingTree extends GameHandler {
 			}
 			// Se ha tomado la unidad ya
 			else {
-				// Si se completa se devuelve success y se vacian las variables
+				// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
 				if (training.isCompleted()){
+					CtrlVar.trainqueue.remove(toTrain);
 					training = null;
 					edificio = null;
 					toTrain = null;
@@ -159,7 +167,6 @@ public class TrainingTree extends GameHandler {
 					return 0;
 			}
 		} catch (Exception e) {
-			System.out.println("Error comprobando estado del entrenamiento");
 			return -1;
 		}
 	}
