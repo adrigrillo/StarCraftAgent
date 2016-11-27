@@ -27,7 +27,9 @@ import jnibwapi.types.UnitType.UnitTypes;
 public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	
 	// Creamos el arbol de decision
-	private BehavioralTree collectTree;
+	private BehavioralTree recollectTree;
+	private BehavioralTree buildTree;
+	
 	
 	public PlayerPractica20316457() {            
 
@@ -69,15 +71,14 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		}
 		
 		// Establecemos el arbol de recoleccion
-		RecolectTree recoletar = new RecolectTree(bwapi);
+		RecolectTree recolectar = new RecolectTree(bwapi);
 		TrainingTree entrenar = new TrainingTree(bwapi);
 		ConstructionTree construir = new ConstructionTree(bwapi);
 		
 		/* Arbol de recoleccion */
-		/*Sequence collectMineral = new Sequence("collectMineral", new CheckBalance("Balance", arbol), new CollectMineral("CollectMineral", arbol));
-		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectMineral, new CollectGas("CollectGas", arbol));
-		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new CheckBalance("Balance", arbol), collectResources);
-		*/
+		Sequence collectMineral = new Sequence("collectMineral", new CheckBalance("Balance", recolectar), new CollectMineral("CollectMineral", recolectar));
+		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectMineral, new CollectGas("CollectGas", recolectar));
+		Sequence collect = new Sequence("Recolectar", new FreeWorkerToRecollect("Trabajador", recolectar), collectResources);
 		/* Arbol de entrenamiento */
 		/*Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
 		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
@@ -85,12 +86,17 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		
 		/* Arbol de construccion */
 		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
-		collectTree = new BehavioralTree("ArbolDecision");
-		collectTree.addChild(build);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Refinery);
+		
+		recollectTree = new BehavioralTree("ArbolDecision");
+		recollectTree.addChild(collect);
+		buildTree = new BehavioralTree("ArbolDecision");
+		buildTree.addChild(build);
 	}
 
 	public void matchFrame() {
-		collectTree.run();
+		recollectTree.run();
+		buildTree.run();
 	}
 	
 	public void matchEnd(boolean winner) {
