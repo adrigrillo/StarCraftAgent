@@ -21,9 +21,9 @@ public class CheckResources extends Conditional{
 		int res = ((TrainingTree)this.handler).checkUnitResources();
 		switch (res) {
 			case -1:
-				return State.FAILURE;
-			case -2:
 				return State.ERROR;
+			case 0:
+				return State.FAILURE;
 			default:
 				return State.SUCCESS;
 		}

@@ -27,22 +27,24 @@ public class TrainingTree extends GameHandler {
 	 */
 	public int checkBuildingExist(){
 		try {
-			
 			toTrain = null;
 			/* Recorremos la cola de edificios a construir para ver si alguno
 			 * puede ser construido */
 			for (UnitType unit : CtrlVar.trainqueue){
+				// Miramos para la unidad si los edificios necesarios estan construidos
+				Boolean construido = false;
 				/* Si la unidad necesita mas de un edificio para ser
 				 * contruido se comprueban todos */
 				Iterator<Integer> it = unit.getRequiredUnits().keySet().iterator();
 				while (it.hasNext()){
 					/* Comprobamos que estan todos construidos
 					 * recorriendo la lista de edificios construidos */
-					Boolean construido = false;
+					construido = false;
 					int idEdificio = it.next().intValue();
 					for (Unit edificio : CtrlVar.buildings){
 						if (edificio.getType().equals(UnitType.UnitTypes.getUnitType(idEdificio))){
 							construido = true;
+							break;
 						}
 					}
 					// Si falta algun edificio para construir la unidad se pasa al siguiente
@@ -53,12 +55,16 @@ public class TrainingTree extends GameHandler {
 					}
 				}
 				// Si tiene la posibilidad de ser entrenado se guarda para comprobar sus recursos
-				if (toTrain != null){
+				if (construido){
 					toTrain = unit;
 					break;
 				}
 			}
-			return 0;
+			// Si se ha conseguido una unidad para entrenar devuelve success
+			if (toTrain != null)
+				return 1;
+			else
+				return 0;
 		} catch (Exception e) {
 			return -1;
 		}
@@ -70,9 +76,20 @@ public class TrainingTree extends GameHandler {
 	 */
 	public int checkUnitResources(){
 		try{
-			for (UnitType unit : CtrlVar.trainqueue){
-			}
-			return 0;
+			boolean mineral = false;
+			boolean gas = false;
+			boolean population = false;
+			// Comprobamos si tenemos los recursos necesarios
+			if (toTrain.getMineralPrice() <= connector.getSelf().getMinerals())
+				mineral = true;
+			if (toTrain.getGasPrice() <= connector.getSelf().getGas())
+				gas = true;
+			if (connector.getSelf().getSupplyUsed() + toTrain.getSupplyRequired() <= connector.getSelf().getSupplyTotal())
+				population = true;
+			if (mineral && gas && population)
+				return 1;
+			else
+				return 0;
 		} catch (Exception e){
 			return -1;
 		}

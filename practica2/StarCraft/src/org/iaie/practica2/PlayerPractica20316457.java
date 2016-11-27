@@ -78,7 +78,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new CheckBalance("Balance", arbol), collectResources);
 		*/
 		/* Arbol de entrenamiento */
-		Selector<GameHandler> train = new Selector<GameHandler>("Check", new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar));
+		Sequence train = new Sequence("Check", new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar));
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);
 		collectTree = new BehavioralTree("ArbolDecision");
 		collectTree.addChild(train);
