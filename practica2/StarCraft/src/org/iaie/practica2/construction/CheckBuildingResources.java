@@ -1,24 +1,23 @@
-package org.iaie.practica2.units;
+package org.iaie.practica2.construction;
 
 import org.iaie.btree.state.State;
 import org.iaie.btree.task.leaf.Conditional;
 import org.iaie.btree.util.GameHandler;
 
-public class CheckResources extends Conditional{
+public class CheckBuildingResources extends Conditional {
 
-	public CheckResources(String name, GameHandler gh) {
+	public CheckBuildingResources(String name, GameHandler gh) {
 		super(name, gh);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success si hay suficientes recursos para construir una unidad
+	 *  - success si se hay suficientes recursos para entrenar una unidad
 	 *  - failure si no los hay
 	 *  - error si se produce algun error
 	 */
 	public State execute() {
-		int res = ((TrainingTree)this.handler).checkUnitResources();
+		int res = ((ConstructionTree)this.handler).checkBuildingsResources();
 		switch (res) {
 			case -1:
 				return State.ERROR;
@@ -28,5 +27,4 @@ public class CheckResources extends Conditional{
 				return State.SUCCESS;
 		}
 	}
-
 }

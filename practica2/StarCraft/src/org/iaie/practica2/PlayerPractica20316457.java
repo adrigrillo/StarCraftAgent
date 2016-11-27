@@ -8,6 +8,12 @@ import org.iaie.btree.BehavioralTree;
 import org.iaie.btree.task.composite.Selector;
 import org.iaie.btree.task.composite.Sequence;
 import org.iaie.btree.util.GameHandler;
+import org.iaie.practica2.construction.BuildBuilding;
+import org.iaie.practica2.construction.BuildingState;
+import org.iaie.practica2.construction.CheckBuildingResources;
+import org.iaie.practica2.construction.ConstructionTree;
+import org.iaie.practica2.construction.FreeWorkerToBuild;
+import org.iaie.practica2.construction.SelectLocation;
 import org.iaie.practica2.recolect.*;
 import org.iaie.practica2.units.*;
 
@@ -57,12 +63,15 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 			}
 			else if (unit.getType().isBuilding() && unit.isCompleted()){
 				CtrlVar.buildings.add(unit);
+				if (unit.getType() == UnitTypes.Terran_Command_Center)
+					CtrlVar.centroMando = unit;
 			}
 		}
 		
 		// Establecemos el arbol de recoleccion
 		RecolectTree recoletar = new RecolectTree(bwapi);
 		TrainingTree entrenar = new TrainingTree(bwapi);
+		ConstructionTree construir = new ConstructionTree(bwapi);
 		
 		/* Arbol de recoleccion */
 		/*Sequence collectMineral = new Sequence("collectMineral", new CheckBalance("Balance", arbol), new CollectMineral("CollectMineral", arbol));
@@ -70,11 +79,14 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new CheckBalance("Balance", arbol), collectResources);
 		*/
 		/* Arbol de entrenamiento */
-		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
+		/*Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
 		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);*/
+		
+		/* Arbol de construccion */
+		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
 		collectTree = new BehavioralTree("ArbolDecision");
-		collectTree.addChild(train);
+		collectTree.addChild(build);
 	}
 
 	public void matchFrame() {

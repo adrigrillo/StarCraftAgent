@@ -4,20 +4,20 @@ import org.iaie.btree.state.State;
 import org.iaie.btree.task.leaf.Action;
 import org.iaie.btree.util.GameHandler;
 
-public class SelectLocation extends Action{
+public class BuildBuilding extends Action{
 
-	public SelectLocation(String name, GameHandler gh) {
+	public BuildBuilding(String name, GameHandler gh) {
 		super(name, gh);
 	}
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success si se selecciona una posicion correctamente
-	 *  - failure si no se encuentra una posicion
+	 *  - success si se empieza a construir correctamente
+	 *  - failure si no se comienza a construir
 	 *  - error si se produce algun error
 	 */
 	public State execute() {
-		int res = ((ConstructionTree)this.handler).selectPosition();
+		int res = ((ConstructionTree)this.handler).buildBuilding();
 		switch (res) {
 			case -1:
 				return State.ERROR;

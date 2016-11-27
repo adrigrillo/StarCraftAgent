@@ -5,9 +5,9 @@ import org.iaie.btree.task.leaf.Conditional;
 import org.iaie.btree.util.GameHandler;
 
 
-public class FreeWorker extends Conditional{
+public class FreeWorkerToRecollect extends Conditional{
 	
-	public FreeWorker(String name, GameHandler gh) {
+	public FreeWorkerToRecollect(String name, GameHandler gh) {
 		super(name, gh);
 	}
 

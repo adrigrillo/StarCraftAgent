@@ -20,6 +20,7 @@ public class RecolectTree extends GameHandler{
 		this.connector = bwapi;
 	}
 	
+	
 	/**
 	 * Metodo para comprobar la distribucion de los trabajadores a la hora de recolectar
 	 * Se busca un 70% en minerales y un 30% en vespeno
@@ -44,22 +45,6 @@ public class RecolectTree extends GameHandler{
 		}
 	}
 	
-	/**
-	 * Metodo para liberar al trabajador tras hacer una tarea
-	 */
-    private void liberar(){
-    	worker = null;
-    }
-    
-    
-    /**
-     * Metodo para seleccionar un trabajador
-     * @param idWorker id del trabajador
-     */
-	public void selectWorker(int idWorker){
-		worker = connector.getUnit(idWorker);
-	}
-    
 	
 	/**
 	 * Metodo que buscara un trabajador libre si existe 
@@ -149,5 +134,25 @@ public class RecolectTree extends GameHandler{
 		catch (Exception e){
 			return -1;
 		}
+	}
+	
+	
+	/*************************************************
+	 * 			METODOS AUXILIARES
+	 ************************************************/
+	/**
+	 * Metodo para liberar al trabajador tras hacer una tarea
+	 */
+    private void liberar(){
+    	worker = null;
+    }
+    
+    
+    /**
+     * Metodo para seleccionar un trabajador
+     * @param idWorker id del trabajador
+     */
+	public void selectWorker(int idWorker){
+		worker = connector.getUnit(idWorker);
 	}
 }

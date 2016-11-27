@@ -136,7 +136,7 @@ public class MapHandler {
     public static void writeMapFile(char matriz[][]){
     	/* Pasamos a guardar la matriz del mapa en un archivo */
 		try {
-			File archivo = new File("buildingMap-0316457-0303518.txt");
+			File archivo = new File("map.txt");
 			PrintWriter writer = new PrintWriter(archivo);
 			for(int y = 0; y < matriz[0].length; y++){
 				for (int x = 0; x < matriz.length; x++){
@@ -160,7 +160,7 @@ public class MapHandler {
     public static char[][] readMapFile(JNIBWAPI bwapi){
     	try{
     		// Abrimos el archivo
-    		FileReader archivo = new FileReader("buildingMap-0316457-0303518.txt");
+    		FileReader archivo = new FileReader("map.txt");
     		BufferedReader lector = new BufferedReader(archivo);
     		//Establecemos el tamano del array para comprobar que el fichero es del mismo mapa
     		int ancho = bwapi.getMap().getSize().getBX();
