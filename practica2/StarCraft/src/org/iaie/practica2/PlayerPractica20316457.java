@@ -15,12 +15,15 @@ import org.iaie.practica2.recolect.CollectMineral;
 import org.iaie.practica2.recolect.FreeWorker;
 import org.iaie.practica2.recolect.RecolectTree;
 import org.iaie.practica2.recolect.TrainUnit;
+import org.iaie.practica2.units.CheckBuilding;
 import org.iaie.practica2.units.CheckResources;
+import org.iaie.practica2.units.TrainingTree;
 
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
+import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
@@ -66,14 +69,19 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		}
 		
 		// Establecemos el arbol de recoleccion
-		RecolectTree arbol = new RecolectTree(bwapi);
-		Sequence collectMineral = new Sequence("collectMineral", new CheckBalance("Balance", arbol), new CollectMineral("CollectMineral", arbol));
+		RecolectTree recoletar = new RecolectTree(bwapi);
+		TrainingTree entrenar = new TrainingTree(bwapi);
+		
+		/* Arbol de recoleccion */
+		/*Sequence collectMineral = new Sequence("collectMineral", new CheckBalance("Balance", arbol), new CollectMineral("CollectMineral", arbol));
 		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectMineral, new CollectGas("CollectGas", arbol));
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new CheckBalance("Balance", arbol), collectResources);
-		Sequence train = new Sequence("Entrenar", new CheckResources("Comprobar", arbol), new ChooseBuilding("Elegir", arbol), new TrainUnit("Entrenar",  arbol));
-		Selector<GameHandler> recolOrTrain = new Selector<GameHandler>("RecolectarOEntrenar", collect, train);
+		*/
+		/* Arbol de entrenamiento */
+		Selector<GameHandler> train = new Selector<GameHandler>("Check", new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar));
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);
 		collectTree = new BehavioralTree("ArbolDecision");
-		collectTree.addChild(recolOrTrain);
+		collectTree.addChild(train);
 	}
 
 	public void matchFrame() {
