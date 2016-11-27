@@ -17,7 +17,10 @@ import org.iaie.practica2.recolect.RecolectTree;
 import org.iaie.practica2.recolect.TrainUnit;
 import org.iaie.practica2.units.CheckBuilding;
 import org.iaie.practica2.units.CheckResources;
+import org.iaie.practica2.units.CheckTraining;
 import org.iaie.practica2.units.TrainingTree;
+
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
@@ -78,7 +81,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new CheckBalance("Balance", arbol), collectResources);
 		*/
 		/* Arbol de entrenamiento */
-		Sequence train = new Sequence("Check", new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar));
+		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar));
 		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);
 		collectTree = new BehavioralTree("ArbolDecision");
