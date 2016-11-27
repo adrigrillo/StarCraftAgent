@@ -8,19 +8,8 @@ import org.iaie.btree.BehavioralTree;
 import org.iaie.btree.task.composite.Selector;
 import org.iaie.btree.task.composite.Sequence;
 import org.iaie.btree.util.GameHandler;
-import org.iaie.practica2.recolect.CheckBalance;
-import org.iaie.practica2.recolect.ChooseBuilding;
-import org.iaie.practica2.recolect.CollectGas;
-import org.iaie.practica2.recolect.CollectMineral;
-import org.iaie.practica2.recolect.FreeWorker;
-import org.iaie.practica2.recolect.RecolectTree;
-import org.iaie.practica2.recolect.TrainUnit;
-import org.iaie.practica2.units.CheckBuilding;
-import org.iaie.practica2.units.CheckResources;
-import org.iaie.practica2.units.CheckTraining;
-import org.iaie.practica2.units.TrainingTree;
-
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
+import org.iaie.practica2.recolect.*;
+import org.iaie.practica2.units.*;
 
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
@@ -81,7 +70,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Sequence collect = new Sequence("collect", new FreeWorker("Search", arbol), new CheckBalance("Balance", arbol), collectResources);
 		*/
 		/* Arbol de entrenamiento */
-		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar));
+		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
 		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);
 		collectTree = new BehavioralTree("ArbolDecision");
