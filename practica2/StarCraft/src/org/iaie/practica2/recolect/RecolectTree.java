@@ -1,21 +1,20 @@
 package org.iaie.practica2.recolect;
 
+import java.util.ArrayList;
+
 import org.iaie.btree.util.GameHandler;
 import org.iaie.practica2.CtrlVar;
 
 import jnibwapi.JNIBWAPI;
-import jnibwapi.Position;
 import jnibwapi.Unit;
-import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 
 public class RecolectTree extends GameHandler{
 
 	private Unit worker = null;
-	private Unit refinery = null;
-	private Unit conBuilding = null; 
-	
+	private ArrayList<Unit> refinery = null;
+
 	public RecolectTree(JNIBWAPI bwapi) {
 		super(bwapi);
 		this.connector = bwapi;
@@ -72,6 +71,7 @@ public class RecolectTree extends GameHandler{
 			for (Unit unit : CtrlVar.workers){
 				// Buscamos que sea un trabajador y esten libres
 				if (unit.getType().isWorker() && unit.isIdle()){
+					selectWorker(unit.getID());
 					return unit.getID();
 				}
 			}
@@ -116,7 +116,7 @@ public class RecolectTree extends GameHandler{
 	
 	/**
 	 * Pone una unidad a recoger vespeno tras construir una refineria si no existe
-	 * @return 1 si la orden ha sido mandada correctamente, -1 si no ha podido realizarse, -2 si hay algun error 
+	 * @return 1 si la orden ha sido mandada correctamente, 0 si no ha podido realizarse, -1 si hay algun error 
 	 */
 	public int collectGas(){
 		try{
@@ -124,7 +124,7 @@ public class RecolectTree extends GameHandler{
 				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
 				for (Unit unit : CtrlVar.buildings){
 					if (unit.getType() == UnitTypes.Terran_Refinery){
-						refinery = unit;
+						refinery.add(unit);
 						break;
 					}
 				}
@@ -136,7 +136,7 @@ public class RecolectTree extends GameHandler{
 			}
 			else {
 				// Si ya esta contruida se manda al trabajador
-				if (worker.rightClick(refinery.getBottomRight(), false)){
+				if (worker.rightClick(refinery.get((int) Math.random() * refinery.size()).getBottomRight(), false)){
 					liberar();
 					return 1;
 				}
@@ -150,72 +150,4 @@ public class RecolectTree extends GameHandler{
 			return -1;
 		}
 	}
-	
-	/**
-	 * Selecciona un edificio
-	 * @return 1 si se ha seleccionado, -1 si no se ha seleccionado, -2 si hay algun error 
-	 */
-	public int chooseBuilding(){
-		try {
-			for (Unit unit : connector.getMyUnits()){
-				// Buscamos que sea una refineria
-				if (unit.getType() == UnitTypes.Terran_Command_Center){
-					conBuilding = unit;
-					return 1;
-				}
-			}
-			return -1;
-		} catch (Exception e){
-			return -2;
-		}
-	}
-	
-	
-	/**
-	 * Entrena un terran en un edificio
-	 * @return 1 si lo comienza a entrenar, -1 si no se comienza el entrenamiento, -2 si hay algun error 
-	 */
-	public int trainWorker(){
-		try {
-			if (crearUnidad(UnitTypes.Terran_SCV))
-				return 1;
-			else
-				return -1;
-		} catch (Exception e){
-			return -2;
-		}
-	}
-	
-	
-	/*** METODOS AUXILIARES **/
-	/**
-     * Metodo para entrenar una unidad en un edificio. 
-     * 
-     * Se introducen como parametros:
-     * @param unidad	Tipo de unidad que se desea construir
-     * @return 			True si se ha creado correctamente
-     */
-    public boolean crearUnidad(UnitType unidad){
-    	return conBuilding.train(unidad);
-    }
-    
-    
-    /**
-     * Metodo para la creacion de edificios por una unidad
-     * 
-     * Se introducen como parametros
-     * @param edificio		Tipo de edificio a construir
-     * @param pos			Posicion para la construccion
-     * @return 				True si el edificio se ha creado correctamente, False si no es posible su creacion
-     */
-    public boolean crearEdificio(UnitType edificio, Position pos){
-    	if (pos == null || edificio == null){
-    		return false;
-    	} else {
-	    	if (connector.canBuildHere(pos, edificio, false)){
-	    		return worker.build(pos, edificio);
-	    	}
-	    	return false;
-    	}
-    }
 }
