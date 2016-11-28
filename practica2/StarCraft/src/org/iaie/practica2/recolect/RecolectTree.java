@@ -62,6 +62,9 @@ public class RecolectTree extends GameHandler{
 				// Delvovemos error
 				return 0;
 			}
+			for (Unit unit : CtrlVar.workers){
+				unit.getTarget();
+			}
 			return 1;
 		} catch (Exception e) {
 			return -1;
@@ -71,7 +74,7 @@ public class RecolectTree extends GameHandler{
 	
 	/**
 	 * Metodo que buscara un trabajador libre si existe para recoger minerales 
-	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algún error
+	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algun error
 	 */
 	public int freeWorkerAvailableMineral(){
 		try{
