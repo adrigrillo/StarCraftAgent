@@ -32,10 +32,16 @@ public class TrainingTree extends GameHandler {
 	public int checkPopulation(){
 		try {
 			// Lo podemos utilizar para aumentar poco a poco la poblacion
-			if ((int)Math.floor(Math.random()* 100) == 0)
+			if ((int)Math.floor(Math.random()* 1000) == 0)
 				CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-			if ((int)Math.floor(Math.random()* 100) == 0)
+			if ((int)Math.floor(Math.random()* 1000) == 0)
 				CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Firebat);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Vulture);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Medic);
 			// Ordenamos construir el supply depot con antelacion como prioridad una vez
 			if (connector.getSelf().getSupplyUsed() + 2 == connector.getSelf().getSupplyTotal() && !CtrlVar.buildqueue.contains( UnitTypes.Terran_Supply_Depot))
 				CtrlVar.buildqueue.add(0, UnitTypes.Terran_Supply_Depot);

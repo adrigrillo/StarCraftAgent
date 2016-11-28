@@ -29,8 +29,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	long startTime;
 	long endTime;
 	private BehavioralTree recollectTree;
-	private BehavioralTree buildTree;
-	private BehavioralTree trainTree;
+	private BehavioralTree creationTree;
 	
 	
 	public PlayerPractica20316457() {            
@@ -94,18 +93,23 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		
 		recollectTree = new BehavioralTree("ArbolDecision");
 		recollectTree.addChild(collectResources);
-		trainTree = new BehavioralTree("ArbolDecision");
-		trainTree.addChild(creation);
-		/*trainTree = new BehavioralTree("Arbol de decision");
-		trainTree.addChild(train);
-		buildTree = new BehavioralTree("ArbolDecision");
-		buildTree.addChild(build);*/
+		creationTree = new BehavioralTree("ArbolDecision");
+		creationTree.addChild(creation);
 		
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		
+		// Edificios a construir
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Science_Facility);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Control_Tower);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
 		
 		// Iniciamos el tiempo
 		startTime = System.currentTimeMillis();
@@ -113,7 +117,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 
 	public void matchFrame() {
 		recollectTree.run();
-		trainTree.run();
+		creationTree.run();
 	}
 	
 	public void matchEnd(boolean winner) {
@@ -133,7 +137,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 			writer.println("La duracion ha sido de " + duration/1000 + " segundos.");
 			writer.println("Se han construido " + CtrlVar.buildings.size() + " edificios, de los cuales fueron centros de mando " + CtrlVar.centroMando.size() + ".");
 			writer.println("Se han entrenado " + CtrlVar.workers.size() + " fueron unidades no militares y " + CtrlVar.militaryUnits.size() + " fueron unidades militares.");
-			writer.println("Se recogieron " + bwapi.getSelf().getMinerals() + " unidades de mineral y " + bwapi.getSelf().getGas() + " de vespeno." );
+			writer.println("Se recogieron " + bwapi.getSelf().getCumulativeMinerals() + " unidades de mineral y " + bwapi.getSelf().getCumulativeGas() + " de vespeno." );
 			writer.close();
 		} catch (Exception e) {
 			System.out.println("Error al imprimir");

@@ -43,6 +43,32 @@ public class RecolectTree extends GameHandler{
 	}
 	
 	
+	/** 
+	 * Comprueba si hay alguna refineria construida
+	 * @return 1 si esta construida, 0 si no lo esta y -1 si hay algun error
+	 */
+	public int refineryBuilt(){
+		try {
+			if (CtrlVar.refinery.size() == 0){
+				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
+				for (Unit unit : CtrlVar.buildings){
+					if (unit.getType() == UnitTypes.Terran_Refinery){
+						CtrlVar.refinery.add(unit);
+					}
+				}
+				// Si la refineria no esta construida se encola
+				if (CtrlVar.refinery.size() == 0 && !CtrlVar.buildqueue.contains(UnitTypes.Terran_Refinery))
+					CtrlVar.buildqueue.add(0, UnitTypes.Terran_Refinery);
+				// Delvovemos error
+				return 0;
+			}
+			return 1;
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
+	
 	/**
 	 * Metodo que buscara un trabajador libre si existe para recoger minerales 
 	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algún error
@@ -96,31 +122,6 @@ public class RecolectTree extends GameHandler{
 		}
 	}
 	
-	
-	/** 
-	 * Comprueba si hay alguna refineria construida
-	 * @return 1 si esta construida, 0 si no lo esta y -1 si hay algun error
-	 */
-	public int refineryBuilt(){
-		try {
-			if (CtrlVar.refinery.size() == 0){
-				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
-				for (Unit unit : CtrlVar.buildings){
-					if (unit.getType() == UnitTypes.Terran_Refinery){
-						CtrlVar.refinery.add(unit);
-					}
-				}
-				// Si la refineria no esta construida se encola
-				if (CtrlVar.refinery.size() == 0 && !CtrlVar.buildqueue.contains(UnitTypes.Terran_Refinery))
-					CtrlVar.buildqueue.add(0, UnitTypes.Terran_Refinery);
-				// Delvovemos error
-				return 0;
-			}
-			return 1;
-		} catch (Exception e) {
-			return -1;
-		}
-	}
 	
 	/**
 	 * Pone una unidad a recoger mineral siempre que la distancia no sea mayor a 300
