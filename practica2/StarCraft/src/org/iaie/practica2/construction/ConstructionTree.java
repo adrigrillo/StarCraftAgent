@@ -80,7 +80,7 @@ public class ConstructionTree extends GameHandler{
 			}
 			else if (toBuild == UnitTypes.Terran_Supply_Depot){
 				// Lo construimos cerca de un mineral reclamado
-				pos = MapHandler.searchPointToBuild(connector, CtrlVar.claimedMinerals.get(((int) Math.random() * CtrlVar.claimedMinerals.size())).getPosition(), toBuild);
+				pos = MapHandler.searchPointToBuild(connector, CtrlVar.claimedMinerals.get(((int) Math.random()*CtrlVar.claimedMinerals.size())).getPosition(), toBuild);
 				if (pos != null)
 					return 1;
 				else
@@ -88,7 +88,7 @@ public class ConstructionTree extends GameHandler{
 			}
 			else {
 				// Lo construimos en base al centro de mando
-				pos = MapHandler.searchPointToBuild(connector, CtrlVar.centroMando.getPosition(), toBuild);
+				pos = MapHandler.searchPointToBuild(connector, CtrlVar.centroMando.get((int) Math.random()*CtrlVar.centroMando.size()).getPosition(), toBuild);
 				if (pos != null)
 					return 1;
 				else
@@ -138,15 +138,20 @@ public class ConstructionTree extends GameHandler{
 	 */
 	public int buildBuilding(){
 		try {
-			// Comprobamos que puede construir en la posicion
-    		if (connector.canBuildHere(pos, toBuild, false)){
-    			// Mandamos construir
-    			if (worker.build(pos, toBuild))
-    				return 1;
-    			// Si falla devolvemos error
-    			else
-    				return 0;
-    		}
+			// Comprobamos que la orden no se haya dado anteriormente
+			if (toBuild != null && worker != null){
+				// Comprobamos que puede construir en la posicion
+	    		if (connector.canBuildHere(pos, toBuild, false)){
+	    			// Mandamos construir
+	    			if (worker.build(pos, toBuild))
+	    				return 1;
+	    			// Si falla devolvemos error
+	    			else
+	    				return 0;
+	    		}
+	    		else
+	    			return 0;
+			}
     		else
     			return 0;			
 		} catch (Exception e) {

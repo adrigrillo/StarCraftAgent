@@ -191,8 +191,12 @@ public class MapHandler {
     	// Obtenemos el espacio necesario para construir el edificio
     	char needSpace = Character.forDigit(edificio.getTileWidth(), 10);
     	// Parametros para el espacio de busqueda
-    	int searchSpace = 5;
-    	int maxTiles = 10;
+    	int searchSpace = 15;
+    	int maxTiles = 15;
+    	if (edificio == UnitTypes.Terran_Supply_Depot){
+    		searchSpace = 5;
+    		maxTiles = 5;
+    	}
     	for (int x = posicion.getBX() - searchSpace; x < posicion.getBX() + maxTiles; x++){
     		for (int y = posicion.getBY() - searchSpace; y < posicion.getBY() + maxTiles; y++){
     			if ((x >= 0 && x < map.length) && (y >= 0 && y < map[0].length)){

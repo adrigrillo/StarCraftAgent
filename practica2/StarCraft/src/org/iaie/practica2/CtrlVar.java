@@ -27,7 +27,7 @@ public class CtrlVar {
     // Lista de unidades a entrenar
 	public static ArrayList<UnitType> trainqueue = new ArrayList<>();
 	// Centro de mando
-	public static Unit centroMando = null;
+	public static ArrayList<Unit> centroMando = new ArrayList<>();
     
     public void clearAll(){
 		claimedMinerals.clear();
@@ -37,6 +37,6 @@ public class CtrlVar {
 		refinery.clear();
 		buildqueue.clear();
 		trainqueue.clear();
-		centroMando = null;
+		centroMando.clear();
     }
 }
