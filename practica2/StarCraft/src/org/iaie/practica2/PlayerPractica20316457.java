@@ -77,21 +77,20 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		ConstructionTree construir = new ConstructionTree(bwapi);
 		
 		/* Arbol de recoleccion */
-		Sequence collectGas = new Sequence("collectGas", new CheckBalance("Balance", recolectar), new CollectGas("CollectGas", recolectar));
-		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectGas, new CollectMineral("CollectMineral", recolectar));
-		Sequence collect = new Sequence("Recolectar", new FreeWorkerToRecollect("Trabajador", recolectar), collectResources);
+		/* Collect gas: Miramos equilibrio, si se necesita gas, miramos si esta construida la refineria,
+		 * cogemos un trabajador y recogemos gas */
+		Sequence collectGas = new Sequence("collectGas", new CheckBalance("Balance", recolectar), new CheckRefinery("Comprobar refineria", recolectar), new FreeWorkerGas("TrabajadorGas", recolectar), new CollectGas("CollectGas", recolectar));
+		/* Collect mineral: Si no se necesita gas, buscamos un trabajador libre, recogemos */
+		Sequence collectMineral = new Sequence("collectMineral", new FreeWorkerMineral("TrabajadorMinera", recolectar), new CollectMineral("CollectMineral", recolectar));
+		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectGas, collectMineral);
 		/* Arbol de entrenamiento */
 		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 		
 		/* Arbol de construccion */
 		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
 		
 		recollectTree = new BehavioralTree("ArbolDecision");
-		recollectTree.addChild(collect);
+		recollectTree.addChild(collectResources);
 		buildTree = new BehavioralTree("ArbolDecision");
 		buildTree.addChild(build);
 		trainTree = new BehavioralTree("Arbol de decision");

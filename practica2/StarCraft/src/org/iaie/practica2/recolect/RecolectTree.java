@@ -44,10 +44,31 @@ public class RecolectTree extends GameHandler{
 	
 	
 	/**
-	 * Metodo que buscara un trabajador libre si existe 
+	 * Metodo que buscara un trabajador libre si existe para recoger minerales 
 	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algún error
 	 */
-	public int freeWorkerAvailable(){
+	public int freeWorkerAvailableMineral(){
+		try{
+			// Navegamos nuestras unidades
+			for (Unit unit : CtrlVar.workers){
+				// Buscamos que sea un trabajador y esten libres
+				if (unit.getType().isWorker() && unit.isIdle()){
+					worker = connector.getUnit(unit.getID());
+					return unit.getID();
+				}
+			}
+			return -1;
+		} catch (Exception e){
+			return -2;
+		}
+	}
+	
+	
+	/**
+	 * Metodo que buscara un trabajador libre si existe para recoger gas
+	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algun error
+	 */
+	public int freeWorkerAvailableGas(){
 		try{
 			// Navegamos nuestras unidades
 			for (Unit unit : CtrlVar.workers){
@@ -76,6 +97,31 @@ public class RecolectTree extends GameHandler{
 	}
 	
 	
+	/** 
+	 * Comprueba si hay alguna refineria construida
+	 * @return 1 si esta construida, 0 si no lo esta y -1 si hay algun error
+	 */
+	public int refineryBuilt(){
+		try {
+			if (CtrlVar.refinery.size() == 0){
+				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
+				for (Unit unit : CtrlVar.buildings){
+					if (unit.getType() == UnitTypes.Terran_Refinery){
+						CtrlVar.refinery.add(unit);
+					}
+				}
+				// Si la refineria no esta construida se encola
+				if (CtrlVar.refinery.size() == 0 && !CtrlVar.buildqueue.contains(UnitTypes.Terran_Refinery))
+					CtrlVar.buildqueue.add(UnitTypes.Terran_Refinery);
+				// Delvovemos error
+				return 0;
+			}
+			return 1;
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
 	/**
 	 * Pone una unidad a recoger mineral siempre que la distancia no sea mayor a 300
 	 * @return 1 si la orden ha sido mandada correctamente, -1 si no ha podido realizarse, -2 si hay algun error 
@@ -85,7 +131,7 @@ public class RecolectTree extends GameHandler{
 			// Obtenemos los minerales
 			for (Unit minerals : connector.getNeutralUnits()) {
                 // Se comprueba si la unidad es un deposito de minerales                                 
-                if (minerals.getType().isMineralField()) {                                    
+                if (minerals.getType().isMineralField()) {
                     // Se calcula la distancia entre la unidad y el deposito de minerales
                     double distance = worker.getDistance(minerals);
                     // Se comprueba si la distancia entre la unidad y el deposito de minerales es menor a 300.
@@ -115,32 +161,16 @@ public class RecolectTree extends GameHandler{
 	 */
 	public int collectGas(){
 		try{
-			if (CtrlVar.refinery.size() == 0){
-				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
-				for (Unit unit : CtrlVar.buildings){
-					if (unit.getType() == UnitTypes.Terran_Refinery){
-						CtrlVar.refinery.add(unit);
-						break;
-					}
-				}
-				// Si la refineria no esta construida se encola
-				if (CtrlVar.refinery.size() == 0 && !CtrlVar.buildqueue.contains(UnitTypes.Terran_Refinery))
-					CtrlVar.buildqueue.add(UnitTypes.Terran_Refinery);
-				// Delvovemos error
-				return 0;
-			}
-			else {
-				// Si ya esta contruida se manda al trabajador
-				Unit refineria = CtrlVar.refinery.get((int) Math.random() * CtrlVar.refinery.size());
-				if (worker.rightClick(refineria.getBottomRight(), false)){
-					if (!worker.isGatheringGas())
-						return 0;
-					return 1;
-				}
-				// Si falla al mandarlo
-				else
+			// Si ya esta contruida se manda al trabajador
+			Unit refineria = CtrlVar.refinery.get((int) Math.random() * CtrlVar.refinery.size());
+			if (worker.rightClick(refineria, false)){
+				if (!worker.isGatheringGas())
 					return 0;
+				return 1;
 			}
+			// Si falla al mandarlo
+			else
+				return 0;
 		}
 		catch (Exception e){
 			return -1;

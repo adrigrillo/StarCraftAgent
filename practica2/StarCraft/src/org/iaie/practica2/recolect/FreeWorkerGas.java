@@ -1,13 +1,13 @@
 package org.iaie.practica2.recolect;
 
 import org.iaie.btree.state.State;
-import org.iaie.btree.task.leaf.Conditional;
+import org.iaie.btree.task.leaf.Action;
 import org.iaie.btree.util.GameHandler;
 
 
-public class FreeWorkerToRecollect extends Conditional{
+public class FreeWorkerGas extends Action{
 	
-	public FreeWorkerToRecollect(String name, GameHandler gh) {
+	public FreeWorkerGas(String name, GameHandler gh) {
 		super(name, gh);
 	}
 
@@ -18,7 +18,7 @@ public class FreeWorkerToRecollect extends Conditional{
 	 *  - error si se produce algun error
 	 */
 	public State execute() {
-		int res = ((RecolectTree)this.handler).freeWorkerAvailable();
+		int res = ((RecolectTree)this.handler).freeWorkerAvailableGas();
 		switch (res) {
 			case -1:
 				return State.FAILURE;
