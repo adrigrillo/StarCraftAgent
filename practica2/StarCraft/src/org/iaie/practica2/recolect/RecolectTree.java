@@ -107,13 +107,12 @@ public class RecolectTree extends GameHandler{
 				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
 				for (Unit unit : CtrlVar.buildings){
 					if (unit.getType() == UnitTypes.Terran_Refinery){
-						// Le damos prioridad
-						CtrlVar.refinery.add(0, unit);
+						CtrlVar.refinery.add(unit);
 					}
 				}
 				// Si la refineria no esta construida se encola
 				if (CtrlVar.refinery.size() == 0 && !CtrlVar.buildqueue.contains(UnitTypes.Terran_Refinery))
-					CtrlVar.buildqueue.add(UnitTypes.Terran_Refinery);
+					CtrlVar.buildqueue.add(0, UnitTypes.Terran_Refinery);
 				// Delvovemos error
 				return 0;
 			}

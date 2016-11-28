@@ -31,8 +31,8 @@ public class TrainingTree extends GameHandler {
 	 */
 	public int checkPopulation(){
 		try {
-			// Ordenamos construir el supply depot con antelacion como prioridad
-			if (connector.getSelf().getSupplyUsed() + 2 == connector.getSelf().getSupplyTotal())
+			// Ordenamos construir el supply depot con antelacion como prioridad una vez
+			if (connector.getSelf().getSupplyUsed() + 2 == connector.getSelf().getSupplyTotal() && !CtrlVar.buildqueue.contains( UnitTypes.Terran_Supply_Depot))
 				CtrlVar.buildqueue.add(0, UnitTypes.Terran_Supply_Depot);
 			// Si no hay espacio no se puede entrenar
 			else if (connector.getSelf().getSupplyUsed() == connector.getSelf().getSupplyTotal())

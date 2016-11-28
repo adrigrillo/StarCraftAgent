@@ -63,8 +63,9 @@ public class ConstructionTree extends GameHandler{
 			// Si es una refineria
 			if (toBuild == UnitTypes.Terran_Refinery){
 				for (Unit vespeno : this.connector.getNeutralUnits()){
+					
 	            	// Comprobamos que es un geyser de vespeno y que no lo hemos reclamado ya
-	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && !CtrlVar.claimedMinerals.contains(vespeno)){
+	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && (!CtrlVar.claimedMinerals.contains(vespeno) || CtrlVar.refinery.isEmpty())){
 	            		// Cogemos la posicion del vespeno para construir el edificio encima
 	            		pos = vespeno.getTilePosition();
 	            		if (pos != null){
@@ -140,11 +141,8 @@ public class ConstructionTree extends GameHandler{
 			// Comprobamos que puede construir en la posicion
     		if (connector.canBuildHere(pos, toBuild, false)){
     			// Mandamos construir
-    			if (worker.build(pos, toBuild)){
-    				// Si es correcto actualizamos el mapa
-    				MapHandler.updateMap(connector, pos, new Position((pos.getBX() + (toBuild.getTileWidth()-1)), (pos.getBY() + (toBuild.getTileHeight()-1)), PosType.BUILD));
+    			if (worker.build(pos, toBuild))
     				return 1;
-    			}
     			// Si falla devolvemos error
     			else
     				return 0;
@@ -181,6 +179,8 @@ public class ConstructionTree extends GameHandler{
 			else {
 				// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
 				if (building.isCompleted()){
+					// Si es correcto actualizamos el mapa
+    				MapHandler.updateMap(connector, pos, new Position((pos.getBX() + (toBuild.getTileWidth()-1)), (pos.getBY() + (toBuild.getTileHeight()-1)), PosType.BUILD));
 					CtrlVar.buildqueue.remove(toBuild);
 					CtrlVar.buildings.add(building);
 					pos = null;
