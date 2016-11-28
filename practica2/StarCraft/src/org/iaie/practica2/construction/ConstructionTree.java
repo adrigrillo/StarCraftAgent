@@ -181,7 +181,7 @@ public class ConstructionTree extends GameHandler{
 			else {
 				// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
 				if (building.isCompleted()){
-					CtrlVar.trainqueue.remove(toBuild);
+					CtrlVar.buildqueue.remove(toBuild);
 					CtrlVar.buildings.add(building);
 					pos = null;
 					worker = null;

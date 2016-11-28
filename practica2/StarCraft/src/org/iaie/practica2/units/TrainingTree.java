@@ -9,6 +9,7 @@ import org.iaie.practica2.CtrlVar;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Unit;
 import jnibwapi.types.UnitType;
+import jnibwapi.types.UnitType.UnitTypes;
 
 public class TrainingTree extends GameHandler {
 	
@@ -20,6 +21,28 @@ public class TrainingTree extends GameHandler {
 		super(bwapi);
 		this.connector = bwapi;
 	}
+	
+	
+	/**
+	 * Esta metodo se utilizara para comprobar si es necesario la construccion de
+	 * mas supply depots, aunque tambien como control para constuir
+	 * @return 	1 si hay poblacion suficiente para construir una unidad, 0 si es necesario esperar
+	 * 			a un supply depot, -1 si hay error
+	 */
+	public int checkPopulation(){
+		try {
+			// Ordenamos construir el supply depot con antelacion como prioridad
+			if (connector.getSelf().getSupplyUsed() + 2 == connector.getSelf().getSupplyTotal())
+				CtrlVar.buildqueue.add(0, UnitTypes.Terran_Supply_Depot);
+			// Si no hay espacio no se puede entrenar
+			else if (connector.getSelf().getSupplyUsed() == connector.getSelf().getSupplyTotal())
+				return 0;
+			return 1;
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
 	
 	/**
 	 * Este metodo comprueba los edificios necesarios para construir la unidad

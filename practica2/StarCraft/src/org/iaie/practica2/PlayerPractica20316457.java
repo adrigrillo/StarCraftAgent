@@ -1,8 +1,5 @@
 package org.iaie.practica2;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
 import org.iaie.Agent;
 import org.iaie.btree.BehavioralTree;
 import org.iaie.btree.task.composite.Selector;
@@ -21,7 +18,6 @@ import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
-import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
@@ -84,7 +80,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Sequence collectMineral = new Sequence("collectMineral", new FreeWorkerMineral("TrabajadorMinera", recolectar), new CollectMineral("CollectMineral", recolectar));
 		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectGas, collectMineral);
 		/* Arbol de entrenamiento */
-		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
+		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckPopulation("Comprobar poblacion", entrenar), new CheckBuilding("Comprobar edificios", entrenar), new CheckUnitResources("Comprobar recursos", entrenar), new TrainUnit("Entrenar", entrenar));
 		
 		/* Arbol de construccion */
 		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
@@ -95,6 +91,20 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		buildTree.addChild(build);
 		trainTree = new BehavioralTree("Arbol de decision");
 		trainTree.addChild(train);
+		
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
 	}
 
 	public void matchFrame() {
