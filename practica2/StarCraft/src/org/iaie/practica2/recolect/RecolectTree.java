@@ -1,7 +1,5 @@
 package org.iaie.practica2.recolect;
 
-import java.util.ArrayList;
-
 import org.iaie.btree.util.GameHandler;
 import org.iaie.practica2.CtrlVar;
 
@@ -34,7 +32,7 @@ public class RecolectTree extends GameHandler{
 					minerals += 1;
 			}
 			// Establecemos un 70% para recoger materiales y un 30% para vespeno
-			if (((double) minerals/CtrlVar.workers.size()) < 0.7)
+			if (((double) minerals/CtrlVar.workers.size()) > 0.7)
 				return 1;
 			else
 				return 0;
@@ -56,6 +54,18 @@ public class RecolectTree extends GameHandler{
 				// Buscamos que sea un trabajador y esten libres
 				if (unit.getType().isWorker() && unit.isIdle()){
 					worker = connector.getUnit(unit.getID());
+					return unit.getID();
+				}
+			}
+			/* Si no hay ningun trabajador disponible se coge uno que este
+			 * tomando minerales, ya que si es para coger gas cogera gas y si
+			 * es para coger minerales seguira */
+			for (Unit unit : CtrlVar.workers){
+				// Buscamos que sea un trabajador y que recoja minerales (hay mas)
+				if (unit.getType().isWorker() && unit.isGatheringMinerals()){
+					worker = connector.getUnit(unit.getID());
+					// Mandamos crear otro scv por el que quitamos
+					//CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 					return unit.getID();
 				}
 			}
@@ -84,7 +94,8 @@ public class RecolectTree extends GameHandler{
                         worker.rightClick(minerals, false);
                         worker = null;
                         // Se añade el deposito a la lista de depositos en uso.
-                        CtrlVar.claimedMinerals.add(minerals);
+                        if (!CtrlVar.claimedMinerals.contains(minerals))
+                        	CtrlVar.claimedMinerals.add(minerals);
                         return 1;
                     }
                 }

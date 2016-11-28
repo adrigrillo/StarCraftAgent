@@ -25,7 +25,6 @@ public class FreeWorkerToRecollect extends Conditional{
 			case -2:
 				return State.ERROR;
 			default:
-				((RecolectTree)this.handler).selectWorker(res);
 				return State.SUCCESS;
 		}
 	}

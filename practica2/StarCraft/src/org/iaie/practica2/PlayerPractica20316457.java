@@ -77,8 +77,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		ConstructionTree construir = new ConstructionTree(bwapi);
 		
 		/* Arbol de recoleccion */
-		Sequence collectMineral = new Sequence("collectMineral", new CheckBalance("Balance", recolectar), new CollectMineral("CollectMineral", recolectar));
-		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectMineral, new CollectGas("CollectGas", recolectar));
+		Sequence collectGas = new Sequence("collectGas", new CheckBalance("Balance", recolectar), new CollectGas("CollectGas", recolectar));
+		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectGas, new CollectMineral("CollectMineral", recolectar));
 		Sequence collect = new Sequence("Recolectar", new FreeWorkerToRecollect("Trabajador", recolectar), collectResources);
 		/* Arbol de entrenamiento */
 		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));

@@ -29,17 +29,20 @@ public class ConstructionTree extends GameHandler{
 	 */
 	public int checkBuildingsResources(){
 		try {
-			for (UnitType unit : CtrlVar.buildqueue){
-				boolean mineral = false;
-				boolean gas = false;
-				// Comprobamos si tenemos los recursos necesarios
-				if (unit.getMineralPrice() <= connector.getSelf().getMinerals())
-					mineral = true;
-				if (unit.getGasPrice() <= connector.getSelf().getGas())
-					gas = true;
-				if (mineral && gas){
-					toBuild = unit;
-					return 1;
+			// Comprobamos que la cola no este vacia
+			if (!CtrlVar.buildqueue.isEmpty()){
+				for (UnitType unit : CtrlVar.buildqueue){
+					boolean mineral = false;
+					boolean gas = false;
+					// Comprobamos si tenemos los recursos necesarios
+					if (unit.getMineralPrice() <= connector.getSelf().getMinerals())
+						mineral = true;
+					if (unit.getGasPrice() <= connector.getSelf().getGas())
+						gas = true;
+					if (mineral && gas){
+						toBuild = unit;
+						return 1;
+					}
 				}
 			}
 			return 0;
