@@ -144,7 +144,6 @@ public class MapHandler {
 				}
 				writer.println();
 			}
-			
 			writer.close();
 		}
 		catch (Exception e) {
@@ -192,24 +191,26 @@ public class MapHandler {
     	char needSpace = Character.forDigit(edificio.getTileWidth(), 10);
     	// Parametros para el espacio de busqueda
     	int searchSpace = 15;
-    	int maxTiles = 15;
     	if (edificio == UnitTypes.Terran_Supply_Depot){
     		searchSpace = 5;
-    		maxTiles = 5;
     	}
-    	for (int x = posicion.getBX() - searchSpace; x < posicion.getBX() + maxTiles; x++){
-    		for (int y = posicion.getBY() - searchSpace; y < posicion.getBY() + maxTiles; y++){
-    			if ((x >= 0 && x < map.length) && (y >= 0 && y < map[0].length)){
-    				if (map[x][y] == 'M' || map[x][y] == 'V' || map[x][y] == '0'){
-    					continue;
-    				}
-    				if (Character.compare(map[x][y], needSpace) == 0 || Character.compare(map[x][y], needSpace) > 0){
-        				return new Position(x, y, PosType.BUILD);
-        			}
-    			}
-    		}
+    	Position valid = null;
+    	int i = 0;
+    	while (valid == null && i < 50){
+    		int x = (int) Math.floor(Math.random() * (2*searchSpace)) - searchSpace;
+    		int y = (int) Math.floor(Math.random() * (2*searchSpace)) - searchSpace;
+    		x = posicion.getBX() - x;
+    		y = posicion.getBY() - y;
+    		if ((x >= 0 && x < map.length) && (y >= 0 && y < map[0].length)){
+				if (!(map[x][y] == 'M' || map[x][y] == 'V' || map[x][y] == '0')){
+					if (Character.compare(map[x][y], needSpace) == 0 || Character.compare(map[x][y], needSpace) > 0){
+	    				valid = new Position(x, y, PosType.BUILD);
+	    			}
+				}	
+			}
+    		i++;
     	}
-    	return null;
+		return valid;
     }
     
     /**

@@ -101,19 +101,10 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		buildTree = new BehavioralTree("ArbolDecision");
 		buildTree.addChild(build);*/
 		
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		
 		
 		// Iniciamos el tiempo
@@ -127,7 +118,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	
 	public void matchEnd(boolean winner) {
 		try {
-			PrintWriter writer = new PrintWriter(new File("Resultados.txt"));
+			File archivo = new File("Resultados.txt");
+			PrintWriter writer = new PrintWriter(archivo);
 			// Resultado de la partida
 			String resultado = "";
 			if (winner)
@@ -138,15 +130,14 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 			// Sacamos el tiempo
 			endTime = System.currentTimeMillis();
 			long duration = (endTime - startTime);
-			writer.println("La duración ha sido de " + duration/1000 + "segundos.");
+			writer.println("La duracion ha sido de " + duration/1000 + " segundos.");
 			writer.println("Se han construido " + CtrlVar.buildings.size() + " edificios, de los cuales fueron centros de mando " + CtrlVar.centroMando.size() + ".");
 			writer.println("Se han entrenado " + CtrlVar.workers.size() + " fueron unidades no militares y " + CtrlVar.militaryUnits.size() + " fueron unidades militares.");
 			writer.println("Se recogieron " + bwapi.getSelf().getMinerals() + " unidades de mineral y " + bwapi.getSelf().getGas() + " de vespeno." );
-			
+			writer.close();
 		} catch (Exception e) {
 			System.out.println("Error al imprimir");
-		}
-		
+		}	
 	}
     
 	public void keyPressed(int keyCode) {

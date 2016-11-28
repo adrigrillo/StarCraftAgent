@@ -120,8 +120,6 @@ public class ConstructionTree extends GameHandler{
 				// Buscamos que sea un trabajador y que recoja minerales (hay mas)
 				if (unit.getType().isWorker() && unit.isGatheringMinerals()){
 					worker = connector.getUnit(unit.getID());
-					// Mandamos crear otro scv por el que quitamos
-					//CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 					return unit.getID();
 				}
 			}

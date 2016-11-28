@@ -86,7 +86,7 @@ public class RecolectTree extends GameHandler{
 				if (unit.getType().isWorker() && unit.isGatheringMinerals()){
 					worker = connector.getUnit(unit.getID());
 					// Mandamos crear otro scv por el que quitamos
-					//CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+					CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 					return unit.getID();
 				}
 			}
@@ -135,7 +135,7 @@ public class RecolectTree extends GameHandler{
                     // Se calcula la distancia entre la unidad y el deposito de minerales
                     double distance = worker.getDistance(minerals);
                     // Se comprueba si la distancia entre la unidad y el deposito de minerales es menor a 300.
-                    if (distance < 300) {
+                    if (distance < 700) {
                         // Se ejecuta el comando para enviar a la unidad a recoger minerales del deposito seleccionado.
                         worker.rightClick(minerals, false);
                         worker = null;
