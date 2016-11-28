@@ -55,7 +55,7 @@ public class RecolectTree extends GameHandler{
 			for (Unit unit : CtrlVar.workers){
 				// Buscamos que sea un trabajador y esten libres
 				if (unit.getType().isWorker() && unit.isIdle()){
-					selectWorker(unit.getID());
+					worker = connector.getUnit(unit.getID());
 					return unit.getID();
 				}
 			}
@@ -82,7 +82,7 @@ public class RecolectTree extends GameHandler{
                     if (distance < 300) {
                         // Se ejecuta el comando para enviar a la unidad a recoger minerales del deposito seleccionado.
                         worker.rightClick(minerals, false);
-                        liberar();
+                        worker = null;
                         // Se añade el deposito a la lista de depositos en uso.
                         CtrlVar.claimedMinerals.add(minerals);
                         return 1;
@@ -122,7 +122,8 @@ public class RecolectTree extends GameHandler{
 				// Si ya esta contruida se manda al trabajador
 				Unit refineria = CtrlVar.refinery.get((int) Math.random() * CtrlVar.refinery.size());
 				if (worker.rightClick(refineria.getBottomRight(), false)){
-					liberar();
+					if (!worker.isGatheringGas())
+						return 0;
 					return 1;
 				}
 				// Si falla al mandarlo
@@ -133,25 +134,5 @@ public class RecolectTree extends GameHandler{
 		catch (Exception e){
 			return -1;
 		}
-	}
-	
-	
-	/*************************************************
-	 * 			METODOS AUXILIARES
-	 ************************************************/
-	/**
-	 * Metodo para liberar al trabajador tras hacer una tarea
-	 */
-    private void liberar(){
-    	worker = null;
-    }
-    
-    
-    /**
-     * Metodo para seleccionar un trabajador
-     * @param idWorker id del trabajador
-     */
-	public void selectWorker(int idWorker){
-		worker = connector.getUnit(idWorker);
 	}
 }
