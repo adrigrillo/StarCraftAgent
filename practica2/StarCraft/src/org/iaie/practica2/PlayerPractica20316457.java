@@ -29,6 +29,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	// Creamos el arbol de decision
 	private BehavioralTree recollectTree;
 	private BehavioralTree buildTree;
+	private BehavioralTree trainTree;
 	
 	
 	public PlayerPractica20316457() {            
@@ -80,22 +81,26 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectMineral, new CollectGas("CollectGas", recolectar));
 		Sequence collect = new Sequence("Recolectar", new FreeWorkerToRecollect("Trabajador", recolectar), collectResources);
 		/* Arbol de entrenamiento */
-		/*Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
+		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckBuilding("Build", entrenar), new CheckUnitResources("resources", entrenar), new TrainUnit("entrenar", entrenar));
 		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
-		CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);*/
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
 		
 		/* Arbol de construccion */
 		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Refinery);
 		
 		recollectTree = new BehavioralTree("ArbolDecision");
 		recollectTree.addChild(collect);
 		buildTree = new BehavioralTree("ArbolDecision");
 		buildTree.addChild(build);
+		trainTree = new BehavioralTree("Arbol de decision");
+		trainTree.addChild(train);
 	}
 
 	public void matchFrame() {
 		recollectTree.run();
+		trainTree.run();
 		buildTree.run();
 	}
 	

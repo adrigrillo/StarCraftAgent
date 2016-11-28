@@ -20,6 +20,8 @@ public class CtrlVar {
 	public static ArrayList<Unit> militaryUnits = new ArrayList<>();
     // Lista de edificios construidos
 	public static ArrayList<Unit> buildings = new ArrayList<>();
+	// Lista de refinerias construidos
+	public static ArrayList<Unit> refinery = new ArrayList<>();
     // Lista de edificios a construir
 	public static ArrayList<UnitType> buildqueue = new ArrayList<>();
     // Lista de unidades a entrenar
@@ -32,6 +34,7 @@ public class CtrlVar {
 		militaryUnits.clear();
 		workers.clear();
 		buildings.clear();
+		refinery.clear();
 		buildqueue.clear();
 		trainqueue.clear();
 		centroMando = null;

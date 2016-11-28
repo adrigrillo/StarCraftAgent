@@ -162,7 +162,7 @@ public class ConstructionTree extends GameHandler{
 		try {
 			/* Comprobamos que la unidad se esta construyendo para guardarla
 			 * y asi comprobar posteriormente cuando se completa */
-			if (worker != null){
+			if (worker != null && building == null){
 				building = worker.getBuildUnit();
 			}
 			/* Como la unidad tarda un poco en aparecer, primero nos fijamos
@@ -179,6 +179,7 @@ public class ConstructionTree extends GameHandler{
 				// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
 				if (building.isCompleted()){
 					CtrlVar.trainqueue.remove(toBuild);
+					CtrlVar.buildings.add(building);
 					pos = null;
 					worker = null;
 					toBuild = null;

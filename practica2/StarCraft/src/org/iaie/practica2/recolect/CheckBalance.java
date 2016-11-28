@@ -18,10 +18,10 @@ public class CheckBalance extends Conditional{
 	public State execute() {
 		int res = ((RecolectTree)this.handler).checkDistribution();
 		switch (res) {
+			case -1:
+				return State.ERROR;
 			case 0:
 				return State.FAILURE;
-			case -2:
-				return State.ERROR;
 			default:
 				return State.SUCCESS;
 		}

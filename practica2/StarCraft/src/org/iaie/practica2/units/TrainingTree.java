@@ -157,6 +157,11 @@ public class TrainingTree extends GameHandler {
 			else {
 				// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
 				if (training.isCompleted()){
+					// Anyadimos la unidad a la lista que pertenezca
+					if (training.getType().isWorker())
+						CtrlVar.workers.add(training);
+					else
+						CtrlVar.militaryUnits.add(training);
 					CtrlVar.trainqueue.remove(toTrain);
 					training = null;
 					edificio = null;
