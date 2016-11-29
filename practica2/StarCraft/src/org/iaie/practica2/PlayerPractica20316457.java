@@ -14,7 +14,12 @@ import org.iaie.practica2.construction.CheckBuildingResources;
 import org.iaie.practica2.construction.ConstructionTree;
 import org.iaie.practica2.construction.FreeWorkerToBuild;
 import org.iaie.practica2.construction.SelectLocation;
+import org.iaie.practica2.militarControl.AtackOrPatrol;
+import org.iaie.practica2.militarControl.AttackUnits;
+import org.iaie.practica2.militarControl.CheckState;
+import org.iaie.practica2.militarControl.DefenseMode;
 import org.iaie.practica2.militarControl.MilitarTree;
+import org.iaie.practica2.militarControl.OrderPatrol;
 import org.iaie.practica2.movements.CheckPositionUnit;
 import org.iaie.practica2.movements.CheckStateUnit;
 import org.iaie.practica2.movements.MovementTree;
@@ -36,6 +41,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	private BehavioralTree recollectTree;
 	private BehavioralTree creationTree;
 	private BehavioralTree explorationTree;
+	private BehavioralTree militaryTree;
 	
 	
 	public PlayerPractica20316457() {            
@@ -78,6 +84,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		TrainingTree entrenar = new TrainingTree(bwapi);
 		ConstructionTree construir = new ConstructionTree(bwapi);
 		MovementTree explorar = new MovementTree(bwapi);
+		MilitarTree militares = new MilitarTree(bwapi);
 		
 		/* Arbol de recoleccion */
 		/* Collect gas: Miramos equilibrio, si se necesita gas, miramos si esta construida la refineria, cogemos un trabajador y recogemos gas */
@@ -96,6 +103,14 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		/* Arbol de exploracion */
 		Sequence explore = new Sequence("Explore", new CheckStateUnit("Estado", explorar), new CheckPositionUnit("Posicion", explorar), new SendUnit("Mandar", explorar));
 		
+		/* Arbol para el control de los militares */
+		// Comprobamos que se puede atacar, si se puede ataca
+		Sequence atack = new Sequence("Atacar", new AtackOrPatrol("Comprobar", militares), new AttackUnits("Atacar", militares));
+		// Si no se puede patrulla
+		Selector<GameHandler> atackPatrol = new Selector<GameHandler>("Atacar o Patrullar", atack, new OrderPatrol("Patrullar", militares));
+		// Se comprueba si se puede atacar o patrullar, si se puede se hace
+		Sequence atacar = new Sequence("MilitarContal", new CheckState("PosibleAtacar", militares), atackPatrol);
+		Selector<GameHandler> atackDefense = new Selector<GameHandler>("Atack or defense", atacar, new DefenseMode("Defensa", militares));
 		// Anyadimos los arboles
 		recollectTree = new BehavioralTree("ArbolDecision de recoleccion");
 		recollectTree.addChild(collectResources);
@@ -103,20 +118,31 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		creationTree.addChild(creation);
 		explorationTree = new BehavioralTree("ArbolDecision de exploracion");
 		explorationTree.addChild(explore);
+		militaryTree = new BehavioralTree("ArbolDecision del control de los militares");
+		militaryTree.addChild(atackDefense);
+
 		
 		// Edificios a construir
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Comsat_Station);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Nuclear_Silo);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Science_Facility);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Control_Tower);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		
 		// Iniciamos el tiempo
 		startTime = System.currentTimeMillis();
@@ -126,6 +152,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		explorationTree.run();
 		recollectTree.run();
 		creationTree.run();
+		militaryTree.run();
 	}
 	
 	public void matchEnd(boolean winner) {

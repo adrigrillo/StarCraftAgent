@@ -3,22 +3,19 @@ package org.iaie.practica2.militarControl;
 import org.iaie.btree.state.State;
 import org.iaie.btree.task.leaf.Conditional;
 import org.iaie.btree.util.GameHandler;
-import org.iaie.practica2.militarControl.MilitarTree;
 
+public class AtackOrPatrol extends Conditional{
 
-public class CheckState extends Conditional{
-
-	public CheckState(String name, GameHandler gh) {
+	public AtackOrPatrol(String name, GameHandler gh) {
 		super(name, gh);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * Metodo que comprobara el estado del jugador
-	 * Devolvera 1 si se puede atacar, 0 si hay que defender. -1 error
+	 * Metodo que comprobara si estan atacando y entrara en modo defensa
+	 * Devolvera 1 si se puede atacar, devolvera 0 si se tiene que patrullar, -1 error
 	 */
 	public State execute() {
-		int res = ((MilitarTree)this.handler).checkState();
+		int res = ((MilitarTree)this.handler).attackPatrol();
 		switch (res) {
 			case -1:
 				return State.ERROR;

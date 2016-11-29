@@ -10,12 +10,14 @@ import jnibwapi.ChokePoint;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
+import jnibwapi.types.UnitType.UnitTypes;
 
 public class MilitarTree extends GameHandler {
 
-	private Unit militar = null;
 	private Position beingAtacked = null;
-	private ArrayList<Position> patrullas = new ArrayList<>(); 
+	private Unit objetive = null;
+	private ArrayList<Position> patrullas = new ArrayList<>();
+	private ArrayList<Unit> army = new ArrayList<>();
 	
 	public MilitarTree(JNIBWAPI bwapi) {
 		super(bwapi);
@@ -29,6 +31,9 @@ public class MilitarTree extends GameHandler {
 	 */
 	public int checkState(){
 		try{
+			// Si no tenemos unidades esto arbol no es valido
+			if (CtrlVar.militaryUnits.isEmpty())
+				return -1;
 			// Miramos si estamos siendo atacados
 			for (Unit unit : connector.getMyUnits()){
 				if (unit.isUnderAttack()){
@@ -39,6 +44,23 @@ public class MilitarTree extends GameHandler {
 			// El resto esta atacando o patrullando
 			return 1;
 		} catch (Exception e){
+			return -1;
+		}
+	}
+	
+	
+	/**
+	 * Este metodo se utilizara para ver si es conveniente atacar o mejor patrullar
+	 * @return
+	 */
+	public int attackPatrol(){
+		try {
+			// Si el tamanyo es mayor a un determinado se puede atacar al enemigo
+			if (CtrlVar.militaryUnits.size() > 10){
+				return 1;
+			}
+			return 0;
+		} catch (Exception e) {
 			return -1;
 		}
 	}
@@ -65,11 +87,10 @@ public class MilitarTree extends GameHandler {
 	
 	/** 
 	 * Este metodo sera utilizado para mandar patrullar a las unidades
-	 * cuando esten sin hacer nada y defender cuando algun edificio o unidad este
-	 * siendo atacadaç
+	 * cuando esten sin hacer nada
 	 * @return 1 si las unidades se han mandado a patrullar, 0 si ha habido errores, -1 error
 	 */
-	public int ordenarUnidades(){
+	public int orderPatrol(){
 		try {
 			// Sacamos la posiciones de patrulla
 			if (patrullas.isEmpty()){
@@ -94,37 +115,38 @@ public class MilitarTree extends GameHandler {
 	}
 	
 	
-	public int attackUnits(){
+	/**
+	 * Este metodo es utilizado para mandar unidades a atacar al enemigo, en concreto el centro de mando
+	 * @return 1 Si se mandan correctamente, 0 si falla al mandarse, -1 error
+	 */
+	public int attackObjetive(){
 		try{
-			// Navegamos nuestras unidades
-			for (Unit unit : CtrlVar.militaryUnits){
-				// Buscamos que sea un militar y esten libres
-				if (unit.getType().isAttackCapable() && unit.isIdle()){
-					selectMilitar(unit.getID());
-					// Buscamos las unidades enemigas
-					for (Unit unitEnemy : connector.getEnemyUnits()){
-						militar.attack(unitEnemy, true);
-						return 1;
+			for (Unit enemy : connector.getAllUnits()){
+				if (enemy.getType().isBuilding()){
+					if (!CtrlVar.buildings.contains(enemy) && (enemy.getType() == UnitTypes.Terran_Command_Center || enemy.getType() == UnitTypes.Zerg_Infested_Command_Center || enemy.getType() == UnitTypes.Zerg_Hatchery)){
+						objetive = enemy;
 					}
 				}
 			}
-			return -1;
+			if (objetive != null){
+				// Tomamos la mitad de las unidades para atacar
+				int size = CtrlVar.militaryUnits.size() / 2;
+				// Navegamos nuestras unidades			
+				for (int i = 0; i < CtrlVar.militaryUnits.size(); i++){
+					army.add(CtrlVar.militaryUnits.remove(i));
+					if (i == size)
+						break;
+				}
+				// Con el ejercito elegido atacamos
+				for (Unit militar : army){
+					if (!militar.attack(objetive, false))
+						return 0;
+				}
+				return 1;
+			}
+			return 0; 
 		} catch (Exception e){
-			return -2;
+			return -1;
 		}
-	}
-	
-
-	/*************************************************
-	 * 			METODOS AUXILIARES
-	 ************************************************/
-    
-    /**
-     * Metodo para seleccionar un trabajador
-     * @param idWorker id del trabajador
-     */
-	public void selectMilitar(int idWorker){
-		militar = connector.getUnit(idWorker);
-	}
-	
+	}	
 }
