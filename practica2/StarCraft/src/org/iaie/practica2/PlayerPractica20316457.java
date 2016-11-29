@@ -14,6 +14,10 @@ import org.iaie.practica2.construction.CheckBuildingResources;
 import org.iaie.practica2.construction.ConstructionTree;
 import org.iaie.practica2.construction.FreeWorkerToBuild;
 import org.iaie.practica2.construction.SelectLocation;
+import org.iaie.practica2.movements.CheckPositionUnit;
+import org.iaie.practica2.movements.CheckStateUnit;
+import org.iaie.practica2.movements.MovementTree;
+import org.iaie.practica2.movements.SendUnit;
 import org.iaie.practica2.recolect.*;
 import org.iaie.practica2.units.*;
 
@@ -30,6 +34,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	long endTime;
 	private BehavioralTree recollectTree;
 	private BehavioralTree creationTree;
+	private BehavioralTree explorationTree;
 	
 	
 	public PlayerPractica20316457() {            
@@ -75,27 +80,32 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		RecolectTree recolectar = new RecolectTree(bwapi);
 		TrainingTree entrenar = new TrainingTree(bwapi);
 		ConstructionTree construir = new ConstructionTree(bwapi);
+		MovementTree explorar = new MovementTree(bwapi);
 		
 		/* Arbol de recoleccion */
-		/* Collect gas: Miramos equilibrio, si se necesita gas, miramos si esta construida la refineria,
-		 * cogemos un trabajador y recogemos gas */
+		/* Collect gas: Miramos equilibrio, si se necesita gas, miramos si esta construida la refineria, cogemos un trabajador y recogemos gas */
 		Sequence collectGas = new Sequence("collectGas", new CheckBalance("Balance", recolectar), new CheckRefinery("Comprobar refineria", recolectar), new FreeWorkerGas("TrabajadorGas", recolectar), new CollectGas("CollectGas", recolectar));
 		/* Collect mineral: Si no se necesita gas, buscamos un trabajador libre, recogemos */
 		Sequence collectMineral = new Sequence("collectMineral", new FreeWorkerMineral("TrabajadorMinera", recolectar), new CollectMineral("CollectMineral", recolectar));
 		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectGas, collectMineral);
-		/* Arbol de entrenamiento */
+		
+		/* Arbol de creacion */
+		/* Entrenamiento de unidades */
 		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckPopulation("Comprobar poblacion", entrenar), new CheckBuilding("Comprobar edificios", entrenar), new CheckUnitResources("Comprobar recursos", entrenar), new TrainUnit("Entrenar", entrenar));
-		
-		/* Arbol de construccion */
+		/* Construccion de edificios*/
 		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
-		
 		Selector<GameHandler> creation = new Selector<GameHandler>("TrainOrBuild", build, train);
 		
-		recollectTree = new BehavioralTree("ArbolDecision");
-		recollectTree.addChild(collectResources);
-		creationTree = new BehavioralTree("ArbolDecision");
-		creationTree.addChild(creation);
+		/* Arbol de exploracion */
+		Sequence explore = new Sequence("Explore", new CheckPositionUnit("Posicion", explorar), new CheckStateUnit("Estado", explorar), new SendUnit("Mandar", explorar));
 		
+		// Anyadimos los arboles
+		recollectTree = new BehavioralTree("ArbolDecision de recoleccion");
+		recollectTree.addChild(collectResources);
+		creationTree = new BehavioralTree("ArbolDecision de creacion");
+		creationTree.addChild(creation);
+		explorationTree = new BehavioralTree("ArbolDecision de exploracion");
+		explorationTree.addChild(explore);
 		
 		// Edificios a construir
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
@@ -116,8 +126,9 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 
 	public void matchFrame() {
-		recollectTree.run();
-		creationTree.run();
+		explorationTree.run();
+		//recollectTree.run();
+		//creationTree.run();
 	}
 	
 	public void matchEnd(boolean winner) {
