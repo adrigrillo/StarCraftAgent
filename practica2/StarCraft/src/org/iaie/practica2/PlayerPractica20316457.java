@@ -14,6 +14,7 @@ import org.iaie.practica2.construction.CheckBuildingResources;
 import org.iaie.practica2.construction.ConstructionTree;
 import org.iaie.practica2.construction.FreeWorkerToBuild;
 import org.iaie.practica2.construction.SelectLocation;
+import org.iaie.practica2.militarControl.MilitarTree;
 import org.iaie.practica2.movements.CheckPositionUnit;
 import org.iaie.practica2.movements.CheckStateUnit;
 import org.iaie.practica2.movements.MovementTree;
