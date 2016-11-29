@@ -62,9 +62,6 @@ public class RecolectTree extends GameHandler{
 				// Delvovemos error
 				return 0;
 			}
-			for (Unit unit : CtrlVar.workers){
-				unit.getTarget();
-			}
 			return 1;
 		} catch (Exception e) {
 			return -1;

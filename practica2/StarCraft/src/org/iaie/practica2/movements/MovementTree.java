@@ -6,6 +6,7 @@ import org.iaie.practica2.CtrlVar;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
+import jnibwapi.types.UnitType.UnitTypes;
 import jnibwapi.Position.PosType;
 
 public class MovementTree extends GameHandler{
@@ -22,24 +23,15 @@ public class MovementTree extends GameHandler{
 	
 	
 	/**
-	 * Metodo que buscara un trabajador libre si existe y guarda su posicion
-	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algun error
+	 * Metodo que comprueba la posicion del jugador
+	 * @return 1 si consigue, 0 si no se consigue, -1 si hay algun error
 	 */
 	public int checkPositionUnit(){
 		try{
-			// Si no hay ninguno fijado
-			if (unitChecked == null){
-				// Navegamos nuestras unidades
-				for (Unit unit : CtrlVar.workers){
-					// Buscamos que sea un trabajador y esten libres
-					if (unit.getType().isWorker() && unit.isIdle()){
-						unitChecked = unit;
-						if(unitChecked.getPosition().isValid()){
-							position = unitChecked.getPosition();
-							return 1;
-						}
-					}
-				}
+			if (unitChecked != null) {
+				position = unitChecked.getPosition();
+				if (position != null)
+					return 1;
 			}
 			return 0;
 		} catch (Exception e){
@@ -49,17 +41,34 @@ public class MovementTree extends GameHandler{
 	
 	
 	/**
-	 * Metodo que comprueba el estado en el que se encuentra la unidad examinada
+	 * Metodo que comprueba si hay una unidad disponible para explorar
 	 * @return 1 si esta parada, 0 si se encuentra en movimiento y -1 si hay error
 	 */
 	public int checkStateUnit(){
 		try{
-			/*Consideramos que si la unidad esta en movimiento
-			 * habrá que esperar a que pare para poder volver moverla*/
-			if(unitChecked.isMoving())
+			// Si no hay ninguno fijado
+			if (unitChecked == null){
+				// Navegamos nuestras unidades
+				for (Unit unit : CtrlVar.workers){
+					/* Buscamos que este libre, lo eliminamos de la lista de
+					 * trabajadores disponibles y lo sustituimos con otro nuevo*/
+					if  (unit.isIdle()){
+						unitChecked = unit;
+						CtrlVar.workers.remove(unit);
+						CtrlVar.trainqueue.add(UnitTypes.Terran_SCV);
+						return 1;
+					}
+				}
 				return 0;
-			else
-				return 1;
+			}
+			else {
+				/*Consideramos que si la unidad esta en movimiento
+				 * habrá que esperar a que pare para poder volver moverla*/
+				if(unitChecked.isMoving())
+					return 0;
+				else
+					return 1;
+			}
 		} catch (Exception e){
 			// Error al ejecutar
 			return -1;

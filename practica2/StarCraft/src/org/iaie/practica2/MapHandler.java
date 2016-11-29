@@ -192,7 +192,7 @@ public class MapHandler {
     	// Parametros para el espacio de busqueda
     	int searchSpace = 15;
     	if (edificio == UnitTypes.Terran_Supply_Depot){
-    		searchSpace = 5;
+    		searchSpace = 10;
     	}
     	Position valid = null;
     	int i = 0;

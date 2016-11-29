@@ -97,7 +97,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		Selector<GameHandler> creation = new Selector<GameHandler>("TrainOrBuild", build, train);
 		
 		/* Arbol de exploracion */
-		Sequence explore = new Sequence("Explore", new CheckPositionUnit("Posicion", explorar), new CheckStateUnit("Estado", explorar), new SendUnit("Mandar", explorar));
+		Sequence explore = new Sequence("Explore", new CheckStateUnit("Estado", explorar), new CheckPositionUnit("Posicion", explorar), new SendUnit("Mandar", explorar));
 		
 		// Anyadimos los arboles
 		recollectTree = new BehavioralTree("ArbolDecision de recoleccion");
@@ -127,8 +127,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 
 	public void matchFrame() {
 		explorationTree.run();
-		//recollectTree.run();
-		//creationTree.run();
+		recollectTree.run();
+		creationTree.run();
 	}
 	
 	public void matchEnd(boolean winner) {
