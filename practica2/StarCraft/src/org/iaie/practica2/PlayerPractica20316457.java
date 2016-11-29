@@ -124,21 +124,22 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		
 		// Edificios a construir
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Control_Tower);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Comsat_Station);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Nuclear_Silo);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Science_Facility);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Control_Tower);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Missile_Turret);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);

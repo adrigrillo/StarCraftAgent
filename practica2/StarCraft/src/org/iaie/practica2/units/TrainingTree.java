@@ -32,7 +32,7 @@ public class TrainingTree extends GameHandler {
 	public int checkPopulation(){
 		try {
 			// Lo podemos utilizar para aumentar poco a poco la poblacion
-			if ((int)Math.floor(Math.random()* 1000) == 0)
+			if ((int)Math.floor(Math.random()* 500) == 0 && CtrlVar.workers.size() < 12)
 				CtrlVar.trainqueue.add(0, UnitTypes.Terran_SCV);
 			if ((int)Math.floor(Math.random()* 1000) == 0)
 				CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
