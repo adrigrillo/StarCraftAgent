@@ -63,7 +63,7 @@ public class MovementTree extends GameHandler{
 			}
 			else {
 				/*Consideramos que si la unidad esta en movimiento
-				 * habrá que esperar a que pare para poder volver moverla*/
+				 * habra que esperar a que pare para poder volver moverla*/
 				if(unitChecked.isMoving())
 					return 0;
 				else
@@ -79,7 +79,7 @@ public class MovementTree extends GameHandler{
 	/** 
 	 * Utilizaremos este arbol para explorar el mapa en esta practica
 	 * para ello mandaremos al elegido a diferentes posiciones del mapa
-	 * @return
+	 * @return 1 si se encuentra una posicion y se mueve, 0 si no se encuentra o no se manda, -1 error
 	 */
 	public int moveUnit (){
 		try{

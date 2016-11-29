@@ -13,7 +13,7 @@ public class FreeWorkerGas extends Action{
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success si hay algun trabajador libre
+	 *  - success si se consigue un trabajador
 	 *  - failure si no lo hay
 	 *  - error si se produce algun error
 	 */

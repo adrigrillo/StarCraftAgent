@@ -12,7 +12,7 @@ public class CheckPopulation extends Conditional {
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success se puede crear
+	 *  - success si no se ha alcanzado el limite de poblacion y se puede crear
 	 *  - failure si se necesita un supply depot
 	 *  - error si se produce algun error
 	 */

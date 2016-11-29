@@ -51,7 +51,7 @@ public class MilitarTree extends GameHandler {
 	
 	/**
 	 * Este metodo se utilizara para ver si es conveniente atacar o mejor patrullar
-	 * @return
+	 * @return 1 si se puede atacar, 0 si es mejor patrullar, -1 error
 	 */
 	public int attackPatrol(){
 		try {
@@ -68,7 +68,7 @@ public class MilitarTree extends GameHandler {
 	
 	/**
 	 * Si nos atacan alguna unidad mandamos a las unidades militares a defenderla
-	 * @return
+	 * @return 1 si se mandan correctamente, 0 si hay algun error mandando las unidades, -1 error
 	 */
 	public int defenseMode(){
 		try{

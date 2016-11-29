@@ -12,8 +12,8 @@ public class CheckBuilding extends Conditional{
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success si hay suficientes recursos para construir una unidad
-	 *  - failure si no los hay
+	 *  - success si los edificios necesarios estan creados
+	 *  - failure si no lo estan
 	 *  - error si se produce algun error
 	 */
 	public State execute() {

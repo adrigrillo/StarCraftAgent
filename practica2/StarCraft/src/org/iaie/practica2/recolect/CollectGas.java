@@ -11,7 +11,7 @@ public class CollectGas extends Action{
 	}
 
 	/**
-	 * Metodo que devuelve:
+	 * Metodo para enviar el trabajador a la refineria que devuelve:
 	 *  - success si se manda al trabajador a recoger vespeno
 	 *  - failure si no se le manda
 	 *  - error si se produce algun error

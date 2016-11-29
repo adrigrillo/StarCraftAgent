@@ -13,6 +13,9 @@ public class SendUnit extends Conditional{
 
 	/**
 	 * Metodo que comprobara si se ha enviado la unidad
+	 * - SUCESS si se ha mandado
+	 * - FAILURE si no se ha mandado
+	 * - ERROR si hay algun error
 	 */
 	public State execute() {
 		int res = ((MovementTree)this.handler).moveUnit();

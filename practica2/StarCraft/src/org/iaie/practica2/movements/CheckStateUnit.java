@@ -13,6 +13,9 @@ public class CheckStateUnit extends Action{
 
 	/**
 	 * Metodo que comprobara el estado de la unidad
+	 * - SUCESS si ha llegado a la posicion
+	 * - RUNNING si se esta moviendo
+	 * - ERROR si hay algun error
 	 */
 	public State execute() {
 		int res = ((MovementTree)this.handler).checkStateUnit();

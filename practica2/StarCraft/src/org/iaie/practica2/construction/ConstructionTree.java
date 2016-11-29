@@ -53,8 +53,8 @@ public class ConstructionTree extends GameHandler{
 	
 	
 	/**
-	 * Este metodo elige la posicion para construir el edificio. Si es una refineria busca geyseres,
-	 * si es un supply depot lo crea cerca de una minera y el resto de edificios los crea en torno
+	 * Este metodo elige la posicion para construir el edificio. Si es una refineria busca geiseres,
+	 * si es un supply depot lo crea cerca de una mina y el resto de edificios los crea en torno
 	 * al centro de mando principal
 	 * @return 1 si encuentra la posicion, 0 si no la encuentra y -1 si hay error
 	 */
@@ -63,7 +63,6 @@ public class ConstructionTree extends GameHandler{
 			// Si es una refineria
 			if (toBuild == UnitTypes.Terran_Refinery){
 				for (Unit vespeno : this.connector.getNeutralUnits()){
-					
 	            	// Comprobamos que es un geyser de vespeno y que no lo hemos reclamado ya
 	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && (!CtrlVar.claimedMinerals.contains(vespeno) || CtrlVar.refinery.isEmpty())){
 	            		// Cogemos la posicion del vespeno para construir el edificio encima
@@ -102,7 +101,8 @@ public class ConstructionTree extends GameHandler{
 	
 	
 	/**
-	 * Metodo que buscara un trabajador libre si existe 
+	 * Metodo que buscara un trabajador libre si existe, si no toma uno que este picando
+	 * que hay mas para despues volver a picar
 	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algun error
 	 */
 	public int freeWorkerAvailable(){
@@ -160,7 +160,7 @@ public class ConstructionTree extends GameHandler{
 	
 	/**
 	 * Comprueba el estado del edificio que se esta construyendo
-	 * @return 1 si se ha completado, 0 si esta en proceso, -1 si hay algún error
+	 * @return 1 si se ha completado, 0 si esta en proceso, -1 si hay algï¿½n error
 	 */
 	public int buildState(){
 		try {

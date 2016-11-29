@@ -13,8 +13,8 @@ public class CollectMineral extends Action{
 	
 	/**
 	 * Metodo que devuelve:
-	 *  - success si se hay suficientes recursos para entrenar una unidad
-	 *  - failure si no los hay
+	 *  - success si se manda a la unidad a recoger minerales
+	 *  - failure si no se le manda
 	 *  - error si se produce algun error
 	 */
 	public State execute() {

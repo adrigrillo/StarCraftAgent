@@ -12,7 +12,7 @@ public class CheckBuildingResources extends Conditional {
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success si se hay suficientes recursos para entrenar una unidad
+	 *  - success si se hay suficientes recursos para construir un edificio
 	 *  - failure si no los hay
 	 *  - error si se produce algun error
 	 */

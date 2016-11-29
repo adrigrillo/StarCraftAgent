@@ -1,7 +1,7 @@
 package org.iaie.practica2;
 
 /********************************************************************************************
- * Esta clase contendrá las variables de control del juego, para poder 
+ * Esta clase contendrï¿½ las variables de control del juego, para poder 
  * ser accedidas por todas las clases
  *******************************************************************************************/
 
@@ -59,7 +59,7 @@ public class CtrlVar {
     
     /**
      * Metodo para actualizar 
-     * @param bwapi
+     * @param bwapi	estado de la partida
      */
     public static void refreshClaimed(JNIBWAPI bwapi){
     	for (Unit unit : bwapi.getMyUnits()){

@@ -13,8 +13,8 @@ public class FreeWorkerToBuild extends Conditional {
 
 	/**
 	 * Metodo que devuelve:
-	 *  - success si la unidad se ha terminado de crear y se puede crear otra
-	 *  - running si la unidad se esta entrenando
+	 *  - success si hay una unidad disponible para crear el edifici
+	 *  - failure cuando no hay ninguna
 	 *  - error si se produce algun error
 	 */
 	public State execute() {

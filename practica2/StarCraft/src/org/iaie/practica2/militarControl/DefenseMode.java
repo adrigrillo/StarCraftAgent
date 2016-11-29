@@ -13,7 +13,7 @@ public class DefenseMode extends Conditional {
 
 	/**
 	 * Metodo que comprobara si estan atacando y entrara en modo defensa
-	 * Devolvera 1 si se puede atacar, devolvera 0 si se esta defendiendo, -1 error
+	 * Devolvera 1 si se manda a defender correctamente, devolvera 0 si hay algun problema con alguna unidad, -1 error
 	 */
 	public State execute() {
 		int res = ((MilitarTree)this.handler).defenseMode();

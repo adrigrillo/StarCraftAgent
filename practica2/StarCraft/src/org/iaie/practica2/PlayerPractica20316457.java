@@ -48,15 +48,15 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 
         // Generacion del objeto de tipo agente
 
-        // Creación de la superclase Agent de la que extiende el agente, en este método se cargan            
-        // ciertas variables de de control referentes a los parámetros que han sido introducidos 
+        // Creaciï¿½n de la superclase Agent de la que extiende el agente, en este mï¿½todo se cargan            
+        // ciertas variables de de control referentes a los parï¿½metros que han sido introducidos 
         // por teclado. 
         super();
-        // Creación de una instancia del connector JNIBWAPI. Esta instancia sólo puede ser creada
-        // una vez ya que ha sido desarrollada mediante la utilización del patrón de diseño singlenton.
+        // Creaciï¿½n de una instancia del connector JNIBWAPI. Esta instancia sï¿½lo puede ser creada
+        // una vez ya que ha sido desarrollada mediante la utilizaciï¿½n del patrï¿½n de diseï¿½o singlenton.
         this.bwapi = new JNIBWAPI(this, true);
-        // Inicia la conexión en modo cliente con el servidor BWAPI que está conectado directamente al videojuego.
-        // Este proceso crea una conexión mediante el uso de socket TCP con el servidor. 
+        // Inicia la conexiï¿½n en modo cliente con el servidor BWAPI que estï¿½ conectado directamente al videojuego.
+        // Este proceso crea una conexiï¿½n mediante el uso de socket TCP con el servidor. 
         this.bwapi.start();
     }
 
@@ -79,7 +79,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		}
 		CtrlVar.refreshBuildings(bwapi);
 		
-		// Establecemos el arbol de recoleccion
+		// Establecemos los diferentes arboles
 		RecolectTree recolectar = new RecolectTree(bwapi);
 		TrainingTree entrenar = new TrainingTree(bwapi);
 		ConstructionTree construir = new ConstructionTree(bwapi);
@@ -88,37 +88,37 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		
 		/* Arbol de recoleccion */
 		/* Collect gas: Miramos equilibrio, si se necesita gas, miramos si esta construida la refineria, cogemos un trabajador y recogemos gas */
-		Sequence collectGas = new Sequence("collectGas", new CheckBalance("Balance", recolectar), new CheckRefinery("Comprobar refineria", recolectar), new FreeWorkerGas("TrabajadorGas", recolectar), new CollectGas("CollectGas", recolectar));
-		/* Collect mineral: Si no se necesita gas, buscamos un trabajador libre, recogemos */
-		Sequence collectMineral = new Sequence("collectMineral", new FreeWorkerMineral("TrabajadorMinera", recolectar), new CollectMineral("CollectMineral", recolectar));
-		Selector<GameHandler> collectResources = new Selector<GameHandler>("collectResources", collectGas, collectMineral);
+		Sequence collectGas = new Sequence("RecolectarGas", new CheckBalance("Balance", recolectar), new CheckRefinery("Comprobar refineria", recolectar), new FreeWorkerGas("TrabajadorGas", recolectar), new CollectGas("CollectGas", recolectar));
+		/* Collect mineral: Si no se necesita gas, buscamos un trabajador libre, recogemos minerales */
+		Sequence collectMineral = new Sequence("RecolectarMineral", new FreeWorkerMineral("TrabajadorMineria", recolectar), new CollectMineral("CollectMineral", recolectar));
+		Selector<GameHandler> collectResources = new Selector<GameHandler>("Recolectar recursos", collectGas, collectMineral);
 		
 		/* Arbol de creacion */
 		/* Entrenamiento de unidades */
-		Sequence train = new Sequence("Check", new CheckTraining("training", entrenar), new CheckPopulation("Comprobar poblacion", entrenar), new CheckBuilding("Comprobar edificios", entrenar), new CheckUnitResources("Comprobar recursos", entrenar), new TrainUnit("Entrenar", entrenar));
-		/* Construccion de edificios*/
-		Sequence build = new Sequence("Build", new BuildingState("Estado", construir), new CheckBuildingResources("Recursos", construir), new SelectLocation("Location", construir), new FreeWorkerToBuild("Worker", construir), new BuildBuilding("Construir", construir));
-		Selector<GameHandler> creation = new Selector<GameHandler>("TrainOrBuild", build, train);
+		Sequence train = new Sequence("Entrenar Unidad", new CheckTraining("Comprobar proceso", entrenar), new CheckPopulation("Comprobar poblacion", entrenar), new CheckBuilding("Comprobar edificios", entrenar), new CheckUnitResources("Comprobar recursos", entrenar), new TrainUnit("Entrenar", entrenar));
+		/* Construccion de edificios */
+		Sequence build = new Sequence("Construir edificio", new BuildingState("Comprobar proceso", construir), new CheckBuildingResources("Comprobar recursos", construir), new SelectLocation("Obtener localizacion", construir), new FreeWorkerToBuild("Buscar trabajador", construir), new BuildBuilding("Construir", construir));
+		Selector<GameHandler> creation = new Selector<GameHandler>("Entrenar o construir", build, train);
 		
 		/* Arbol de exploracion */
-		Sequence explore = new Sequence("Explore", new CheckStateUnit("Estado", explorar), new CheckPositionUnit("Posicion", explorar), new SendUnit("Mandar", explorar));
+		Sequence explore = new Sequence("Explorar", new CheckStateUnit("Comprobar el estado de la unidad", explorar), new CheckPositionUnit("Tomar posicion", explorar), new SendUnit("Mandar a la posicion", explorar));
 		
 		/* Arbol para el control de los militares */
 		// Comprobamos que se puede atacar, si se puede ataca
-		Sequence atack = new Sequence("Atacar", new AtackOrPatrol("Comprobar", militares), new AttackUnits("Atacar", militares));
+		Sequence atack = new Sequence("Atacar", new AtackOrPatrol("Comprobar posibilidad", militares), new AttackUnits("Atacar", militares));
 		// Si no se puede patrulla
 		Selector<GameHandler> atackPatrol = new Selector<GameHandler>("Atacar o Patrullar", atack, new OrderPatrol("Patrullar", militares));
 		// Se comprueba si se puede atacar o patrullar, si se puede se hace
-		Sequence atacar = new Sequence("MilitarContal", new CheckState("PosibleAtacar", militares), atackPatrol);
+		Sequence atacar = new Sequence("Control Militar", new CheckState("Atacar o defender", militares), atackPatrol);
 		Selector<GameHandler> atackDefense = new Selector<GameHandler>("Atack or defense", atacar, new DefenseMode("Defensa", militares));
 		// Anyadimos los arboles
-		recollectTree = new BehavioralTree("ArbolDecision de recoleccion");
+		recollectTree = new BehavioralTree("Arbol decision de recoleccion");
 		recollectTree.addChild(collectResources);
-		creationTree = new BehavioralTree("ArbolDecision de creacion");
+		creationTree = new BehavioralTree("Arbol decision de creacion");
 		creationTree.addChild(creation);
-		explorationTree = new BehavioralTree("ArbolDecision de exploracion");
+		explorationTree = new BehavioralTree("Arbol decision de exploracion");
 		explorationTree.addChild(explore);
-		militaryTree = new BehavioralTree("ArbolDecision del control de los militares");
+		militaryTree = new BehavioralTree("Arbol decision del control de los militares");
 		militaryTree.addChild(atackDefense);
 
 		
@@ -137,6 +137,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Comsat_Station);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Science_Facility);
+		
+		// Unidades a construir
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
@@ -150,6 +152,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 
 	public void matchFrame() {
+		// Llamadas a los arboles
 		explorationTree.run();
 		recollectTree.run();
 		creationTree.run();
@@ -158,6 +161,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	
 	public void matchEnd(boolean winner) {
 		try {
+			// Aqui creamos el archivo de resultados y lo rellenamos con lo necesario
 			File archivo = new File("Resultados.txt");
 			PrintWriter writer = new PrintWriter(archivo);
 			// Resultado de la partida

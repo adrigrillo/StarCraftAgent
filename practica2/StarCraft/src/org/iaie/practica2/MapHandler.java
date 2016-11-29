@@ -21,8 +21,8 @@ public class MapHandler {
      *  El eje Y, que es el alto del mapa, se guarda en la variable i de la matriz
      *  Es por tanto, que para su correcta impresion se debe hacer matriz[j][i]
      *  
-     *  @param bwapi	 BWAPI para obtener los datos de la partida 
-     *  @return Genera un .txt con la cuadricula del mapa y los espacios para la construccion
+     *  @param bwapi	BWAPI para obtener los datos de la partida 
+     *  @return 		Genera un .txt con la cuadricula del mapa y los espacios para la construccion
      *  		de los edificios
      */
     public static void generateMapSpaces(JNIBWAPI bwapi){
@@ -184,6 +184,15 @@ public class MapHandler {
 		}
     }
     
+
+	/**
+	 * Metodo que se encarga de conseguir una posicion para la construccion de un edificios
+	 *
+	 * @param bwapi	 BWAPI para obtener los datos de la partida
+	 * @param posicion	Posicion tomada como base para calcular la nueva posicion
+	 * @param edificio	Tipo de edificio que se quiere construir
+	 * @return	Posicion donde se constuira el nuevo edificio
+	 */
     public static Position searchPointToBuild(JNIBWAPI bwapi, Position posicion, UnitType edificio){
     	// Obtenemos el mapa para examinar
     	char [][] map = readMapFile(bwapi);
@@ -196,7 +205,9 @@ public class MapHandler {
     	}
     	Position valid = null;
     	int i = 0;
+		// Se busca una posicion valida por 50 intentos
     	while (valid == null && i < 50){
+			// Sacamos la posicion al azar dentro del cuadro de busqueda
     		int x = (int) Math.floor(Math.random() * (2*searchSpace)) - searchSpace;
     		int y = (int) Math.floor(Math.random() * (2*searchSpace)) - searchSpace;
     		x = posicion.getBX() - x;

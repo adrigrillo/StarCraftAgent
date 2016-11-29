@@ -57,7 +57,7 @@ public class TrainingTree extends GameHandler {
 	
 	/**
 	 * Este metodo comprueba los edificios necesarios para construir la unidad
-	 * @return
+	 * @return 1 si los edificios estan disponibles, 0 si no lo estan, -1 error
 	 */
 	public int checkBuildingExist(){
 		try {
@@ -83,7 +83,7 @@ public class TrainingTree extends GameHandler {
 					}
 					// Si falta algun edificio para construir la unidad se pasa al siguiente
 					if (!construido){
-						//Añadimos el edificio que falta a la cola de construccion
+						//Anyadimos el edificio que falta a la cola de construccion
 						//CtrlVar.buildqueue.add(UnitType.UnitTypes.getUnitType(idBuilding));
 						break;
 					}
@@ -166,7 +166,7 @@ public class TrainingTree extends GameHandler {
 	
 	/**
 	 * Comprueba el estado de la unidad que se esta entrenando
-	 * @return 1 si se ha completado, 0 si esta en proceso, -1 si hay algún error
+	 * @return 1 si se ha completado, 0 si esta en proceso, -1 si hay algun error
 	 */
 	public int trainingState(){
 		try {

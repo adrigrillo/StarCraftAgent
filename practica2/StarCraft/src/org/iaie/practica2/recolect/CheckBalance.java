@@ -14,6 +14,9 @@ public class CheckBalance extends Conditional{
 	/**
 	 * Metodo que comprobara si enviar las unidades a recoger
 	 * minerales o vespeno
+	 * - 1 si hay que recoger gas
+	 * - 0 si hay que recoger mineral
+	 * - -1 si hay error
 	 */
 	public State execute() {
 		int res = ((RecolectTree)this.handler).checkDistribution();

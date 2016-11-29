@@ -21,7 +21,7 @@ public class RecolectTree extends GameHandler{
 	/**
 	 * Metodo para comprobar la distribucion de los trabajadores a la hora de recolectar
 	 * Se busca un 70% en minerales y un 30% en vespeno
-	 * @return
+	 * @return 1 si se necesita gas, 0 si minerales, -1 error
 	 */
 	public int checkDistribution(){
 		try{
@@ -91,7 +91,7 @@ public class RecolectTree extends GameHandler{
 	
 	
 	/**
-	 * Metodo que buscara un trabajador libre si existe para recoger gas
+	 * Metodo que buscara un trabajador para recoger gas
 	 * @return Id del trabajador si existe, -1 si no existe, -2 si hay algun error
 	 */
 	public int freeWorkerAvailableGas(){
@@ -105,8 +105,8 @@ public class RecolectTree extends GameHandler{
 				}
 			}
 			/* Si no hay ningun trabajador disponible se coge uno que este
-			 * tomando minerales, ya que si es para coger gas cogera gas y si
-			 * es para coger minerales seguira */
+			 * tomando minerales, ya que hay menos para conseguir gas y hay que
+			 * dar prioridad */
 			for (Unit unit : CtrlVar.workers){
 				// Buscamos que sea un trabajador y que recoja minerales (hay mas)
 				if (unit.getType().isWorker() && unit.isGatheringMinerals()){
@@ -124,8 +124,8 @@ public class RecolectTree extends GameHandler{
 	
 	
 	/**
-	 * Pone una unidad a recoger mineral siempre que la distancia no sea mayor a 300
-	 * @return 1 si la orden ha sido mandada correctamente, -1 si no ha podido realizarse, -2 si hay algun error 
+	 * Pone una unidad a recoger mineral siempre que la distancia no sea mayor a 700
+	 * @return 1 si la orden ha sido mandada correctamente, 0 si no ha podido realizarse, -1 si hay algun error
 	 */
 	public int collectMineral(){
 		try{
@@ -156,12 +156,12 @@ public class RecolectTree extends GameHandler{
 	
 	
 	/**
-	 * Pone una unidad a recoger vespeno tras construir una refineria si no existe
+	 * Pone una unidad a recoger vespeno
 	 * @return 1 si la orden ha sido mandada correctamente, 0 si no ha podido realizarse, -1 si hay algun error 
 	 */
 	public int collectGas(){
 		try{
-			// Si ya esta contruida se manda al trabajador
+			// Si ya esta contruida se manda al trabajador a una de las que haya
 			Unit refineria = CtrlVar.refinery.get((int) Math.random() * CtrlVar.refinery.size());
 			if (worker.rightClick(refineria, false)){
 				if (!worker.isGatheringGas())
