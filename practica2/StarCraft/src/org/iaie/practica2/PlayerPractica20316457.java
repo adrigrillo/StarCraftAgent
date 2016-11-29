@@ -61,20 +61,16 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	
 	public void matchStart() {
 		// Iniciamos las variables de control y el mapa
+		CtrlVar.clearAll();
 		MapHandler.generateMapSpaces(bwapi);
-
 		
 		// Anadimos las unidades los scv iniciales en el hashset y los edificios
 		for (Unit unit : bwapi.getMyUnits()){
 			if (unit.getType().isWorker()){
 				CtrlVar.workers.add(unit);
 			}
-			else if (unit.getType().isBuilding() && unit.isCompleted()){
-				CtrlVar.buildings.add(unit);
-				if (unit.getType() == UnitTypes.Terran_Command_Center)
-					CtrlVar.centroMando.add(unit);
-			}
 		}
+		CtrlVar.refreshBuildings(bwapi);
 		
 		// Establecemos el arbol de recoleccion
 		RecolectTree recolectar = new RecolectTree(bwapi);

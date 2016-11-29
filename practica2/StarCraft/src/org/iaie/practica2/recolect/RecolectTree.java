@@ -141,8 +141,7 @@ public class RecolectTree extends GameHandler{
                         worker.rightClick(minerals, false);
                         worker = null;
                         // Se añade el deposito a la lista de depositos en uso.
-                        if (!CtrlVar.claimedMinerals.contains(minerals))
-                        	CtrlVar.claimedMinerals.add(minerals);
+                        CtrlVar.refreshClaimed(connector);
                         return 1;
                     }
                 }

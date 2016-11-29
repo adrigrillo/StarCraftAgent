@@ -185,7 +185,7 @@ public class ConstructionTree extends GameHandler{
 					// Si es correcto actualizamos el mapa
     				MapHandler.updateMap(connector, pos, new Position((pos.getBX() + (toBuild.getTileWidth()-1)), (pos.getBY() + (toBuild.getTileHeight()-1)), PosType.BUILD));
 					CtrlVar.buildqueue.remove(toBuild);
-					CtrlVar.buildings.add(building);
+					CtrlVar.refreshBuildings(connector);
 					pos = null;
 					worker = null;
 					toBuild = null;

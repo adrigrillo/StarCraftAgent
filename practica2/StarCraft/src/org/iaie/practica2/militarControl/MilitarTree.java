@@ -15,6 +15,8 @@ public class MilitarTree extends GameHandler {
 		super(bwapi);
 		this.connector = bwapi;
 	}
+	
+	
 	/**
 	 * Dependiendo del estado del jugador la variable estado tomara distintos valores:
 	 * 1: atacando

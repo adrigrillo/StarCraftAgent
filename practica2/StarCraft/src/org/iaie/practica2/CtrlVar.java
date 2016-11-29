@@ -7,8 +7,10 @@ package org.iaie.practica2;
 
 import java.util.ArrayList;
 
+import jnibwapi.JNIBWAPI;
 import jnibwapi.Unit;
 import jnibwapi.types.UnitType;
+import jnibwapi.types.UnitType.UnitTypes;
 
 public class CtrlVar {
 	
@@ -29,7 +31,7 @@ public class CtrlVar {
 	// Centro de mando
 	public static ArrayList<Unit> centroMando = new ArrayList<>();
     
-    public void clearAll(){
+    public static void clearAll(){
 		claimedMinerals.clear();
 		militaryUnits.clear();
 		workers.clear();
@@ -38,5 +40,34 @@ public class CtrlVar {
 		buildqueue.clear();
 		trainqueue.clear();
 		centroMando.clear();
+    }
+    
+    
+    /**
+     * Metodo que actualiza la lista de edificios de los que se dispone
+     * @param bwapi estado de la partida
+     */
+    public static void refreshBuildings(JNIBWAPI bwapi){
+    	for (Unit unit : bwapi.getMyUnits()){
+    		if (unit.getType().isBuilding() && unit.isCompleted() && !buildings.contains(unit)){
+				buildings.add(unit);
+				if (unit.getType() == UnitTypes.Terran_Command_Center)
+					centroMando.add(unit);
+			}
+    	}
+    }
+    
+    /**
+     * Metodo para actualizar 
+     * @param bwapi
+     */
+    public static void refreshClaimed(JNIBWAPI bwapi){
+    	for (Unit unit : bwapi.getMyUnits()){
+			if (unit.getType().isWorker() && unit.isGatheringMinerals()){
+				Unit mineral = unit.getTarget();
+				if (mineral.getType().isMineralField() && !claimedMinerals.contains(mineral))
+					claimedMinerals.add(mineral);
+			}
+		}
     }
 }
