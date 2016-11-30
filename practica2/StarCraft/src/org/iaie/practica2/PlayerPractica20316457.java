@@ -26,6 +26,7 @@ import org.iaie.practica2.movements.MovementTree;
 import org.iaie.practica2.movements.SendUnit;
 import org.iaie.practica2.recolect.*;
 import org.iaie.practica2.units.*;
+import org.iaie.tools.Options;
 
 import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
@@ -67,6 +68,17 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 
 	
 	public void matchStart() {
+		// flags
+		// Revisar. 
+        // Mediante esté metodo se puede obtener información del usuario. 
+        if (Options.getInstance().getUserInput()) this.bwapi.enableUserInput();
+        // Mediante este método se activa la recepción completa de información.
+        if (Options.getInstance().getInformation()) this.bwapi.enablePerfectInformation();
+        // Mediante este método se define la velocidad de ejecución del videojuego. 
+        // Los valores posibles van desde 0 (velocidad estándar) a 10 (velocidad máxima).
+        this.bwapi.setGameSpeed(Options.getInstance().getSpeed());
+        
+        
 		// Iniciamos las variables de control y el mapa
 		CtrlVar.clearAll();
 		MapHandler.generateMapSpaces(bwapi);
@@ -135,7 +147,6 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Comsat_Station);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Science_Facility);
 		
 		// Unidades a construir

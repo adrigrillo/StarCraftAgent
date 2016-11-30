@@ -66,14 +66,16 @@ public class ConstructionTree extends GameHandler{
 	            	// Comprobamos que es un geyser de vespeno y que no lo hemos reclamado ya
 	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && (!CtrlVar.claimedMinerals.contains(vespeno) || CtrlVar.refinery.isEmpty())){
 	            		// Cogemos la posicion del vespeno para construir el edificio encima
-	            		pos = vespeno.getTilePosition();
-	            		if (pos != null){
-		            		// Reclamamos el vespeno
-		            		CtrlVar.claimedMinerals.add(vespeno);
-		            		return 1;
+	            		if (CtrlVar.centroMando.get(0).getDistance(vespeno) < 700){
+		            		pos = vespeno.getTilePosition();
+		            		if (pos != null){
+			            		// Reclamamos el vespeno
+			            		CtrlVar.claimedMinerals.add(vespeno);
+			            		return 1;
+		            		}
+		            		else
+		            			return 0;
 	            		}
-	            		else
-	            			return 0;
 	            	}
 	            }
 			}
@@ -115,12 +117,23 @@ public class ConstructionTree extends GameHandler{
 					return unit.getID();
 				}
 			}
-			// Si no conseguimos ningun trabajador cogemos uno al azar 
+			// Si no conseguimos ningun trabajador cogemos uno al azar
+			int count = 0;
+			for (Unit unit : CtrlVar.workers){
+				if (unit.getType().isWorker() && unit.isGatheringMinerals()){
+					count++;
+				}
+			}
+			int ramdon = (int) Math.floor(Math.random() * count);
+			int i = 0;
 			for (Unit unit : CtrlVar.workers){
 				// Buscamos que sea un trabajador y que recoja minerales (hay mas)
 				if (unit.getType().isWorker() && unit.isGatheringMinerals()){
-					worker = connector.getUnit(unit.getID());
-					return unit.getID();
+					if (i == ramdon){
+						worker = connector.getUnit(unit.getID());
+						return unit.getID();
+					}
+					i++;
 				}
 			}
 			return -1;
