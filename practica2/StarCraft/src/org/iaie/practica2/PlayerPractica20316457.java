@@ -136,10 +136,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		
 		// Edificios a construir
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
