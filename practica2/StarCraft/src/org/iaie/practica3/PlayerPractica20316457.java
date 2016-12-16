@@ -1,5 +1,6 @@
 package org.iaie.practica3;
 
+import java.awt.Point;
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -82,6 +83,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		// Iniciamos las variables de control y el mapa
 		CtrlVar.clearAll();
 		MapHandler.generateMapSpaces(bwapi);
+		InfluenceMap mapaInfluencia = new InfluenceMap(bwapi.getMap().getSize().getBX(), bwapi.getMap().getSize().getBY());
 		
 		// Anadimos las unidades los scv iniciales en el hashset y los edificios
 		for (Unit unit : bwapi.getMyUnits()){
@@ -216,21 +218,35 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		// TODO Auto-generated method stub		
 	}
 	
+	
+	/*
+	 * Esta sale cada vez que la unidad descubre o ve algo es igual que show
+	 * y me fio mas de show
+	 * @see jnibwapi.BWAPIEventListener#unitDiscover(int)
+	 */
 	public void unitDiscover(int unitID) {
-		// TODO Auto-generated method stub		
+		System.out.println("He descubierto algo " + bwapi.getUnit(unitID).getType().getName() + unitID);	
 	}
 	
 	public void unitEvade(int unitID) {
 		// TODO Auto-generated method stub
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see jnibwapi.BWAPIEventListener#unitShow(int)
+	 */
 	public void unitShow(int unitID) {
-		// TODO Auto-generated method stub	
+		System.out.println("algo ha salido " + bwapi.getUnit(unitID).getType().getName() + unitID);	
 	}
 	
-	public void unitHide(int unitID) {
-		// TODO Auto-generated method stub		
-	}
+	/*
+	 * No entiendo muy bien, porque cuando quieres acceder a la unidad falla, ya 
+	 * que el jugador pasa a no tener informacion sobre ella. 
+	 * Funciona si tenemos puesto el acceso a la informacion completa
+	 * @see jnibwapi.BWAPIEventListener#unitHide(int)
+	 */
+	public void unitHide(int unitID) {}
 	
 	public void unitCreate(int unitID) {
 		// TODO Auto-generated method stub
