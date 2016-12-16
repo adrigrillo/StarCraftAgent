@@ -44,6 +44,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	private BehavioralTree creationTree;
 	private BehavioralTree explorationTree;
 	private BehavioralTree militaryTree;
+	InfluenceMap mapaInfluencia;
 	
 	
 	public PlayerPractica20316457() {            
@@ -83,8 +84,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		// Iniciamos las variables de control y el mapa
 		CtrlVar.clearAll();
 		MapHandler.generateMapSpaces(bwapi);
-		InfluenceMap mapaInfluencia = new InfluenceMap(bwapi.getMap().getSize().getBX(), bwapi.getMap().getSize().getBY());
-		
+		mapaInfluencia = new InfluenceMap(bwapi.getMap().getSize().getBX(), bwapi.getMap().getSize().getBY());
 		// Anadimos las unidades los scv iniciales en el hashset y los edificios
 		for (Unit unit : bwapi.getMyUnits()){
 			if (unit.getType().isWorker()){
@@ -224,20 +224,14 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	 * y me fio mas de show
 	 * @see jnibwapi.BWAPIEventListener#unitDiscover(int)
 	 */
-	public void unitDiscover(int unitID) {
-		System.out.println("He descubierto algo " + bwapi.getUnit(unitID).getType().getName() + unitID);	
-	}
+	public void unitDiscover(int unitID) {}
 	
 	public void unitEvade(int unitID) {
 		// TODO Auto-generated method stub
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see jnibwapi.BWAPIEventListener#unitShow(int)
-	 */
 	public void unitShow(int unitID) {
-		System.out.println("algo ha salido " + bwapi.getUnit(unitID).getType().getName() + unitID);	
+		mapaInfluencia.updateMap(this.bwapi, unitID, false);
 	}
 	
 	/*
@@ -253,7 +247,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 	
 	public void unitDestroy(int unitID) {
-		// TODO Auto-generated method stub
+		mapaInfluencia.updateMap(this.bwapi, unitID, true);
 	}
 	
 	public void unitMorph(int unitID) {
@@ -269,7 +263,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 	
 	public void unitComplete(int unitID) {
-		// TODO Auto-generated method stub
+		mapaInfluencia.updateMap(this.bwapi, unitID, false);
 	}
 
 	public void playerDropped(int playerID) {
