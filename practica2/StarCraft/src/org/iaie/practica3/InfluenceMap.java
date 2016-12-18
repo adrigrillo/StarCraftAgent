@@ -15,6 +15,8 @@ public class InfluenceMap {
 	private int areasInfluencia;
 	private int influenciaEnemigo;
 	private int areasInfluenciaEnemigo;
+	// El nivel de control sera positivo si tenemos mas areas que el enemigo y negativo si es viceversa
+	private int nivelControl;
 	private HashMap<Integer, Point> unidadesConsideradas; // Key: id de la unidad y Point posicion ultima
 	
 	private final int EDIFICIO_NEUTRO = 3;
@@ -103,12 +105,10 @@ public class InfluenceMap {
 				 * si esta considerada se borra su posicion anterior y se
 				 * actualiza la posicion nueva con su influencia */
 				if (considerada){
-					// Lo primero es comprobar que las posiciones coiciden
-					Point posicionUnidad = new Point(unidad.getTopLeft().getBX(), unidad.getTopLeft().getBY());
-					boolean actualizar = false;
-					/* Si no coinciden lo primero es eliminar la influencia del punto anterior y actualizar
-					 * la lista con la nueva posicion */
-					if (!unidadesConsideradas.get(idUnidad).equals(posicionUnidad)){
+					/* 3.1:
+					 * Vemos si la accion se trata de actualizar o eliminar */
+					// Si es destruir
+					if (destroy){
 						/* Sacamos ancho y largo para recorrer las posiciones, ya que lo que tenemos es la
 						 * esquina superior izquierda de la unidad */
 						int ancho = unidad.getBottomRight().getBX() - unidad.getTopLeft().getBX();
@@ -121,26 +121,43 @@ public class InfluenceMap {
 									throw new Exception("Error borrar posicion antigua");
 							}
 						}
-						// Actualizamos la lista con la nueva posicion
-						unidadesConsideradas.put(idUnidad, posicionUnidad);
-						actualizar = true;
-					}
-					/* 3.1:
-					 * Vemos si la accion se trata de actualizar o eliminar */
-					// Si es de eliminar quitamos invertimos la influencia en la posicion
-					if (destroy){
-						influenciaUnidad = -influenciaUnidad;
+						// Eliminamos la unidad de la lista de consideradas
 						unidadesConsideradas.remove(idUnidad);
-						actualizar = true;
+						return updateValues();
 					}
-					// Si se destruye la unidad o se tenia una posicion desactualizada se ejecuta
-					if (actualizar){
-						for (int i = unidad.getTopLeft().getBX(); i <= unidad.getBottomRight().getBX(); i++){
-							for (int j = unidad.getTopLeft().getBY(); j <= unidad.getBottomRight().getBY(); j++){
-								if (!updateCellInfluence(new Point(i, j), influenciaUnidad))
-									throw new Exception("Error al actualizar mapa");
+					// Si es actualizar
+					else {
+						// Lo primero es comprobar que las posiciones coiciden
+						Point posicionUnidad = new Point(unidad.getTopLeft().getBX(), unidad.getTopLeft().getBY());
+						/* Si no coinciden lo primero es eliminar la influencia del punto anterior y actualizar
+						 * la lista con la nueva posicion */
+						if (!unidadesConsideradas.get(idUnidad).equals(posicionUnidad)){
+							/* Sacamos ancho y largo para recorrer las posiciones, ya que lo que tenemos es la
+							 * esquina superior izquierda de la unidad */
+							int ancho = unidad.getBottomRight().getBX() - unidad.getTopLeft().getBX();
+							int largo = unidad.getBottomRight().getBY() - unidad.getTopLeft().getBY();
+							int x = (int)unidadesConsideradas.get(idUnidad).getX();
+							int y = (int)unidadesConsideradas.get(idUnidad).getY();
+							for (int i = x; i <= x + ancho; i++){
+								for (int j = y; j <= y + largo; j++){
+									if (!updateCellInfluence(new Point(i, j), -influenciaUnidad))
+										throw new Exception("Error borrar posicion antigua");
+								}
 							}
+							// Actualizamos la lista con la nueva posicion
+							unidadesConsideradas.put(idUnidad, posicionUnidad);
+							// Se actualiza con la nueva posicion
+							for (int i = unidad.getTopLeft().getBX(); i <= unidad.getBottomRight().getBX(); i++){
+								for (int j = unidad.getTopLeft().getBY(); j <= unidad.getBottomRight().getBY(); j++){
+									if (!updateCellInfluence(new Point(i, j), influenciaUnidad))
+										throw new Exception("Error al actualizar mapa");
+								}
+							}
+							return updateValues();
 						}
+						// Si la posicion antigua y la nueva coinciden no es necesario hacer dos actualizaciones
+						// porque esto desequilibraria el mapa
+						throw new Exception("La actualizacion no es necesaria, ya que ya se ha considerado la unidad");
 					}
 				}
 				/* 4:
@@ -157,7 +174,7 @@ public class InfluenceMap {
 								throw new Exception("Error al actualizar mapa");
 						}
 					}
-					return true;
+					return updateValues();
 				}
 			}
 			return false;
@@ -165,7 +182,20 @@ public class InfluenceMap {
 			System.out.println(e.getMessage());
 			return false;
 		}
-		
+	}
+	
+	public boolean updateValues(){
+		try{
+			this.influencia = getMyInfluenceLevel();
+			this.areasInfluencia = getAreasInfluencia();
+			this.influenciaEnemigo = getEnemyInfluenceLevel();
+			this.areasInfluenciaEnemigo = getAreasInfluenciaEnemigo();
+			this.nivelControl = this.areasInfluencia - this.areasInfluenciaEnemigo;
+			return true;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
 	}
 	
 	
@@ -342,6 +372,14 @@ public class InfluenceMap {
 	public int getAreasInfluenciaEnemigo() {
 		return areasInfluenciaEnemigo;
 	}
+
+	/**
+	 * @return the nivelControl
+	 */
+	public int getNivelControl() {
+		return nivelControl;
+	}
+
 
 	/**
 	 * Para imprimir la matriz de influencia.
