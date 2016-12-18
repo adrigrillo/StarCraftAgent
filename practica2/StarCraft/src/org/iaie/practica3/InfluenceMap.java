@@ -10,62 +10,63 @@ import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class InfluenceMap {
-	private int[][] map;
-	private int influencia;
-	private int areasInfluencia;
-	private int influenciaEnemigo;
-	private int areasInfluenciaEnemigo;
+	private static int[][] map;
+	private static int influencia;
+	private static int areasInfluencia;
+	private static int influenciaEnemigo;
+	private static int areasInfluenciaEnemigo;
 	// El nivel de control sera positivo si tenemos mas areas que el enemigo y negativo si es viceversa
-	private int nivelControl;
-	private HashMap<Integer, Point> unidadesConsideradas; // Key: id de la unidad y Point posicion ultima
+	private static int nivelControl;
+	private static HashMap<Integer, Point> unidadesConsideradas; // Key: id de la unidad y Point posicion ultima
+	private static HashMap<Integer, UnitType> tipoConsiderada; // Key: id de la unidad y el tipo de unidad
+	private static HashMap<Integer, Integer> influenciaConsiderada; // Key: id de la unidad y su valor
 	
-	private final int EDIFICIO_NEUTRO = 3;
-	private final int EDIFICIO_OFENSIVO = 4;
-	private final int EDIFICIO_DEFENSIVO = 5;
-	private final int UNIDAD_INFANTERIA = 1;
-	private final int UNIDAD_MECANICA = 3;
-	private final int UNIDAD_AREA = 6;
-	private final int UMBRAL_SEGURIDAD = 3;
-	private final int DISTANCIA_PROPAGACION = 2;
+	private final static int EDIFICIO_NEUTRO = 3;
+	private final static int EDIFICIO_OFENSIVO = 4;
+	private final static int EDIFICIO_DEFENSIVO = 5;
+	private final static int UNIDAD_INFANTERIA = 1;
+	private final static int UNIDAD_MECANICA = 3;
+	private final static int UNIDAD_AREA = 6;
+	private final static int UMBRAL_SEGURIDAD = 3;
+	private final static int DISTANCIA_PROPAGACION = 2;
 	// He tomado como edificios defensivos aquellos que son capaces de atacar a unidades
-	private final ArrayList<UnitType> EDIFICIOS_DEFENSIVOS = new ArrayList<UnitType>(Arrays.asList(UnitTypes.Terran_Missile_Turret,
+	private final static ArrayList<UnitType> EDIFICIOS_DEFENSIVOS = new ArrayList<UnitType>(Arrays.asList(UnitTypes.Terran_Missile_Turret,
 			UnitTypes.Protoss_Photon_Cannon, UnitTypes.Zerg_Spore_Colony, UnitTypes.Terran_Bunker));
 	/* Consideramos como unidades neutrales aquellas que no construyen unidades ofensivas como los centro de mando y los supply
 	 * depots de cada clase, no hay edificios zerg porque todos construyen unidades ofensivas */
-	private final ArrayList<UnitType> EDIFICIOS_NEUTRALES = new ArrayList<UnitType>(Arrays.asList(UnitTypes.Terran_Command_Center,
+	private final static ArrayList<UnitType> EDIFICIOS_NEUTRALES = new ArrayList<UnitType>(Arrays.asList(UnitTypes.Terran_Command_Center,
 			UnitTypes.Terran_Supply_Depot, UnitTypes.Protoss_Nexus, UnitTypes.Protoss_Pylon));
 	
 	
 	/**
-	 * Generador del map con la this.map llena de ceros
+	 * Generador del map con la map llena de ceros
 	 * @param width ancho del mapa
 	 * @param height height del mapa
 	 */
-	public InfluenceMap(int width, int height) {
-		super();
-		this.map = new int[width][height];
+	public static void generateInfluenceMap(int width, int height) {
+		map = new int[width][height];
 		for(int y = 0; y < height; y++){
 			for (int x = 0; x < width; x++){
-				this.map[x][y] = 0;
+				map[x][y] = 0;
 			}
 		}
-		this.influencia = 0;
-		this.areasInfluencia = 0;
-		this.influenciaEnemigo = 0;
-		this.areasInfluenciaEnemigo = 0;
+		influencia = 0;
+		areasInfluencia = 0;
+		influenciaEnemigo = 0;
+		areasInfluenciaEnemigo = 0;
 		unidadesConsideradas = new HashMap<Integer, Point>();
+		tipoConsiderada = new HashMap<Integer, UnitType>();
+		influenciaConsiderada = new HashMap<Integer, Integer>();
 	}
 	
-	
-	public boolean updateMap(JNIBWAPI bwapi, int idUnidad, boolean destroy){
+	public static int calculateUnitInfluence(JNIBWAPI bwapi, int idUnidad){
 		try {
-			Unit unidad = bwapi.getUnit(idUnidad);
 			UnitType tipoUnidad = bwapi.getUnit(idUnidad).getType();
 			// Si es neutral como mineral, vespeno, un trabajador o una refineria no la consideramos
 			if (!tipoUnidad.isResourceContainer() && !tipoUnidad.isWorker()){
 				/* 1:
 				 * Calculamos el valor de la unidad dependiendo de su tipo */
-				int influenciaUnidad = 0;
+				int influenciaUnidad = -1;
 				if (tipoUnidad.isBuilding()){
 					/* Primero calculamos su valor de influencia viendo el tipo de edificio
 					 * Despues calcularemos su influencia dado su tamanyo */
@@ -91,24 +92,77 @@ public class InfluenceMap {
 					else
 						influenciaUnidad = UNIDAD_INFANTERIA;					
 				}
-				/* 2:
-				 * comprobamos que la unidad no se encuentre
-				 * en la lista de unidades consideradas ya */
-				boolean considerada = false;
-				for (Integer idConsiderado : unidadesConsideradas.keySet()){
-					if (idUnidad == idConsiderado){
-						considerada = true;
-						break;
+				/* 2. Miramos si la unidad es nuestra o enemiga 
+				 * para invertir el valor */
+				Unit unidad = bwapi.getUnit(idUnidad);
+				for (Unit unidades : bwapi.getMyUnits()){
+					// Si la unidad es nuestra se devuelve el valor
+					if (unidad.equals(unidades)){
+						return influenciaUnidad;
 					}
 				}
-				/* 3:
-				 * si esta considerada se borra su posicion anterior y se
+				// Si no es nuestra se invierte su influencia
+				return -influenciaUnidad;
+			}
+			return -10;
+		} catch (Exception e) {
+			return -11;
+		}
+	}
+	
+	
+	public static boolean updateMap(JNIBWAPI bwapi, int idUnidad, boolean destroy){
+		try {
+			int influenciaUnidad = -1;
+			/* 1:
+			 * comprobamos que la unidad no se encuentre
+			 * en la lista de unidades consideradas ya */
+			boolean considerada = false;
+			for (Integer idConsiderado : unidadesConsideradas.keySet()){
+				if (idUnidad == idConsiderado){
+					considerada = true;
+					break;
+				}
+			}
+			/* 3:
+			 * si esta considerada puede que sea una eliminacion o una
+			 * actualizacion */ 
+			if (considerada){
+				/* 3.1:
+				 * Vemos si la accion se trata de actualizar o eliminar */
+				 // Si es destruir se borra la influencia de su ultima posicion
+				if (destroy){
+					/* Sacamos ancho y largo para recorrer las posiciones, ya que lo que tenemos es la
+					 * esquina superior izquierda de la unidad */
+					// Obtenemos el tipo para sacar su tamanyo y su influencia
+					UnitType tipo = tipoConsiderada.get(idUnidad);
+					influenciaUnidad = influenciaConsiderada.get(idUnidad);
+					int ancho = tipo.getTileWidth();
+					int largo = tipo.getTileHeight();
+					int x = (int)unidadesConsideradas.get(idUnidad).getX();
+					int y = (int)unidadesConsideradas.get(idUnidad).getY();
+					for (int i = x; i <= x + ancho; i++){
+						for (int j = y; j <= y + largo; j++){
+							if (!updateCellInfluence(new Point(i, j), -influenciaUnidad))
+								throw new Exception("Error borrar posicion antigua");
+						}
+					}
+					// Eliminamos la unidad de la lista de consideradas
+					unidadesConsideradas.remove(idUnidad);
+					return updateValues();
+				}
+				/* Si es actualizar se borra su posicion anterior y se
 				 * actualiza la posicion nueva con su influencia */
-				if (considerada){
-					/* 3.1:
-					 * Vemos si la accion se trata de actualizar o eliminar */
-					// Si es destruir
-					if (destroy){
+				else {
+					Unit unidad = bwapi.getUnit(idUnidad);
+					influenciaUnidad = influenciaConsiderada.get(idUnidad);
+					if (influenciaUnidad < 0)
+						throw new Exception("La unidad no tiene que ser cosiderada");
+					// Lo primero es comprobar que las posiciones coiciden
+					Point posicionUnidad = new Point(unidad.getTopLeft().getBX(), unidad.getTopLeft().getBY());
+					/* Si no coinciden lo primero es eliminar la influencia del punto anterior y actualizar
+					 * la lista con la nueva posicion */
+					if (!unidadesConsideradas.get(idUnidad).equals(posicionUnidad)){
 						/* Sacamos ancho y largo para recorrer las posiciones, ya que lo que tenemos es la
 						 * esquina superior izquierda de la unidad */
 						int ancho = unidad.getBottomRight().getBX() - unidad.getTopLeft().getBX();
@@ -121,79 +175,64 @@ public class InfluenceMap {
 									throw new Exception("Error borrar posicion antigua");
 							}
 						}
-						// Eliminamos la unidad de la lista de consideradas
-						unidadesConsideradas.remove(idUnidad);
+						// Actualizamos la lista con la nueva posicion
+						unidadesConsideradas.put(idUnidad, posicionUnidad);
+						// Se actualiza con la nueva posicion
+						for (int i = unidad.getTopLeft().getBX(); i <= unidad.getBottomRight().getBX(); i++){
+							for (int j = unidad.getTopLeft().getBY(); j <= unidad.getBottomRight().getBY(); j++){
+								if (!updateCellInfluence(new Point(i, j), influenciaUnidad))
+									throw new Exception("Error al actualizar mapa");
+							}
+						}
 						return updateValues();
 					}
-					// Si es actualizar
-					else {
-						// Lo primero es comprobar que las posiciones coiciden
-						Point posicionUnidad = new Point(unidad.getTopLeft().getBX(), unidad.getTopLeft().getBY());
-						/* Si no coinciden lo primero es eliminar la influencia del punto anterior y actualizar
-						 * la lista con la nueva posicion */
-						if (!unidadesConsideradas.get(idUnidad).equals(posicionUnidad)){
-							/* Sacamos ancho y largo para recorrer las posiciones, ya que lo que tenemos es la
-							 * esquina superior izquierda de la unidad */
-							int ancho = unidad.getBottomRight().getBX() - unidad.getTopLeft().getBX();
-							int largo = unidad.getBottomRight().getBY() - unidad.getTopLeft().getBY();
-							int x = (int)unidadesConsideradas.get(idUnidad).getX();
-							int y = (int)unidadesConsideradas.get(idUnidad).getY();
-							for (int i = x; i <= x + ancho; i++){
-								for (int j = y; j <= y + largo; j++){
-									if (!updateCellInfluence(new Point(i, j), -influenciaUnidad))
-										throw new Exception("Error borrar posicion antigua");
-								}
-							}
-							// Actualizamos la lista con la nueva posicion
-							unidadesConsideradas.put(idUnidad, posicionUnidad);
-							// Se actualiza con la nueva posicion
-							for (int i = unidad.getTopLeft().getBX(); i <= unidad.getBottomRight().getBX(); i++){
-								for (int j = unidad.getTopLeft().getBY(); j <= unidad.getBottomRight().getBY(); j++){
-									if (!updateCellInfluence(new Point(i, j), influenciaUnidad))
-										throw new Exception("Error al actualizar mapa");
-								}
-							}
-							return updateValues();
-						}
-						// Si la posicion antigua y la nueva coinciden no es necesario hacer dos actualizaciones
-						// porque esto desequilibraria el mapa
-						throw new Exception("La actualizacion no es necesaria, ya que ya se ha considerado la unidad");
-					}
-				}
-				/* 4:
-				 * Si es una unidad nueva la anyadimos a la lista de unidades
-				 * consideradas y actualizamos las celdas que en las que influye */
-				else {
-					// Obtenemos el punto donde se situa la unidad
-					Point posicionUnidad = new Point(unidad.getTopLeft().getBX(), unidad.getTopLeft().getBY());
-					unidadesConsideradas.put(idUnidad, posicionUnidad);
-					// Actualizamos la influencia para cada una de las celdas
-					for (int i = unidad.getTopLeft().getBX(); i <= unidad.getBottomRight().getBX(); i++){
-						for (int j = unidad.getTopLeft().getBY(); j <= unidad.getBottomRight().getBY(); j++){
-							if (!updateCellInfluence(new Point(i, j), influenciaUnidad))
-								throw new Exception("Error al actualizar mapa");
-						}
-					}
-					return updateValues();
+					// Si la posicion antigua y la nueva coinciden no es necesario hacer dos actualizaciones
+					// porque esto desequilibraria el mapa
+					throw new Exception("La actualizacion no es necesaria, ya que ya se ha considerado la unidad");
 				}
 			}
-			return false;
+			/* 4:
+			 * Si es una unidad nueva la anyadimos a la lista de unidades
+			 * consideradas y actualizamos las celdas que en las que influye */
+			else {
+				influenciaUnidad = calculateUnitInfluence(bwapi, idUnidad);
+				if (influenciaUnidad <= -10)
+					throw new Exception("La unidad no tiene que ser cosiderada");
+				// Obtenemos el punto donde se situa la unidad
+				Unit unidad = bwapi.getUnit(idUnidad);
+				Point posicionUnidad = new Point(unidad.getTopLeft().getBX(), unidad.getTopLeft().getBY());
+				unidadesConsideradas.put(idUnidad, posicionUnidad);
+				tipoConsiderada.put(idUnidad, bwapi.getUnit(idUnidad).getType());
+				influenciaConsiderada.put(idUnidad, influenciaUnidad);
+				// Actualizamos la influencia para cada una de las celdas
+				for (int i = unidad.getTopLeft().getBX(); i <= unidad.getBottomRight().getBX(); i++){
+					for (int j = unidad.getTopLeft().getBY(); j <= unidad.getBottomRight().getBY(); j++){
+						if (!updateCellInfluence(new Point(i, j), influenciaUnidad))
+							throw new Exception("Error al actualizar mapa");
+					}
+				}
+				return updateValues();
+			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			return false;
 		}
 	}
 	
-	public boolean updateValues(){
+	
+	/**
+	 * Este metodo actualiza los datos de influencia para poder ser utlizados
+	 * despues por otras clases
+	 * @return
+	 */
+	public static boolean updateValues(){
 		try{
-			this.influencia = getMyInfluenceLevel();
-			this.areasInfluencia = getAreasInfluencia();
-			this.influenciaEnemigo = getEnemyInfluenceLevel();
-			this.areasInfluenciaEnemigo = getAreasInfluenciaEnemigo();
-			this.nivelControl = this.areasInfluencia - this.areasInfluenciaEnemigo;
+			influencia = getMyInfluenceLevel();
+			areasInfluencia = getAreasInfluencia();
+			influenciaEnemigo = getEnemyInfluenceLevel();
+			areasInfluenciaEnemigo = getAreasInfluenciaEnemigo();
+			nivelControl = areasInfluencia - areasInfluenciaEnemigo;
 			return true;
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			return false;
 		}
 	}
@@ -207,12 +246,12 @@ public class InfluenceMap {
 	 * @return 	True si su actualizacion y las de su influencia se realiza correctamente, False
 	 * 			si ha habido algun error
 	 */
-	public boolean updateCellInfluence(Point cell, int influence){
+	public static boolean updateCellInfluence(Point cell, int influence){
 		try {
 			int x = (int)cell.getX();
 			int y = (int)cell.getY();
 			// Actualizamos la influencia en la celda de la unidad
-			this.map[x][y] += influence;
+			map[x][y] += influence;
 			// Recorremos las celdas que influenciara y el valor que habra que anyadir a esas celdas
 			ArrayList<Point> celdasInfluenciadas = new ArrayList<Point>();
 			ArrayList<Integer> influenciaEnCelda = new ArrayList<Integer>();
@@ -231,7 +270,6 @@ public class InfluenceMap {
 			// Actualizamos la lista de celdas influenciadas con su valor
 			return updateCellsInfluence(celdasInfluenciadas, influenciaEnCelda);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			return false;
 		}
 	}
@@ -244,17 +282,16 @@ public class InfluenceMap {
 	 * @param influenciaEnCelda		Valor a anyadir en el mapa de influencia 
 	 * @return True si se ha realizado correctamente, False si no ha sido correcto
 	 */
-	public boolean updateCellsInfluence(ArrayList<Point> celdasInfluenciadas, ArrayList<Integer> influenciaEnCelda){
+	public static boolean updateCellsInfluence(ArrayList<Point> celdasInfluenciadas, ArrayList<Integer> influenciaEnCelda){
 		try {
 			// Recorremos la lista de celdas influenciadas y actualizamos su valor en el mapa
 			for (int i = 0; i < celdasInfluenciadas.size(); i++){
 				int x = (int)celdasInfluenciadas.get(i).getX();
 				int y = (int)celdasInfluenciadas.get(i).getY();
-				this.map[x][y] += influenciaEnCelda.get(i);
+				map[x][y] += influenciaEnCelda.get(i);
 			}
 			return true;
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			return false;
 		}
 	}
@@ -265,8 +302,8 @@ public class InfluenceMap {
 	 * @param celda	Point(x, y) de la celda
 	 * @return		Valor de influencia de la celda
 	 */
-	public int getInfluence(Point celda){
-		return this.map[(int)celda.getX()][(int)celda.getY()];
+	public static int getInfluence(Point celda){
+		return map[(int)celda.getX()][(int)celda.getY()];
 	}
 	
 	/**
@@ -275,12 +312,12 @@ public class InfluenceMap {
 	 * positiva para el jugador cualquiera que este por encima de ese nivel
 	 * @return Valor de la influencia del jugador
 	 */
-	public int getMyInfluenceLevel(){
+	public static int getMyInfluenceLevel(){
 		int influencia = 0;
-		for(int y = 0; y < this.map[0].length; y++){
-			for (int x = 0; x < this.map.length; x++){
-				if (this.map[x][y] > UMBRAL_SEGURIDAD){
-					influencia += this.map[x][y];
+		for(int y = 0; y < map[0].length; y++){
+			for (int x = 0; x < map.length; x++){
+				if (map[x][y] > UMBRAL_SEGURIDAD){
+					influencia += map[x][y];
 				}
 			}
 		}
@@ -294,12 +331,12 @@ public class InfluenceMap {
 	 * positiva para el enemigo cualquiera que este por encima de ese nivel en negativo
 	 * @return Valor de la influencia del enemigo
 	 */
-	public int getEnemyInfluenceLevel(){
+	public static int getEnemyInfluenceLevel(){
 		int influencia = 0;
-		for(int y = 0; y < this.map[0].length; y++){
-			for (int x = 0; x < this.map.length; x++){
-				if (this.map[x][y] < -UMBRAL_SEGURIDAD){
-					influencia += this.map[x][y];
+		for(int y = 0; y < map[0].length; y++){
+			for (int x = 0; x < map.length; x++){
+				if (map[x][y] < -UMBRAL_SEGURIDAD){
+					influencia += map[x][y];
 				}
 			}
 		}
@@ -313,11 +350,11 @@ public class InfluenceMap {
 	 * positiva para el jugador cualquiera que este por encima de ese nivel
 	 * @return Numero de casillas que controla el jugador
 	 */
-	public int getMyInfluenceArea(){
+	public static int getMyInfluenceArea(){
 		int areas = 0;
-		for(int y = 0; y < this.map[0].length; y++){
-			for (int x = 0; x < this.map.length; x++){
-				if (this.map[x][y] > UMBRAL_SEGURIDAD){
+		for(int y = 0; y < map[0].length; y++){
+			for (int x = 0; x < map.length; x++){
+				if (map[x][y] > UMBRAL_SEGURIDAD){
 					areas++;
 				}
 			}
@@ -332,11 +369,11 @@ public class InfluenceMap {
 	 * positiva para el enemigo cualquiera que este por encima de ese nivel en negativo
 	 * @return Numero de casillas que controla el jugador
 	 */
-	public int getEnemyInfluenceArea(){
+	public static int getEnemyInfluenceArea(){
 		int areas = 0;
-		for(int y = 0; y < this.map[0].length; y++){
-			for (int x = 0; x < this.map.length; x++){
-				if (this.map[x][y] < -UMBRAL_SEGURIDAD){
+		for(int y = 0; y < map[0].length; y++){
+			for (int x = 0; x < map.length; x++){
+				if (map[x][y] < -UMBRAL_SEGURIDAD){
 					areas++;
 				}
 			}
@@ -348,35 +385,35 @@ public class InfluenceMap {
 	/**
 	 * @return the influencia
 	 */
-	public int getInfluencia() {
+	public static int getInfluencia() {
 		return influencia;
 	}
 
 	/**
 	 * @return the areasInfluencia
 	 */
-	public int getAreasInfluencia() {
+	public static int getAreasInfluencia() {
 		return areasInfluencia;
 	}
 
 	/**
 	 * @return the influenciaEnemigo
 	 */
-	public int getInfluenciaEnemigo() {
+	public static int getInfluenciaEnemigo() {
 		return influenciaEnemigo;
 	}
 
 	/**
 	 * @return the areasInfluenciaEnemigo
 	 */
-	public int getAreasInfluenciaEnemigo() {
+	public static int getAreasInfluenciaEnemigo() {
 		return areasInfluenciaEnemigo;
 	}
 
 	/**
 	 * @return the nivelControl
 	 */
-	public int getNivelControl() {
+	public static int getNivelControl() {
 		return nivelControl;
 	}
 
@@ -384,10 +421,10 @@ public class InfluenceMap {
 	/**
 	 * Para imprimir la matriz de influencia.
 	 */
-	public void print(){
-		for(int y = 0; y < this.map[0].length; y++){
-			for (int x = 0; x < this.map.length; x++){
-				System.out.print(this.map[x][y] + " ");
+	public static void print(){
+		for(int y = 0; y < map[0].length; y++){
+			for (int x = 0; x < map.length; x++){
+				System.out.print(map[x][y] + " ");
 			}
 			System.out.println();
 		}

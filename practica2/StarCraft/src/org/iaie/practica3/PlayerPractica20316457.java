@@ -84,7 +84,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		// Iniciamos las variables de control y el mapa
 		CtrlVar.clearAll();
 		MapHandler.generateMapSpaces(bwapi);
-		mapaInfluencia = new InfluenceMap(bwapi.getMap().getSize().getBX(), bwapi.getMap().getSize().getBY());
+		InfluenceMap.generateInfluenceMap(bwapi.getMap().getSize().getBX(), bwapi.getMap().getSize().getBY());
 		// Anadimos las unidades los scv iniciales en el hashset y los edificios
 		for (Unit unit : bwapi.getMyUnits()){
 			if (unit.getType().isWorker()){
@@ -224,14 +224,14 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	 * y me fio mas de show
 	 * @see jnibwapi.BWAPIEventListener#unitDiscover(int)
 	 */
-	public void unitDiscover(int unitID) {}
+	public void unitDiscover(int unitID) { }
 	
 	public void unitEvade(int unitID) {
 		// TODO Auto-generated method stub
 	}
 	
 	public void unitShow(int unitID) {
-		mapaInfluencia.updateMap(this.bwapi, unitID, false);
+		InfluenceMap.updateMap(this.bwapi, unitID, false);
 	}
 	
 	/*
@@ -247,7 +247,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 	
 	public void unitDestroy(int unitID) {
-		mapaInfluencia.updateMap(this.bwapi, unitID, true);
+		if (InfluenceMap.updateMap(this.bwapi, unitID, true))
+			InfluenceMap.print();
 	}
 	
 	public void unitMorph(int unitID) {
@@ -263,7 +264,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 	
 	public void unitComplete(int unitID) {
-		mapaInfluencia.updateMap(this.bwapi, unitID, false);
+		InfluenceMap.updateMap(this.bwapi, unitID, false);
 	}
 
 	public void playerDropped(int playerID) {
