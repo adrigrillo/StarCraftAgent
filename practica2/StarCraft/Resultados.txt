@@ -1,5 +1,5 @@
 El resultado de la partida ha sido derrota.
-La duracion ha sido de 284 segundos.
-Se han construido 9 edificios, de los cuales fueron centros de mando 2.
-Se han entrenado 13 fueron unidades no militares y 6 fueron unidades militares.
-Se recogieron 5210 unidades de mineral y 3256 de vespeno.
+La duracion ha sido de 84 segundos.
+Se han construido 3 edificios, de los cuales fueron centros de mando 1.
+Se han entrenado 11 fueron unidades no militares y 0 fueron unidades militares.
+Se recogieron 1082 unidades de mineral y 376 de vespeno.

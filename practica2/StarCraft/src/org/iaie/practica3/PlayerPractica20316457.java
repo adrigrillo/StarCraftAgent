@@ -1,6 +1,5 @@
 package org.iaie.practica3;
 
-import java.awt.Point;
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -26,6 +25,10 @@ import org.iaie.practica3.movements.CheckStateUnit;
 import org.iaie.practica3.movements.MovementTree;
 import org.iaie.practica3.movements.SendUnit;
 import org.iaie.practica3.recolect.*;
+import org.iaie.practica3.technology.CheckResources;
+import org.iaie.practica3.technology.CheckAvailable;
+import org.iaie.practica3.technology.TechTree;
+import org.iaie.practica3.technology.Upgrade;
 import org.iaie.practica3.units.*;
 import org.iaie.tools.Options;
 
@@ -44,6 +47,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	private BehavioralTree creationTree;
 	private BehavioralTree explorationTree;
 	private BehavioralTree militaryTree;
+	private BehavioralTree researchTree;
 	InfluenceMap mapaInfluencia;
 	
 	
@@ -99,6 +103,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		ConstructionTree construir = new ConstructionTree(bwapi);
 		MovementTree explorar = new MovementTree(bwapi);
 		MilitarTree militares = new MilitarTree(bwapi);
+		TechTree mejorar = new TechTree(bwapi);
 		
 		/* Arbol de recoleccion */
 		/* Collect gas: Miramos equilibrio, si se necesita gas, miramos si esta construida la refineria, cogemos un trabajador y recogemos gas */
@@ -117,6 +122,9 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		/* Arbol de exploracion */
 		Sequence explore = new Sequence("Explorar", new CheckStateUnit("Comprobar el estado de la unidad", explorar), new CheckPositionUnit("Tomar posicion", explorar), new SendUnit("Mandar a la posicion", explorar));
 		
+		/* Arbol de mejoras */
+		Sequence upgrade = new Sequence("Mejorar", new CheckResources("Ver recursos", mejorar), new CheckAvailable("Ver edificios compatibles", mejorar), new Upgrade("Mejorar", mejorar));
+		
 		/* Arbol para el control de los militares */
 		// Comprobamos que se puede atacar, si se puede ataca
 		Sequence atack = new Sequence("Atacar", new AtackOrPatrol("Comprobar posibilidad", militares), new AttackUnits("Atacar", militares));
@@ -134,19 +142,27 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		explorationTree.addChild(explore);
 		militaryTree = new BehavioralTree("Arbol decision del control de los militares");
 		militaryTree.addChild(atackDefense);
+		researchTree = new BehavioralTree("Arbol de mejoras tecnologicas");
+		researchTree.addChild(upgrade);
 
 		
 		// Edificios a construir
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Engineering_Bay);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
-		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Machine_Shop);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Science_Facility);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Control_Tower);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Physics_Lab);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Covert_Ops);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Nuclear_Silo);
+		
 		
 		// Unidades a construir
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
@@ -167,6 +183,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		recollectTree.run();
 		creationTree.run();
 		militaryTree.run();
+		researchTree.run();
 	}
 	
 	public void matchEnd(boolean winner) {
@@ -247,8 +264,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 	
 	public void unitDestroy(int unitID) {
-		if (InfluenceMap.updateMap(this.bwapi, unitID, true))
-			InfluenceMap.print();
+		InfluenceMap.updateMap(this.bwapi, unitID, true);
 	}
 	
 	public void unitMorph(int unitID) {

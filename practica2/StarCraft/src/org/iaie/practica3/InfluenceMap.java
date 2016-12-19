@@ -259,7 +259,7 @@ public class InfluenceMap {
 				for (int j = y - DISTANCIA_PROPAGACION; j <= y + DISTANCIA_PROPAGACION; j++){
 					Point posicionInfluenciada = new Point(i, j);
 					// Comprobamos que las celdas estan en el mapa y que no son la celda original
-					if (i >= 0 && i < map.length && y >= 0 && y < map[0].length && !cell.equals(posicionInfluenciada)){
+					if (i >= 0 && i < map.length && j >= 0 && j < map[0].length && !cell.equals(posicionInfluenciada)){
 						// Sacamos la posicion influenciada y la anyadimos a la lista de celdas influenciadas
 						celdasInfluenciadas.add(posicionInfluenciada);
 						// Sacamos la influencia que ejerce la celda original a la celda influencia
