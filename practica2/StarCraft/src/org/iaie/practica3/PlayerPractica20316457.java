@@ -36,6 +36,7 @@ import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
+import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
@@ -55,7 +56,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 
         // Generacion del objeto de tipo agente
 
-        // Creaciï¿½n de la superclase Agent de la que extiende el agente, en este mï¿½todo se cargan            
+        // Creacion de la superclase Agent de la que extiende el agente, en este mï¿½todo se cargan            
         // ciertas variables de de control referentes a los parï¿½metros que han sido introducidos 
         // por teclado. 
         super();
@@ -116,7 +117,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		/* Entrenamiento de unidades */
 		Sequence train = new Sequence("Entrenar Unidad", new CheckTraining("Comprobar proceso", entrenar), new CheckPopulation("Comprobar poblacion", entrenar), new CheckBuilding("Comprobar edificios", entrenar), new CheckUnitResources("Comprobar recursos", entrenar), new TrainUnit("Entrenar", entrenar));
 		/* Construccion de edificios */
-		Sequence build = new Sequence("Construir edificio", new BuildingState("Comprobar proceso", construir), new CheckBuildingResources("Comprobar recursos", construir), new SelectLocation("Obtener localizacion", construir), new FreeWorkerToBuild("Buscar trabajador", construir), new BuildBuilding("Construir", construir));
+		Sequence build = new Sequence("Construir edificio", new BuildingState("Comprobar proceso", construir), new CheckBuildingResources("Comprobar recursos", construir), new FreeWorkerToBuild("Buscar trabajador", construir), new SelectLocation("Obtener localizacion", construir), new BuildBuilding("Construir", construir));
 		Selector<GameHandler> creation = new Selector<GameHandler>("Entrenar o construir", build, train);
 		
 		/* Arbol de exploracion */
@@ -248,7 +249,36 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 	}
 	
 	public void unitShow(int unitID) {
+		// Mandamos a actualizar el mapa de influencia
 		InfluenceMap.updateMap(this.bwapi, unitID, false);
+		/* Si la unidad son minerales o vespeno se añaden a la lista
+		 * de reclamadas */
+		Unit unidad = bwapi.getUnit(unitID);
+		boolean add = true;
+		if (unidad.getType().isMineralField()){
+			// Se comprueba que no los hayamos reclamado ya
+			for (Unit mineral : CtrlVar.claimedMinerals){
+				if (unidad.equals(mineral)) {
+					add = false;
+					break;
+				}
+			}
+			// Si no estaba en la lista se anyade
+			if (add)
+				CtrlVar.claimedMinerals.add(unidad);
+		}
+		else if (unidad.getType().equals(UnitTypes.Resource_Vespene_Geyser)){
+			for (Unit vespeno : CtrlVar.claimedVespene){
+				// Se comprueba que no los hayamos reclamado ya
+				if (!unidad.equals(vespeno)){
+					add = false;
+					break;
+				}
+			}
+			// Si no estaba en la lista se anyade
+			if (add)
+				CtrlVar.claimedVespene.add(unidad);
+		}	
 	}
 	
 	/*

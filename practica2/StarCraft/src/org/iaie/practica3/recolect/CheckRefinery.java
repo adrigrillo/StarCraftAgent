@@ -17,7 +17,7 @@ public class CheckRefinery extends Conditional{
 	 * - Error si hay algun error
 	 */
 	public State execute() {
-		int res = ((RecolectTree)this.handler).refineryBuilt();
+		int res = ((RecolectTree)this.handler).refineryControl();
 		switch (res) {
 			case -1:
 				return State.ERROR;

@@ -11,6 +11,7 @@ import jnibwapi.types.UnitType.UnitTypes;
 public class RecolectTree extends GameHandler{
 
 	private Unit worker = null;
+	private Unit refinery = null;
 
 	public RecolectTree(JNIBWAPI bwapi) {
 		super(bwapi);
@@ -32,7 +33,7 @@ public class RecolectTree extends GameHandler{
 					minerals += 1;
 			}
 			// Establecemos un 70% para recoger materiales y un 30% para vespeno
-			if (((double) minerals/CtrlVar.workers.size()) > 0.7)
+			if (((double) minerals/CtrlVar.workers.size()) > 0.5)
 				return 1;
 			else
 				return 0;
@@ -47,13 +48,16 @@ public class RecolectTree extends GameHandler{
 	 * Comprueba si hay alguna refineria construida
 	 * @return 1 si esta construida, 0 si no lo esta y -1 si hay algun error
 	 */
-	public int refineryBuilt(){
+	public int refineryControl(){
 		try {
+			// ComprobaciÛn cuando no existe ninguna refineria construir la primera
 			if (CtrlVar.refinery.size() == 0){
+				// Puede que nos destruyan los edificios y nos repongamos
+				CtrlVar.refinery.clear();
 				// Miramos si hay alguna refineria, para encolarla en la lista de construccion si no es asi
 				for (Unit unit : CtrlVar.buildings){
 					if (unit.getType() == UnitTypes.Terran_Refinery){
-						CtrlVar.refinery.add(unit);
+						CtrlVar.refinery.put(unit, 0);
 					}
 				}
 				// Si la refineria no esta construida se encola
@@ -62,7 +66,40 @@ public class RecolectTree extends GameHandler{
 				// Delvovemos error
 				return 0;
 			}
-			return 1;
+			// En el caso de haber una, se controla la construcciÛn de mas
+			else {
+				/* Vamos a establecer un maximo de 3 trabajadores en la primera refineria
+				 * si tenenemos mas vespeno descubierto */
+				if (CtrlVar.refinery.size() == 1){
+					// Comprobamos el vespeno descubierto
+					if (CtrlVar.claimedVespene.size() > 1){
+						for (Unit refineria : CtrlVar.refinery.keySet()){
+							// Si hay tres trabajadores se manda crear una nueva refineria
+							if (CtrlVar.refinery.get(refineria) >= 3){
+								if (!CtrlVar.buildqueue.contains(UnitTypes.Terran_Refinery))
+									CtrlVar.buildqueue.add(0, UnitTypes.Terran_Refinery);
+								return 0;
+							}
+							else {
+								refinery = refineria;
+								return 1;
+							}
+						}
+					}
+					// Si tiene menos de tres trabajadores se selecciona para mandar al worker
+					else {
+						for (Unit refineria : CtrlVar.refinery.keySet()){
+							refinery = refineria;
+							return 1;
+						}
+					}
+				}
+				// Si tenemos mas de una refineria
+				else if (CtrlVar.refinery.size() > 1) {
+					Unit[] refinerias = (Unit[]) CtrlVar.refinery.keySet().toArray();
+				}
+			}
+			return 0;
 		} catch (Exception e) {
 			return -1;
 		}
@@ -140,7 +177,7 @@ public class RecolectTree extends GameHandler{
                         // Se ejecuta el comando para enviar a la unidad a recoger minerales del deposito seleccionado.
                         worker.rightClick(minerals, false);
                         worker = null;
-                        // Se a√±ade el deposito a la lista de depositos en uso.
+                        // Se anyade el deposito a la lista de depositos en uso.
                         CtrlVar.refreshClaimed(connector);
                         return 1;
                     }
@@ -162,10 +199,10 @@ public class RecolectTree extends GameHandler{
 	public int collectGas(){
 		try{
 			// Si ya esta contruida se manda al trabajador a una de las que haya
-			Unit refineria = CtrlVar.refinery.get((int) Math.random() * CtrlVar.refinery.size());
-			if (worker.rightClick(refineria, false)){
-				if (!worker.isGatheringGas())
-					return 0;
+			if (worker.rightClick(refinery, false)){
+				// Anyadimos el trabajador a la refineria
+				CtrlVar.refinery.put(refinery, CtrlVar.refinery.get(refinery) + 1);
+				refinery = null;
 				return 1;
 			}
 			// Si falla al mandarlo

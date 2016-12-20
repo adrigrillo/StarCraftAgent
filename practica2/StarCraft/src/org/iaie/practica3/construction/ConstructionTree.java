@@ -62,21 +62,35 @@ public class ConstructionTree extends GameHandler{
 		try {
 			// Si es una refineria
 			if (toBuild == UnitTypes.Terran_Refinery){
-				for (Unit vespeno : this.connector.getNeutralUnits()){
-	            	// Comprobamos que es un geyser de vespeno y que no lo hemos reclamado ya
-	            	if (vespeno.getType() == UnitTypes.Resource_Vespene_Geyser && (!CtrlVar.claimedMinerals.contains(vespeno) || CtrlVar.refinery.isEmpty())){
-	            		// Cogemos la posicion del vespeno para construir el edificio encima
-	            		if (CtrlVar.centroMando.get(0).getDistance(vespeno) < 700){
-		            		pos = vespeno.getTilePosition();
+				// Buscamos en los minerales descubiertos
+				for (Unit vespeno : CtrlVar.claimedVespene){
+					// Comprobamos que no tengamos una refineria en esa posicion ya
+					if (CtrlVar.refinery.size() > 0){
+						for (Unit ref : CtrlVar.refinery.keySet()){
+							if (vespeno.getPosition().getBDistance(ref.getPosition()) > 100){
+			            		// Comprobamos que no estan en el otro punto del mapa
+			            		if (worker.getDistance(vespeno) < 5000){
+			            			// Cogemos la posicion del vespeno para construir el edificio encima
+			            			pos = vespeno.getTilePosition();
+				            		if (pos != null){
+					            		return 1;
+				            		}
+				            		else
+				            			return 0;
+			            		}
+				            }
+						}
+					}
+					else {
+						if (worker.getDistance(vespeno) < 700){
+							pos = vespeno.getTilePosition();
 		            		if (pos != null){
-			            		// Reclamamos el vespeno
-			            		CtrlVar.claimedMinerals.add(vespeno);
 			            		return 1;
 		            		}
 		            		else
 		            			return 0;
-	            		}
-	            	}
+						}
+					}
 	            }
 			}
 			else if (toBuild == UnitTypes.Terran_Supply_Depot){
@@ -88,8 +102,8 @@ public class ConstructionTree extends GameHandler{
         			return 0;
 			}
 			else {
-				// Lo construimos en base al centro de mando
-				pos = MapHandler.searchPointToBuild(connector, CtrlVar.centroMando.get((int) Math.random()*CtrlVar.centroMando.size()).getPosition(), toBuild);
+				// Lo construimos en base a la unidad elegida
+				pos = MapHandler.searchPointToBuild(connector, worker.getPosition().makeValid(), toBuild);
 				if (pos != null)
 					return 1;
 				else
@@ -199,6 +213,9 @@ public class ConstructionTree extends GameHandler{
     				MapHandler.updateMap(connector, pos, new Position((pos.getBX() + (toBuild.getTileWidth()-1)), (pos.getBY() + (toBuild.getTileHeight()-1)), PosType.BUILD));
 					CtrlVar.buildqueue.remove(toBuild);
 					CtrlVar.refreshBuildings(connector);
+					// Si es una refineria metemos al trabajador que se pone directo
+					if (building.getType().equals(UnitTypes.Terran_Refinery))
+						CtrlVar.refinery.put(building, 1);
 					pos = null;
 					worker = null;
 					toBuild = null;

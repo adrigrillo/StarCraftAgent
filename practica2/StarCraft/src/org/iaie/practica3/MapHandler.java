@@ -216,6 +216,7 @@ public class MapHandler {
 				if (!(map[x][y] == 'M' || map[x][y] == 'V' || map[x][y] == '0')){
 					if (Character.compare(map[x][y], needSpace) == 0 || Character.compare(map[x][y], needSpace) > 0){
 	    				valid = new Position(x, y, PosType.BUILD);
+	    				break;
 	    			}
 				}	
 			}
