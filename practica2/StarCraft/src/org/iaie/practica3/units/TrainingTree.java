@@ -1,6 +1,7 @@
 package org.iaie.practica3.units;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.iaie.btree.util.GameHandler;
@@ -14,8 +15,11 @@ import jnibwapi.types.UnitType.UnitTypes;
 public class TrainingTree extends GameHandler {
 	
 	private UnitType toTrain = null;
-	private Unit training = null;
-	private Unit edificio = null;
+	private ArrayList<UnitType> typeTraining = new ArrayList<UnitType>(Arrays.asList(null, null, null, null));
+	private ArrayList<Unit> training = new ArrayList<Unit>(Arrays.asList(null, null, null, null));
+	private ArrayList<Unit> edificios = new ArrayList<Unit>(Arrays.asList(null, null, null, null));
+	private ArrayList<Integer> estadoCola = new ArrayList<Integer>(Arrays.asList(null, null, null, null));
+	private int limit = 4;
 
 	public TrainingTree(JNIBWAPI bwapi) {
 		super(bwapi);
@@ -147,16 +151,30 @@ public class TrainingTree extends GameHandler {
 			}
 			// Cogemos el que menos cola si es que hay varios
 			int cola = 5;
-			edificio = null;
+			Unit building = null;
 			for (Unit unit : posEdificios){
 				if (unit.getTrainingQueueSize() < cola){
 					cola = unit.getTrainingQueueSize();
-					edificio = unit;
+					building = unit;
 				}
 			}
-			// Tras elegir el mejor edificio se contruye la unidad
-			if (edificio.train(toTrain))
-				return 1;
+			// Comprobamos que la lista no esta llena
+			if (edificios.size() <= limit){
+				// Tras elegir el mejor edificio se contruye la unidad
+				if (building.train(toTrain)){
+					// Lo anyadimos a la lista de edificios que esta trabajando
+					for (int i = 0; i < edificios.size(); i++){
+						if (edificios.get(i) == null){
+							typeTraining.set(i, toTrain);
+							edificios.set(i, building);
+							break;
+						}
+					}
+					return 1;
+				}
+				else
+					return 0;
+			}
 			else
 				return 0;
 		} catch (Exception e) {
@@ -165,46 +183,56 @@ public class TrainingTree extends GameHandler {
     }
 	
 	/**
-	 * Comprueba el estado de la unidad que se esta entrenando
-	 * @return 1 si se ha completado, 0 si esta en proceso, -1 si hay algun error
+	 * Comprueba el estado del array de entrenamiento
+	 * @return 1 si se pueden entrenar mas unidades, 0 si esta en proceso, -1 si hay algun error
 	 */
 	public int trainingState(){
 		try {
-			/* Comprobamos que la unidad se esta construyendo para guardarla
-			 * y asi comprobar posteriormente cuando se completa */
-			if (edificio != null){
-				for (Unit unit : connector.getMyUnits()){
-					if (unit.getType() == toTrain && !unit.isCompleted())
-						training = unit;
+			/* Aqui ahora tendremos que revisar el array completo para controlar
+			 * el proceso de entrenamiento */
+			for (int i = 0; i < edificios.size(); i++){
+				/* Comprobamos que la unidad se esta construyendo para guardarla
+				 * y asi comprobar posteriormente cuando se completa */
+				if (edificios.get(i) != null && training.get(i) == null){
+					for (Unit unit : connector.getMyUnits()){
+						if (unit.getType() == typeTraining.get(i) && !unit.isCompleted()){
+							training.set(i, unit);
+						}
+					}
 				}
-			}
-			/* Como la unidad tarda un poco en aparecer, primero nos fijamos
-			 * en el edificio hasta que se tome la unidad */
-			if (training == null){
-				// Vemos que el edificio esta entrenando una unidad
-				if (edificio != null && edificio.isTraining())
-					return 0;
-				else
-					return 1;
-			}
-			// Se ha tomado la unidad ya
-			else {
-				// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
-				if (training.isCompleted()){
-					// Anyadimos la unidad a la lista que pertenezca
-					if (training.getType().isWorker())
-						CtrlVar.workers.add(training);
+				/* Como la unidad tarda un poco en aparecer, primero nos fijamos
+				 * en el edificio hasta que se tome la unidad */
+				if (training.get(i) == null && edificios.get(i) != null){
+					// Vemos que el edificio esta entrenando una unidad
+					if (edificios.get(i).isTraining())
+						estadoCola.set(i, 0);
 					else
-						CtrlVar.militaryUnits.add(training);
-					CtrlVar.trainqueue.remove(toTrain);
-					training = null;
-					edificio = null;
-					toTrain = null;
-					return 1;
+						estadoCola.set(i, 1);
 				}
-				else
-					return 0;
+				// Se ha tomado la unidad ya
+				else if (training.get(i) != null){
+					// Si se completa se devuelve success y se vacian las variables y se elimina de la cola
+					if (training.get(i).isCompleted()){
+						// Anyadimos la unidad a la lista que pertenezca
+						if (training.get(i).getType().isWorker())
+							CtrlVar.workers.add(training.get(i));
+						else
+							CtrlVar.militaryUnits.add(training.get(i));
+						CtrlVar.trainqueue.remove(training.get(i).getType());
+						training.set(i, null);
+						edificios.set(i, null);
+						typeTraining.set(i, null);
+						estadoCola.set(i, null);
+					}
+					else
+						estadoCola.set(i, 2);
+				}
 			}
+			// Si hay espacio se puede encolar mas
+			if (edificios.size() <= limit)
+				return 1;
+			else
+				return 0;
 		} catch (Exception e) {
 			return -1;
 		}

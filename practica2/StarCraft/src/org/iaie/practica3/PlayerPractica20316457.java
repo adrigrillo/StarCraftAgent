@@ -36,7 +36,6 @@ import jnibwapi.BWAPIEventListener;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
-import jnibwapi.types.UnitType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
