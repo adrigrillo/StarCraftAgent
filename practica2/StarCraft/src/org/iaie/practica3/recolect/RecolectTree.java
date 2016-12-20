@@ -33,7 +33,7 @@ public class RecolectTree extends GameHandler{
 					minerals += 1;
 			}
 			// Establecemos un 70% para recoger materiales y un 30% para vespeno
-			if (((double) minerals/CtrlVar.workers.size()) > 0.5)
+			if (((double) minerals/CtrlVar.workers.size()) > 0.7)
 				return 1;
 			else
 				return 0;
@@ -96,7 +96,16 @@ public class RecolectTree extends GameHandler{
 				}
 				// Si tenemos mas de una refineria
 				else if (CtrlVar.refinery.size() > 1) {
-					Unit[] refinerias = (Unit[]) CtrlVar.refinery.keySet().toArray();
+					// cogemos una al azar que no sea la primera
+					int random = (int) Math.random() * (CtrlVar.refinery.size() - 1);
+					int i = 0;
+					for (Unit refineria : CtrlVar.refinery.keySet()){
+						if (i == random){
+							refinery = refineria;
+							return 1;
+						}
+						i++;
+					}
 				}
 			}
 			return 0;

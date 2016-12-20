@@ -67,7 +67,7 @@ public class ConstructionTree extends GameHandler{
 					// Comprobamos que no tengamos una refineria en esa posicion ya
 					if (CtrlVar.refinery.size() > 0){
 						for (Unit ref : CtrlVar.refinery.keySet()){
-							if (vespeno.getPosition().getBDistance(ref.getPosition()) > 100){
+							if (vespeno.getPosition().getBDistance(ref.getPosition()) > 5){
 			            		// Comprobamos que no estan en el otro punto del mapa
 			            		if (worker.getDistance(vespeno) < 5000){
 			            			// Cogemos la posicion del vespeno para construir el edificio encima
@@ -94,8 +94,14 @@ public class ConstructionTree extends GameHandler{
 	            }
 			}
 			else if (toBuild == UnitTypes.Terran_Supply_Depot){
-				// Lo construimos cerca de un mineral reclamado
-				pos = MapHandler.searchPointToBuild(connector, CtrlVar.claimedMinerals.get(((int) Math.random()*CtrlVar.claimedMinerals.size())).getPosition(), toBuild);
+				// Lo construimos cerca de un vespeno 'cercano'
+				Unit vespeno = null;
+				while (vespeno == null){
+					Unit valid = CtrlVar.claimedVespene.get((int) Math.random()*CtrlVar.claimedVespene.size());
+					if (valid.getDistance(worker) < 2500)
+						vespeno = valid;
+				}
+				pos = MapHandler.searchPointToBuild(connector, vespeno.getPosition(), toBuild);
 				if (pos != null)
 					return 1;
 				else

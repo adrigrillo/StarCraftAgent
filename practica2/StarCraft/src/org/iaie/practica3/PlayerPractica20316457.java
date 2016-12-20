@@ -270,7 +270,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		else if (unidad.getType().equals(UnitTypes.Resource_Vespene_Geyser)){
 			for (Unit vespeno : CtrlVar.claimedVespene){
 				// Se comprueba que no los hayamos reclamado ya
-				if (!unidad.equals(vespeno)){
+				if (unidad.equals(vespeno)){
 					add = false;
 					break;
 				}
