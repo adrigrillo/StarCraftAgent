@@ -176,21 +176,24 @@ public class RecolectTree extends GameHandler{
 	public int collectMineral(){
 		try{
 			// Obtenemos los minerales
-			for (Unit minerals : connector.getNeutralUnits()) {
-                // Se comprueba si la unidad es un deposito de minerales                                 
-                if (minerals.getType().isMineralField()) {
-                    // Se calcula la distancia entre la unidad y el deposito de minerales
-                    double distance = worker.getDistance(minerals);
-                    // Se comprueba si la distancia entre la unidad y el deposito de minerales es menor a 300.
-                    if (distance < 700) {
-                        // Se ejecuta el comando para enviar a la unidad a recoger minerales del deposito seleccionado.
-                        worker.rightClick(minerals, false);
-                        worker = null;
-                        // Se anyade el deposito a la lista de depositos en uso.
-                        CtrlVar.refreshClaimed(connector);
-                        return 1;
-                    }
+			double dist = 2000;
+			Unit mineral = null;
+			for (Unit minerals : CtrlVar.claimedMinerals) {
+                // Se calcula la distancia entre la unidad y el deposito de minerales
+                double distance = worker.getDistance(minerals);
+                // Tomamos la mina mas cercana
+                if (distance < dist){
+                	dist = distance;
+                	mineral = minerals;
                 }
+			}
+            if (mineral != null) {
+                // Se ejecuta el comando para enviar a la unidad a recoger minerales del deposito seleccionado.
+                worker.rightClick(mineral, false);
+                worker = null;
+                // Se anyade el deposito a la lista de depositos en uso.
+                CtrlVar.refreshClaimed(connector);
+                return 1;
             }
 			// No se ha podido mandar al trabajador
 			return 0;

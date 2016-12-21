@@ -62,6 +62,22 @@ public class CtrlVar {
     }
     
     /**
+     * Metodo que actualiza las unidades
+     * @param bwapi estado de la partida
+     */
+    public static void refreshUnits(JNIBWAPI bwapi){
+    	for (Unit unit : bwapi.getMyUnits()){
+    		if (unit.getType().isWorker() && unit.isCompleted() && !workers.contains(unit)){
+    			workers.add(unit);
+    		}
+    		else if (!unit.getType().isBuilding() && !unit.getType().isWorker() && 
+    				unit.getType().isAttackCapable() && !militaryUnits.contains(unit)){
+    			militaryUnits.add(unit);
+    		}
+    	}
+    }
+    
+    /**
      * Metodo para actualizar 
      * @param bwapi	estado de la partida
      */

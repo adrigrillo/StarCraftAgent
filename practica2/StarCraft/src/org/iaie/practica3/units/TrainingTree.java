@@ -2,6 +2,7 @@ package org.iaie.practica3.units;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.iaie.btree.util.GameHandler;
@@ -36,7 +37,10 @@ public class TrainingTree extends GameHandler {
 	public int checkPopulation(){
 		try {
 			// Lo podemos utilizar para aumentar poco a poco la poblacion
-			if ((int)Math.floor(Math.random()* 500) == 0 && CtrlVar.workers.size() < 12)
+			if (Collections.frequency(CtrlVar.trainqueue, UnitTypes.Terran_SCV) > 1 || CtrlVar.workers.size() > 11){
+				CtrlVar.trainqueue.removeAll(Collections.singleton(UnitTypes.Terran_SCV));
+			}
+			if ((int)Math.floor(Math.random()* 1000) == 0 && CtrlVar.workers.size() < 12)
 				CtrlVar.trainqueue.add(0, UnitTypes.Terran_SCV);
 			if ((int)Math.floor(Math.random()* 1000) == 0)
 				CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
@@ -46,6 +50,22 @@ public class TrainingTree extends GameHandler {
 				CtrlVar.trainqueue.add(UnitTypes.Terran_Vulture);
 			if ((int)Math.floor(Math.random()* 1000) == 0)
 				CtrlVar.trainqueue.add(UnitTypes.Terran_Medic);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Ghost);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Siege_Tank_Tank_Mode);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Goliath);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Wraith);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Dropship);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Science_Vessel);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Battlecruiser);
+			if ((int)Math.floor(Math.random()* 1000) == 0)
+				CtrlVar.trainqueue.add(UnitTypes.Terran_Valkyrie);
 			// Ordenamos construir el supply depot con antelacion como prioridad una vez
 			if (connector.getSelf().getSupplyUsed() + 2 == connector.getSelf().getSupplyTotal() && !CtrlVar.buildqueue.contains( UnitTypes.Terran_Supply_Depot))
 				CtrlVar.buildqueue.add(0, UnitTypes.Terran_Supply_Depot);
@@ -159,7 +179,7 @@ public class TrainingTree extends GameHandler {
 				}
 			}
 			// Comprobamos que la lista no esta llena
-			if (edificios.size() <= limit){
+			if (Collections.frequency(edificios, null) > 0){
 				// Tras elegir el mejor edificio se contruye la unidad
 				if (building.train(toTrain)){
 					// Lo anyadimos a la lista de edificios que esta trabajando
@@ -196,7 +216,17 @@ public class TrainingTree extends GameHandler {
 				if (edificios.get(i) != null && training.get(i) == null){
 					for (Unit unit : connector.getMyUnits()){
 						if (unit.getType() == typeTraining.get(i) && !unit.isCompleted()){
-							training.set(i, unit);
+							// Se comprueba que esta unidad no sea igual que otra anterior
+							// en la cola
+							boolean diferente = true;
+							for (Unit otras : training){
+								if (otras != null && otras.getID() == unit.getID()){
+									diferente = false;
+									break;
+								}
+							}
+							if (diferente)
+								training.set(i, unit);
 						}
 					}
 				}
@@ -229,8 +259,10 @@ public class TrainingTree extends GameHandler {
 				}
 			}
 			// Si hay espacio se puede encolar mas
-			if (edificios.size() <= limit)
+			if (edificios.size() <= limit){
+				CtrlVar.refreshUnits(connector);
 				return 1;
+			}
 			else
 				return 0;
 		} catch (Exception e) {

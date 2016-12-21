@@ -152,6 +152,7 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Factory);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Academy);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Armory);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Barracks);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Bunker);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Starport);
 		CtrlVar.buildqueue.add(UnitTypes.Terran_Command_Center);
@@ -168,9 +169,16 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Firebat);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Firebat);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Firebat);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Vulture);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Vulture);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Siege_Tank_Tank_Mode);
+		CtrlVar.buildqueue.add(UnitTypes.Terran_Siege_Tank_Tank_Mode);
 		CtrlVar.trainqueue.add(UnitTypes.Terran_Marine);
 		
 		// Iniciamos el tiempo
