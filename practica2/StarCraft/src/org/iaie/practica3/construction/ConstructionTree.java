@@ -2,6 +2,7 @@ package org.iaie.practica3.construction;
 
 import org.iaie.btree.util.GameHandler;
 import org.iaie.practica3.CtrlVar;
+import org.iaie.practica3.InfluenceMap;
 import org.iaie.practica3.MapHandler;
 
 import jnibwapi.JNIBWAPI;
@@ -220,8 +221,10 @@ public class ConstructionTree extends GameHandler{
 					CtrlVar.buildqueue.remove(toBuild);
 					CtrlVar.refreshBuildings(connector);
 					// Si es una refineria metemos al trabajador que se pone directo
-					if (building.getType().equals(UnitTypes.Terran_Refinery))
+					if (building.getType().equals(UnitTypes.Terran_Refinery)){
 						CtrlVar.refinery.put(building, 1);
+						InfluenceMap.updateMap(connector, building.getID(), false);
+					}
 					pos = null;
 					worker = null;
 					toBuild = null;
