@@ -1,15 +1,18 @@
 package org.iaie.practica3.militarControl;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.iaie.btree.util.GameHandler;
 import org.iaie.practica3.CtrlVar;
+import org.iaie.practica3.InfluenceMap;
 
 import jnibwapi.ChokePoint;
 import jnibwapi.JNIBWAPI;
 import jnibwapi.Position;
 import jnibwapi.Unit;
+import jnibwapi.Position.PosType;
 import jnibwapi.types.UnitType.UnitTypes;
 
 public class MilitarTree extends GameHandler {
@@ -55,8 +58,9 @@ public class MilitarTree extends GameHandler {
 	 */
 	public int attackPatrol(){
 		try {
-			// Si el tamanyo es mayor a un determinado se puede atacar al enemigo
-			if (CtrlVar.militaryUnits.size() > 10){
+			// Vamos a atacar si nuestra influencia es mayor y el ejercito es
+			// suficientemente grande
+			if (InfluenceMap.getNivelControl() > 5 && CtrlVar.militaryUnits.size() > 30){
 				return 1;
 			}
 			return 0;
@@ -72,11 +76,21 @@ public class MilitarTree extends GameHandler {
 	 */
 	public int defenseMode(){
 		try{
+			/* Si estamos siendo atacados, comprobamos la influencia en esa posición
+			 * no es demasiado alta para poder atacar y el numero de unidades que
+			 * tenemos */
+			Point defensa = new Point(beingAtacked.getBX(), beingAtacked.getBY());
+			int influencia = -InfluenceMap.getInfluence(defensa);
+			// Calculamos las posibilidades de triunfar. Si esta muy lejos, la influencia
+			// es muy negativa o tenemos pocas unidades no se va a defender
+			double capacidad = influencia + (CtrlVar.centroMando.get(0).getDistance(beingAtacked)/100) / CtrlVar.militaryUnits.size();
+			if (capacidad > 20)
+				return 0;
 			// Defendemos si algo esta siendo atacado mandandolo a la posicion
 			for (Unit militar : CtrlVar.militaryUnits){
 				// Si esta atacando no se le ordena
 				if (!militar.isAttacking())
-					if (!militar.move(beingAtacked, false))
+					if (!militar.attack(beingAtacked, false))
 						return 0;
 			}
 			return 1;
@@ -129,8 +143,20 @@ public class MilitarTree extends GameHandler {
 				}
 			}
 			if (objetive != null){
+				// Buscamos la posicion donde mas probabilidades tengamos de ganar
+				Position mejor = null;
+				int influencia = -100000;
+				for (int x = objetive.getPosition().getBX() - 10; x < objetive.getPosition().getBX() + 10; x++){
+					for (int y = objetive.getPosition().getBY() - 10; x < objetive.getPosition().getBY() + 10; y++){
+						int inf = InfluenceMap.getInfluence(new Point(x, y));
+						if (inf > influencia){
+							influencia = inf;
+							mejor = new Position(x, y, PosType.BUILD);
+						}
+					}
+				}
 				// Tomamos la mitad de las unidades para atacar
-				int size = CtrlVar.militaryUnits.size() / 2;
+				int size = CtrlVar.militaryUnits.size();
 				// Navegamos nuestras unidades			
 				for (int i = 0; i < CtrlVar.militaryUnits.size(); i++){
 					army.add(CtrlVar.militaryUnits.remove(i));
@@ -139,7 +165,7 @@ public class MilitarTree extends GameHandler {
 				}
 				// Con el ejercito elegido atacamos
 				for (Unit militar : army){
-					if (!militar.attack(objetive, false))
+					if (!militar.attack(mejor, false))
 						return 0;
 				}
 				return 1;

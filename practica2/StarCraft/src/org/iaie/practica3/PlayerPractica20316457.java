@@ -210,8 +210,8 @@ public class PlayerPractica20316457 extends Agent implements BWAPIEventListener{
 			endTime = System.currentTimeMillis();
 			long duration = (endTime - startTime);
 			writer.println("La duracion ha sido de " + duration/1000 + " segundos.");
-			writer.println("Se han construido " + CtrlVar.buildings.size() + " edificios, de los cuales fueron centros de mando " + CtrlVar.centroMando.size() + ".");
-			writer.println("Se han entrenado " + CtrlVar.workers.size() + " fueron unidades no militares y " + CtrlVar.militaryUnits.size() + " fueron unidades militares.");
+			writer.println("Se han construido " + CtrlVar.contador.get(2) + " edificios, de los cuales fueron centros de mando " + CtrlVar.centroMando.size() + ".");
+			writer.println("Se han entrenado " + CtrlVar.contador.get(0) + " fueron unidades no militares y " + CtrlVar.contador.get(1) + " fueron unidades militares.");
 			writer.println("Se recogieron " + bwapi.getSelf().getCumulativeMinerals() + " unidades de mineral y " + bwapi.getSelf().getCumulativeGas() + " de vespeno." );
 			writer.close();
 		} catch (Exception e) {

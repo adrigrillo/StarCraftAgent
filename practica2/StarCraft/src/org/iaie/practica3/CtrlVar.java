@@ -6,6 +6,7 @@ package org.iaie.practica3;
  *******************************************************************************************/
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import jnibwapi.JNIBWAPI;
@@ -33,6 +34,8 @@ public class CtrlVar {
 	public static ArrayList<UnitType> trainqueue = new ArrayList<>();
 	// Centro de mando
 	public static ArrayList<Unit> centroMando = new ArrayList<>();
+	// contadores de unidades 0: worker 1: militares 2:edificios
+	public static ArrayList<Integer> contador;
     
     public static void clearAll(){
 		claimedMinerals.clear();
@@ -44,6 +47,7 @@ public class CtrlVar {
 		buildqueue.clear();
 		trainqueue.clear();
 		centroMando.clear();
+		contador = new ArrayList<Integer>(Arrays.asList(0, 0, 0));
     }
     
     
@@ -55,6 +59,7 @@ public class CtrlVar {
     	for (Unit unit : bwapi.getMyUnits()){
     		if (unit.getType().isBuilding() && unit.isCompleted() && !buildings.contains(unit)){
 				buildings.add(unit);
+				contador.set(2, contador.get(2) + 1);
 				if (unit.getType() == UnitTypes.Terran_Command_Center)
 					centroMando.add(unit);
 			}
